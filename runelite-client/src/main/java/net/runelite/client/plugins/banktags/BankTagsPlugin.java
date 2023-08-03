@@ -191,7 +191,7 @@ public class BankTagsPlugin extends Plugin implements MouseWheelListener
 		removeInvalidTags("tagtabs");
 
 		List<String> tags = configManager.getConfigurationKeys(CONFIG_GROUP + ".item_");
-		tags.forEach(s ->
+  tags.forEach(tagKey ->
 		{
 			String[] split = s.split("\\.", 2);
 			removeInvalidTags(split[1]);
@@ -274,69 +274,83 @@ public class BankTagsPlugin extends Plugin implements MouseWheelListener
 	}
 
 	@Subscribe
-	public void onScriptCallbackEvent(ScriptCallbackEvent event)
-	{
-		String eventName = event.getEventName();
-
-		int[] intStack = client.getIntStack();
-		String[] stringStack = client.getStringStack();
-		int intStackSize = client.getIntStackSize();
-		int stringStackSize = client.getStringStackSize();
-
-		tabInterface.handleScriptEvent(event);
-
-		switch (eventName)
-		{
-			case "setSearchBankInputText":
-				stringStack[stringStackSize - 1] = SEARCH_BANK_INPUT_TEXT;
-				break;
-			case "setSearchBankInputTextFound":
-			{
-				int matches = intStack[intStackSize - 1];
-				stringStack[stringStackSize - 1] = String.format(SEARCH_BANK_INPUT_TEXT_FOUND, matches);
-				break;
-			}
-			case "bankSearchFilter":
-				final int itemId = intStack[intStackSize - 1];
-				final String searchfilter = stringStack[stringStackSize - 1];
-
-				// This event only fires when the bank is in search mode. It will fire even if there is no search
-				// input. We prevent having a tag tab open while also performing a normal search, so if a tag tab
-				// is active here it must mean we have placed the bank into search mode. See onScriptPostFired().
-				TagTab activeTab = tabInterface.getActiveTab();
-				// Shared storage uses the bankmain filter scripts too. Allow using tag searches in it but don't
-				// apply the tag search from the active tab.
-				final boolean bankOpen = client.getItemContainer(InventoryID.BANK) != null;
-				String search = activeTab != null && bankOpen ? TAG_SEARCH + activeTab.getTag() : searchfilter;
-
-				if (search.isEmpty())
-				{
-					return;
-				}
-
-				boolean tagSearch = search.startsWith(TAG_SEARCH);
-				if (tagSearch)
-				{
-					search = search.substring(TAG_SEARCH.length()).trim();
-				}
-
-				if (tagManager.findTag(itemId, search))
-				{
-					// return true
-					intStack[intStackSize - 2] = 1;
-				}
-				else if (tagSearch)
-				{
-					// if the item isn't tagged we return false to prevent the item matching if the item name happens
-					// to contain the tag name.
-					intStack[intStackSize - 2] = 0;
-				}
-				break;
-			case "getSearchingTagTab":
-				intStack[intStackSize - 1] = tabInterface.isActive() ? 1 : 0;
-				break;
-		}
-	}
+ public void onScriptCallbackEvent(ScriptCallbackEvent event)
+ {
+ 	String eventName = event.getEventName();
+ 
+ 	int[] intStack = client.getIntStack();
+ 	String[] stringStack = client.getStringStack();
+ 	int intStackSize = client.getIntStackSize();
+ 	int stringStackSize = client.getStringStackSize();
+ 
+ 	tabInterface.handleScriptEvent(event);
+ 
+ 	switch (eventName)
+ 	{
+ 		case "setSearchBankInputText":
+ 			setSearchBankInputText(stringStack, stringStackSize);
+ 			break;
+ 		case "setSearchBankInputTextFound":
+ 			setSearchBankInputTextFound(intStack, stringStack, intStackSize, stringStackSize);
+ 			break;
+ 		case "bankSearchFilter":
+ 			bankSearchFilter(intStack, stringStack, intStackSize, stringStackSize);
+ 			break;
+ 		case "getSearchingTagTab":
+ 			getSearchingTagTab(intStack, intStackSize);
+ 			break;
+ 	}
+ }
+ 
+ private void setSearchBankInputText(String[] stringStack, int stringStackSize) {
+ 	stringStack[stringStackSize - 1] = SEARCH_BANK_INPUT_TEXT;
+ }
+ 
+ private void setSearchBankInputTextFound(int[] intStack, String[] stringStack, int intStackSize, int stringStackSize) {
+ 	int matches = intStack[intStackSize - 1];
+ 	stringStack[stringStackSize - 1] = String.format(SEARCH_BANK_INPUT_TEXT_FOUND, matches);
+ }
+ 
+ private void bankSearchFilter(int[] intStack, String[] stringStack, int intStackSize, int stringStackSize) {
+ 	final int itemId = intStack[intStackSize - 1];
+ 	final String searchfilter = stringStack[stringStackSize - 1];
+ 
+ 	// This event only fires when the bank is in search mode. It will fire even if there is no search
+ 	// input. We prevent having a tag tab open while also performing a normal search, so if a tag tab
+ 	// is active here it must mean we have placed the bank into search mode. See onScriptPostFired().
+ 	TagTab activeTab = tabInterface.getActiveTab();
+ 	// Shared storage uses the bankmain filter scripts too. Allow using tag searches in it but don't
+ 	// apply the tag search from the active tab.
+ 	final boolean bankOpen = client.getItemContainer(InventoryID.BANK) != null;
+ 	String search = activeTab != null && bankOpen ? TAG_SEARCH + activeTab.getTag() : searchfilter;
+ 
+ 	if (search.isEmpty())
+ 	{
+ 		return;
+ 	}
+ 
+ 	boolean tagSearch = search.startsWith(TAG_SEARCH);
+ 	if (tagSearch)
+ 	{
+ 		search = search.substring(TAG_SEARCH.length()).trim();
+ 	}
+ 
+ 	if (tagManager.findTag(itemId, search))
+ 	{
+ 		// return true
+ 		intStack[intStackSize - 2] = 1;
+ 	}
+ 	else if (tagSearch)
+ 	{
+ 		// if the item isn't tagged we return false to prevent the item matching if the item name happens
+ 		// to contain the tag name.
+ 		intStack[intStackSize - 2] = 0;
+ 	}
+ }
+ 
+ private void getSearchingTagTab(int[] intStack, int intStackSize) {
+ 	intStack[intStackSize - 1] = tabInterface.isActive() ? 1 : 0;
+ }
 
 	@Subscribe
 	public void onMenuEntryAdded(MenuEntryAdded event)
