@@ -105,8 +105,8 @@ public class BaseAPI {
     public RSMiniMapHelper miniMap() {
         return rsMiniMapHelper;
     }
-
-    public RSCombatHelper combat() {
+    public RSCombatHelper rsCombatHelper;
+    public RSCombatHelper interact() {
         return rsCombatHelper;
     }
 
