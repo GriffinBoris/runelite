@@ -68,12 +68,33 @@ public class RSBankHelper {
     public boolean open(RSBank bank) {
         Alfred.setStatus("Opening bank");
 
-        if (bank.getWorldLocation() == null) {
-            log.warn("Could not find bank world location");
+        if (!validateBank(bank)) {
             return false;
         }
 
         Alfred.api.camera().lookAt(bank.getWorldLocation());
+        Alfred.getMouse().rightClick(bank.getClickbox().getBounds());
+
+        if (!Alfred.sleepUntil(() -> Alfred.api.menu().getMenu().hasAction("bank"), 200, 2000)) {
+            log.warn("Could not find bank action");
+            return false;
+        }
+
+        Alfred.api.menu().getMenu().clickAction("bank");
+        if (!Alfred.sleepUntil(() -> Alfred.api.banks().isOpen(), 200, 1000 * 10)) {
+            log.warn("Could not open bank");
+            return false;
+        }
+
+        Alfred.setStatus("Opened bank");
+        return true;
+    }
+
+    private boolean validateBank(RSBank bank) {
+        if (bank.getWorldLocation() == null) {
+            log.warn("Could not find bank world location");
+            return false;
+        }
 
         if (bank.getClickbox() == null) {
             log.warn("Could not find bank clickbox");
@@ -89,20 +110,6 @@ public class RSBankHelper {
             return false;
         }
 
-        Alfred.getMouse().rightClick(bank.getClickbox().getBounds());
-
-        if (!Alfred.sleepUntil(() -> Alfred.api.menu().getMenu().hasAction("bank"), 200, 2000)) {
-            log.warn("Could not find bank action");
-            return false;
-        }
-
-        Alfred.api.menu().getMenu().clickAction("bank");
-        if (!Alfred.sleepUntil(() -> Alfred.api.banks().isOpen(), 200, 1000 * 10)) {
-            log.warn("Could not open bank");
-            return false;
-        }
-
-        Alfred.setStatus("Opened bank");
         return true;
     }
 
@@ -123,7 +130,7 @@ public class RSBankHelper {
     public boolean close() {
         Alfred.setStatus("Closing bank");
 
-        Widget widget = Alfred.api.widgets().getChildWidget(786434, 11);
+        Widget widget = getBankCloseButtonWidget();
         if (widget == null) {
             log.warn("Could not find bank close button widget");
             return false;
@@ -138,6 +145,10 @@ public class RSBankHelper {
 
         Alfred.setStatus("Closed bank");
         return true;
+    }
+
+    private Widget getBankCloseButtonWidget() {
+        return Alfred.api.widgets().getChildWidget(786434, 11);
     }
 
     public boolean viewAllItems() {
@@ -339,59 +350,26 @@ public class RSBankHelper {
         return internalWithdrawItem(name, "withdraw-all");
     }
 
-//    public static boolean scrollTo(Widget widget) {
-//        Widget scrollBar = Alfred.api.widgets().getChildWidget(WidgetInfo.BANK_SCROLLBAR, 1);
-//        Widget itemContainer = Alfred.api.widgets().getWidget(WidgetInfo.BANK_ITEM_CONTAINER);
-//        Widget itemWidget = Alfred.api.widgets().getChildWidget(WidgetInfo.BANK_ITEM_CONTAINER, 62);
-//
-//
-//        log.info(itemWidget.getName());
-//        log.info(Integer.toString(itemContainer.getScrollY()));
-//        log.info(Integer.toString(itemWidget.getRelativeY() - itemWidget.getBounds().height));
-//
-//        Alfred.getMouse().move(point);
-//
-//        do {
-//            calc = widget.getRelativeY() - itemContainer.getScrollY();
-//
-//            if (calc >= 0 && calc < 640) break;
-//
-//            point = new Point((int) itemContainer.getBounds().getCenterX(), (int) itemContainer.getBounds().getCenterY());
-//
-//            if (calc > 0) {
-//                Alfred.getMouse().scrollDown(point);
-//            } else if (calc < 0) {
-//                Alfred.getMouse().scrollUp(point);
-//            }
-//
-//            sleep(100, 300);
-//            mainWindow = Rs2Widget.getWidget(786445);
-//
-//        } while (calc <= 0 || calc > 640);
-//
-//        return true;
-//    }
 
-    private boolean internalContainsItem(int itemId) {
+    private boolean doesBankContainItem(int itemId) {
         Widget itemContainer = Alfred.api.widgets().getWidget(WidgetInfo.BANK_ITEM_CONTAINER);
         return Arrays.stream(itemContainer.getDynamicChildren()).anyMatch(item -> new RSInventoryItem(item).getId() == itemId);
     }
 
-    private boolean internalContainsItem(String name) {
+    private boolean doesBankContainItem(String name) {
         Widget itemContainer = Alfred.api.widgets().getWidget(WidgetInfo.BANK_ITEM_CONTAINER);
         return Arrays.stream(itemContainer.getDynamicChildren()).anyMatch(item -> new RSInventoryItem(item).getName().equalsIgnoreCase(name));
     }
 
     public boolean containsItem(int itemId) {
-        return internalContainsItem(itemId);
+        return doesBankContainItem(itemId);
     }
 
     public boolean containsItem(RSInventoryItem item) {
-        return internalContainsItem(item.getId());
+        return doesBankContainItem(item.getId());
     }
 
     public boolean containsItem(String name) {
-        return internalContainsItem(name);
+        return doesBankContainItem(name);
     }
 }
-
