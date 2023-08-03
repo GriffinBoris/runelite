@@ -14,7 +14,8 @@ public class RSInventoryHelper {
 //    private final int UNKNOWN_WIDGET_ID = 786433;
 
     public boolean isOpen() {
-        return Alfred.api.tabs().getCurrentTab() == WidgetInfo.FIXED_VIEWPORT_INVENTORY_TAB;
+    Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.FIXED_VIEWPORT_INVENTORY_TAB);
+    return widget != null && !widget.isHidden() && !widget.isSelfHidden();
 //        Widget widget = Alfred.api.widgets().getWidget(UNKNOWN_WIDGET_ID);
 //        Alfred.api.tabs().getCurrentTab() == WidgetInfo.FIXED_VIEWPORT_INVENTORY_TAB;
 //        if (widget == null) {
@@ -277,4 +278,3 @@ public class RSInventoryHelper {
         return internalInteractAll(rsInventoryItem, action);
     }
 }
-
