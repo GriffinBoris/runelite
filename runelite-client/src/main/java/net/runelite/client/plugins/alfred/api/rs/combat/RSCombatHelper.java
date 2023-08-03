@@ -10,8 +10,8 @@ public class RSCombatHelper {
     public RSCombatHelper() {
     }
 
-    public boolean clickPunch() {
-        Alfred.api.tabs().clickCombatTab();
+    public boolean interactPunch() {
+        Alfred.api.tabs().interactCombatTab();
         Alfred.sleep(200, 400);
 
         Widget punch = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_ONE));
@@ -23,8 +23,8 @@ public class RSCombatHelper {
         return true;
     }
 
-    public boolean clickKick() {
-        Alfred.api.tabs().clickCombatTab();
+    public boolean interactKick() {
+        Alfred.api.tabs().interactCombatTab();
         Alfred.sleep(200, 400);
 
         Widget punch = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_TWO));
@@ -36,8 +36,8 @@ public class RSCombatHelper {
         return true;
     }
 
-    public boolean clickBlock() {
-        Alfred.api.tabs().clickCombatTab();
+    public boolean interactBlock() {
+        Alfred.api.tabs().interactCombatTab();
         Alfred.sleep(200, 400);
 
         Widget punch = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_FOUR));
@@ -49,8 +49,8 @@ public class RSCombatHelper {
         return true;
     }
 
-    public boolean clickAutoRetaliate() {
-        Alfred.api.tabs().clickCombatTab();
+    public boolean interactAutoRetaliate() {
+        Alfred.api.tabs().interactCombatTab();
         Alfred.sleep(200, 400);
 
         Widget punch = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(WidgetInfo.COMBAT_AUTO_RETALIATE));
