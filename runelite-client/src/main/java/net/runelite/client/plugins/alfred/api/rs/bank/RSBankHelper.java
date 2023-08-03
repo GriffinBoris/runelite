@@ -18,11 +18,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j(topic = "RSBankHelper")
+/**
+ * Helper class for managing the bank in the game.
+ */
 public class RSBankHelper {
-    private final int WIDGET_REARRANGE_SWAP = 786450;
-    private final int WIDGET_REARRANGE_INSERT = 786452;
-    private final int VARBIT_WITHDRAW_AS = 3958;
+    private static final int WIDGET_REARRANGE_SWAP = 786450;
+    private static final int WIDGET_REARRANGE_INSERT = 786452;
+    private static final int VARBIT_WITHDRAW_AS = 3958;
 
+    /**
+     * Gets the nearest banks to the player.
+     *
+     * @return a list of the nearest banks
+     */
     public List<RSBank> getNearestBanks() {
         List<RSBank> bankAPIList = new ArrayList<>();
         List<Integer> bankBoothObjectIds = getBankBoothObjectIds();
@@ -65,6 +73,12 @@ public class RSBankHelper {
         return bankBoothObjectIds;
     }
 
+    /**
+     * Opens the specified bank.
+     *
+     * @param bank the bank to open
+     * @return true if the bank was successfully opened, false otherwise
+     */
     public boolean open(RSBank bank) {
         Alfred.setStatus("Opening bank");
 
@@ -106,6 +120,11 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Checks if the bank is open.
+     *
+     * @return true if the bank is open, false otherwise
+     */
     public boolean isOpen() {
         Widget widget = Alfred.getClient().getWidget(WidgetInfo.BANK_CONTAINER);
         if (widget == null) {
@@ -115,11 +134,21 @@ public class RSBankHelper {
         return !widget.isHidden() && !widget.isSelfHidden();
     }
 
+    /**
+     * Checks if the bank is closed.
+     *
+     * @return true if the bank is closed, false otherwise
+     */
     public boolean isClosed() {
         Widget widget = Alfred.getClient().getWidget(WidgetInfo.BANK_CONTAINER);
         return widget == null;
     }
 
+    /**
+     * Closes the bank.
+     *
+     * @return true if the bank was successfully closed, false otherwise
+     */
     public boolean close() {
         Alfred.setStatus("Closing bank");
 
@@ -140,6 +169,11 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Views all items in the bank.
+     *
+     * @return true if the items were successfully viewed, false otherwise
+     */
     public boolean viewAllItems() {
         Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.BANK_TAB_CONTAINER);
         if (widget == null) {
@@ -151,14 +185,29 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Checks if the rearrange swap option is selected in the bank.
+     *
+     * @return true if the rearrange swap option is selected, false otherwise
+     */
     public boolean isRearrangeSwapSelected() {
         return Alfred.getClient().getVarbitValue(Varbits.BANK_REARRANGE_MODE) == 0;
     }
 
+    /**
+     * Checks if the rearrange insert option is selected in the bank.
+     *
+     * @return true if the rearrange insert option is selected, false otherwise
+     */
     public boolean isRearrangeInsertSelected() {
         return Alfred.getClient().getVarbitValue(Varbits.BANK_REARRANGE_MODE) == 0;
     }
 
+    /**
+     * Selects the rearrange swap option in the bank.
+     *
+     * @return true if the rearrange swap option was successfully selected, false otherwise
+     */
     public boolean rearrangeSwap() {
         Widget widget = Alfred.api.widgets().getWidget(WIDGET_REARRANGE_SWAP);
         if (widget == null) {
@@ -170,6 +219,11 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Selects the rearrange insert option in the bank.
+     *
+     * @return true if the rearrange insert option was successfully selected, false otherwise
+     */
     public boolean rearrangeInsert() {
         Widget widget = Alfred.api.widgets().getWidget(WIDGET_REARRANGE_INSERT);
         if (widget == null) {
@@ -181,14 +235,29 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Checks if the withdraw as item option is selected in the bank.
+     *
+     * @return true if the withdraw as item option is selected, false otherwise
+     */
     public boolean isWithdrawAsItemSelected() {
         return Alfred.getClient().getVarbitValue(VARBIT_WITHDRAW_AS) == 0;
     }
 
+    /**
+     * Checks if the withdraw as note option is selected in the bank.
+     *
+     * @return true if the withdraw as note option is selected, false otherwise
+     */
     public boolean isWithdrawAsNoteSelected() {
         return Alfred.getClient().getVarbitValue(VARBIT_WITHDRAW_AS) == 1;
     }
 
+    /**
+     * Selects the withdraw as item option in the bank.
+     *
+     * @return true if the withdraw as item option was successfully selected, false otherwise
+     */
     public boolean withdrawAsItem() {
         Widget widget = Alfred.api.widgets().getWidget(786454);
         if (widget == null) {
@@ -200,6 +269,11 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Selects the withdraw as note option in the bank.
+     *
+     * @return true if the withdraw as note option was successfully selected, false otherwise
+     */
     public boolean withdrawAsNote() {
         Widget widget = Alfred.api.widgets().getWidget(786456);
         if (widget == null) {
@@ -211,6 +285,11 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Opens the search box in the bank.
+     *
+     * @return true if the search box was successfully opened, false otherwise
+     */
     public boolean search() {
         Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.BANK_SEARCH_BUTTON_BACKGROUND);
         if (widget == null) {
@@ -222,6 +301,12 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Searches for the specified value in the bank.
+     *
+     * @param searchValue the value to search for
+     * @return true if the search was successful, false otherwise
+     */
     public boolean search(String searchValue) {
         if (!search()) {
             return false;
@@ -245,6 +330,11 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Deposits the player's inventory into the bank.
+     *
+     * @return true if the inventory was successfully deposited, false otherwise
+     */
     public boolean depositInventory() {
         Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.BANK_DEPOSIT_INVENTORY);
         if (widget == null) {
@@ -256,6 +346,11 @@ public class RSBankHelper {
         return Alfred.sleepUntil(() -> Alfred.api.inventory().isEmpty(), 100, 2000);
     }
 
+    /**
+     * Deposits the player's equipment into the bank.
+     *
+     * @return true if the equipment was successfully deposited, false otherwise
+     */
     public boolean depositEquipment() {
         Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.BANK_DEPOSIT_EQUIPMENT);
         if (widget == null) {
@@ -267,6 +362,11 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Gets the items in the bank.
+     *
+     * @return a list of the items in the bank
+     */
     public List<RSInventoryItem> getItems() {
         return Alfred.getClientThread().invokeOnClientThread(() -> {
             Widget itemContainer = Alfred.api.widgets().getWidget(WidgetInfo.BANK_ITEM_CONTAINER);
@@ -274,14 +374,32 @@ public class RSBankHelper {
         });
     }
 
+    /**
+     * Finds the specified item in the bank.
+     *
+     * @param name the name of the item to find
+     * @return the item if found, null otherwise
+     */
     public RSInventoryItem findItem(String name) {
         return getItems().stream().filter(item -> item.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
+    /**
+     * Deposits all of the specified item into the bank.
+     *
+     * @param rsInventoryItem the item to deposit
+     * @return true if the item was successfully deposited, false otherwise
+     */
     public boolean internalDepositAll(RSInventoryItem rsInventoryItem) {
         return rsInventoryItem.interact("deposit-all");
     }
 
+    /**
+     * Deposits all of the specified item into the bank.
+     *
+     * @param rsInventoryItem the item to deposit
+     * @return true if the item was successfully deposited, false otherwise
+     */
     public boolean depositAll(RSInventoryItem rsInventoryItem) {
         if (rsInventoryItem == null) {
             return false;
@@ -289,6 +407,12 @@ public class RSBankHelper {
         return internalDepositAll(rsInventoryItem);
     }
 
+    /**
+     * Deposits all of the specified item into the bank.
+     *
+     * @param itemName the name of the item to deposit
+     * @return true if the item was successfully deposited, false otherwise
+     */
     public boolean depositAll(String itemName) {
         RSInventoryItem item = Alfred.api.inventory().getItems(itemName).stream().findFirst().orElse(null);
         if (item == null) {
@@ -297,6 +421,13 @@ public class RSBankHelper {
         return internalDepositAll(item);
     }
 
+    /**
+     * Withdraws the specified item from the bank.
+     *
+     * @param name the name of the item to withdraw
+     * @param action the action to perform
+     * @return true if the item was successfully withdrawn, false otherwise
+     */
     private boolean internalWithdrawItem(String name, String action) {
         RSInventoryItem foundItem = findItem(name);
         if (foundItem == null) {
@@ -311,10 +442,23 @@ public class RSBankHelper {
         return foundItem.interact(action);
     }
 
+    /**
+     * Withdraws the specified item from the bank.
+     *
+     * @param name the name of the item to withdraw
+     * @return true if the item was successfully withdrawn, false otherwise
+     */
     public boolean withdrawItem(String name) {
         return internalWithdrawItem(name, "withdraw-1");
     }
 
+    /**
+     * Withdraws the specified amount of the specified item from the bank.
+     *
+     * @param name the name of the item to withdraw
+     * @param amount the amount of the item to withdraw
+     * @return true if the item was successfully withdrawn, false otherwise
+     */
     public boolean withdrawX(String name, int amount) {
         internalWithdrawItem(name, "withdraw-x");
         Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.CHATBOX_TITLE);
@@ -335,6 +479,12 @@ public class RSBankHelper {
         return true;
     }
 
+    /**
+     * Withdraws all of the specified item from the bank.
+     *
+     * @param name the name of the item to withdraw
+     * @return true if the item was successfully withdrawn, false otherwise
+     */
     public boolean withdrawAll(String name) {
         return internalWithdrawItem(name, "withdraw-all");
     }
@@ -372,26 +522,55 @@ public class RSBankHelper {
 //        return true;
 //    }
 
+    /**
+     * Checks if the bank contains the specified item.
+     *
+     * @param itemId the ID of the item to check for
+     * @return true if the bank contains the item, false otherwise
+     */
     private boolean internalContainsItem(int itemId) {
         Widget itemContainer = Alfred.api.widgets().getWidget(WidgetInfo.BANK_ITEM_CONTAINER);
         return Arrays.stream(itemContainer.getDynamicChildren()).anyMatch(item -> new RSInventoryItem(item).getId() == itemId);
     }
 
+    /**
+     * Checks if the bank contains the specified item.
+     *
+     * @param name the name of the item to check for
+     * @return true if the bank contains the item, false otherwise
+     */
     private boolean internalContainsItem(String name) {
         Widget itemContainer = Alfred.api.widgets().getWidget(WidgetInfo.BANK_ITEM_CONTAINER);
         return Arrays.stream(itemContainer.getDynamicChildren()).anyMatch(item -> new RSInventoryItem(item).getName().equalsIgnoreCase(name));
     }
 
+    /**
+     * Checks if the bank contains the specified item.
+     *
+     * @param itemId the ID of the item to check for
+     * @return true if the bank contains the item, false otherwise
+     */
     public boolean containsItem(int itemId) {
         return internalContainsItem(itemId);
     }
 
+    /**
+     * Checks if the bank contains the specified item.
+     *
+     * @param item the item to check for
+     * @return true if the bank contains the item, false otherwise
+     */
     public boolean containsItem(RSInventoryItem item) {
         return internalContainsItem(item.getId());
     }
 
+    /**
+     * Checks if the bank contains the specified item.
+     *
+     * @param name the name of the item to check for
+     * @return true if the bank contains the item, false otherwise
+     */
     public boolean containsItem(String name) {
         return internalContainsItem(name);
     }
 }
-
