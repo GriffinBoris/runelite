@@ -33,8 +33,8 @@ public class Mouse {
 //        if (dragging) {
 //            MouseEvent mouseDrag = new MouseEvent(gameCanvas, MouseEvent.MOUSE_DRAGGED, System.currentTimeMillis(), 0, x, y, 1, false, MouseEvent.BUTTON1);
 //            gameCanvas.dispatchEvent(mouseDrag);
-
-//        } else if (mousePreviouslyInCanvas && mouseCurrentlyInCanvas) {
+        boolean mousePreviouslyInCanvas = isInCanvas(lastMousePosition);
+        boolean mouseCurrentlyInCanvas = isInCanvas(point);
 
         if (mousePreviouslyInCanvas && mouseCurrentlyInCanvas) {
             dispatchMouseEvent(MouseEvent.MOUSE_MOVED, point, 0);
