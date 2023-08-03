@@ -39,7 +39,7 @@ public class AlfredPlugin extends Plugin {
     protected void startUp() throws Exception {
         log.info("Alfred putting his suit on.");
         alfred = new Alfred(client, clientThread, worldService, profileManager);
-        alfred.start();
+        alfred.interact();
 
         overlayManager.add(overlay);
 
