@@ -26,6 +26,9 @@ public class AStarNode {
     private int penalty;
     @Getter
     @Setter
+    private String operableName;
+    @Getter
+    @Setter
     private Boolean isOperable;
     @Getter
     @Setter
@@ -56,6 +59,12 @@ public class AStarNode {
     private Boolean blockedMovementSouthWest;
     @Getter
     @Setter
+    private Boolean blockedMovementUp;
+    @Getter
+    @Setter
+    private Boolean blockedMovementDown;
+    @Getter
+    @Setter
     private Boolean blockedMovementObject;
     @Getter
     @Setter
@@ -82,35 +91,53 @@ public class AStarNode {
     public boolean isWalkable(AStarNode neighbor) {
         int myX = getWorldLocation().getX();
         int myY = getWorldLocation().getY();
+        int myZ = getWorldLocation().getPlane();
         int neighborX = neighbor.getWorldLocation().getX();
         int neighborY = neighbor.getWorldLocation().getY();
+        int neighborZ = neighbor.getWorldLocation().getPlane();
 
         // North
-        if (neighborX == myX && neighborY == myY + 1) {
+        if (neighborX == myX && neighborY == myY + 1 && myZ == neighborZ) {
             if (!neighbor.getBlockedMovementSouth()) {
                 return true;
             }
         }
 
         // South
-        if (neighborX == myX && neighborY == myY - 1) {
+        if (neighborX == myX && neighborY == myY - 1 && myZ == neighborZ) {
             if (!neighbor.getBlockedMovementNorth()) {
                 return true;
             }
         }
 
         // East
-        if (neighborX == myX + 1 && neighborY == myY) {
+        if (neighborX == myX + 1 && neighborY == myY && myZ == neighborZ) {
             if (!neighbor.getBlockedMovementWest()) {
                 return true;
             }
         }
 
         // West
-        if (neighborX == myX - 1 && neighborY == myY) {
+        if (neighborX == myX - 1 && neighborY == myY && myZ == neighborZ) {
             if (!neighbor.getBlockedMovementEast()) {
                 return true;
             }
+        }
+
+        // Up
+        if (neighborX == myX && neighborY == myY && neighborZ == myZ + 1) {
+            return true;
+//            if (!neighbor.getBlockedMovementUp()) {
+//                return true;
+//            }
+        }
+
+        // Down
+        if (neighborX == myX && neighborY == myY && neighborZ == myZ - 1) {
+            return true;
+//            if (!neighbor.getBlockedMovementDown()) {
+//                return true;
+//            }
         }
 
 //        // North-East

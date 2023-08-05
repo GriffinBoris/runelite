@@ -2,10 +2,7 @@ package net.runelite.client.plugins.alfred.scripts.collection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.runelite.api.Client;
-import net.runelite.api.Constants;
-import net.runelite.api.Player;
-import net.runelite.api.Tile;
+import net.runelite.api.*;
 import net.runelite.client.plugins.alfred.Alfred;
 import net.runelite.client.plugins.alfred.api.rs.walk.RSWalkHelper;
 import net.runelite.client.plugins.alfred.api.rs.walk.WorldMovementFlag;
@@ -78,10 +75,70 @@ public class WorldDataCollectionTask implements Runnable {
 
     public boolean isOperable(Tile tile) {
         return Alfred.getClientThread().invokeOnClientThread(() -> {
+            boolean wallObjectOperable = false;
+            boolean gameObjectOperable = false;
+
             if (tile.getWallObject() != null) {
-                return RSWalkHelper.getOperableObjectIds().contains(tile.getWallObject().getId());
+                wallObjectOperable = RSWalkHelper.getOperableObjectIds().contains(tile.getWallObject().getId());
             }
-            return false;
+
+            for (GameObject gameObject : tile.getGameObjects()) {
+                if (gameObject == null) {
+                    continue;
+                }
+
+                gameObjectOperable = RSWalkHelper.getOperableObjectIds().contains(gameObject.getId());
+                if (gameObjectOperable) {
+                    break;
+                }
+            }
+
+            if (wallObjectOperable && gameObjectOperable) {
+                System.out.println("UH OH BOTH ARE OPERABLE");
+            }
+
+            return wallObjectOperable || gameObjectOperable;
+        });
+    }
+
+    public String getOperableName(Tile tile) {
+        return Alfred.getClientThread().invokeOnClientThread(() -> {
+            boolean wallObjectOperable = false;
+            boolean gameObjectOperable = false;
+
+            WallObject foundWallObject = null;
+            GameObject foundGameObject = null;
+
+            if (tile.getWallObject() != null) {
+                wallObjectOperable = RSWalkHelper.getOperableObjectIds().contains(tile.getWallObject().getId());
+                foundWallObject = tile.getWallObject();
+            }
+
+            for (GameObject gameObject : tile.getGameObjects()) {
+                if (gameObject == null) {
+                    continue;
+                }
+
+                gameObjectOperable = RSWalkHelper.getOperableObjectIds().contains(gameObject.getId());
+                if (gameObjectOperable) {
+                    foundGameObject = gameObject;
+                    break;
+                }
+            }
+
+            if (wallObjectOperable && gameObjectOperable) {
+                System.out.println("UH OH BOTH ARE OPERABLE");
+            }
+
+            if (wallObjectOperable) {
+                return Alfred.api.objects().getObjectIdVariableName(foundWallObject.getId());
+            }
+
+            if (gameObjectOperable) {
+                return Alfred.api.objects().getObjectIdVariableName(foundGameObject.getId());
+            }
+
+            return null;
         });
     }
 
@@ -96,6 +153,7 @@ public class WorldDataCollectionTask implements Runnable {
             row.addProperty("y", tile.getWorldLocation().getY());
             row.addProperty("z", tile.getWorldLocation().getPlane());
             row.addProperty("is_operable", isOperable(tile));
+            row.addProperty("operable_object_name", getOperableName(tile));
             row.addProperty("block_movement_full", movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FULL));
             row.addProperty("block_movement_floor", movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FLOOR));
             row.addProperty("block_movement_floor_decoration", movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FLOOR_DECORATION));
@@ -117,7 +175,7 @@ public class WorldDataCollectionTask implements Runnable {
 
     private void writeToFile(JsonArray rows) {
         try {
-            String path = "/home/griffin/PycharmProjects/worldmap/test/data/";
+            String path = "/home/griffin/PycharmProjects/OSRSWorld/test/data/";
             String name = System.currentTimeMillis() + ".json";
 
             FileWriter writer = new FileWriter(path + name);

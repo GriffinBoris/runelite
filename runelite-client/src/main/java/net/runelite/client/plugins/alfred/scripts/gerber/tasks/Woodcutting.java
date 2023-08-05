@@ -14,24 +14,35 @@ import net.runelite.client.plugins.alfred.scripts.gerber.GerberConfig;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Woodcutting {
+public class Woodcutting extends BaseTask {
 
     private final GerberConfig config;
     private final WorldArea VARROCK_EAST_TREE_WORLD_AREA = new WorldArea(3159, 3388, 13, 25, 0);
     private final WorldPoint VARROCK_EAST_TREE_WORLD_POINT = new WorldPoint(3164, 3402, 0);
 
+
     private enum ScriptState {
-        WAITING, WALKING, CHOPPING, BANKING
+        WAITING, WALKING, CHOPPING, BANKING, SETUP
 
     }
 
     private ScriptState scriptState;
 
+    private List<List<Integer>> recommendedItems;
+
 
     public Woodcutting(GerberConfig gerberConfig) {
         this.config = gerberConfig;
-        scriptState = ScriptState.WAITING;
+        scriptState = ScriptState.SETUP;
+        recommendedItems = new ArrayList<>();
+        recommendedItems.add(getRecommendedAxes());
     }
+
+    @Override
+    WorldPoint getBankLocation() {
+        return WorldDestinations.VARROCK_WEST_BANK.getWorldPoint();
+    }
+
 
     public void run() {
         RSPlayer player = Alfred.api.players().getLocalPlayer();
@@ -41,8 +52,7 @@ public class Woodcutting {
 
             if (minimumSkillRequirement < 15) {
                 Alfred.setTaskSubStatus("Chopping Trees");
-                chopTrees();
-                scriptState = ScriptState.WAITING;
+                chopTreesAtVarrock();
 
             } else {
                 return;
@@ -89,11 +99,28 @@ public class Woodcutting {
     }
 
 
-    private void chopTrees() {
+    private void chopTreesAtVarrock() {
         RSPlayer player = Alfred.api.players().getLocalPlayer();
 
         if (player.isMoving() || player.isInteracting()) {
             return;
+        }
+
+        if (scriptState == ScriptState.SETUP) {
+            if (!isWieldingRecommendedAxe()) {
+                RSInventoryItem axe = getRecommendedAxeFromInventory();
+                if (axe != null) {
+                    axe.leftClick();
+
+                } else {
+                    Alfred.setStatus("Going to get an axe");
+                    // walk to bank, get an axe, close the bank and then loop around so it equips it
+                    retrieveRecommendedItems(recommendedItems);
+                }
+
+            } else {
+                scriptState = ScriptState.WAITING;
+            }
         }
 
         if (scriptState == ScriptState.WAITING) {
@@ -128,7 +155,7 @@ public class Woodcutting {
     }
 
     private void bankInventory() {
-        Alfred.api.walk().walkTo(WorldDestinations.VARROCK_WEST_BANK.getWorldPoint());
+        Alfred.api.walk().walkTo(getBankLocation());
         RSBank bank = Alfred.api.banks().getNearestBanks().stream().findFirst().orElse(null);
 
         if (bank == null) {
@@ -142,6 +169,29 @@ public class Woodcutting {
         Alfred.sleepUntil(() -> Alfred.api.inventory().isEmpty(), 100, 5000);
         Alfred.api.banks().close();
         Alfred.sleepUntil(() -> Alfred.api.banks().isClosed(), 100, 5000);
+    }
+
+    private boolean isWieldingRecommendedAxe() {
+        Alfred.setStatus("Checking for axe");
+        if (!Alfred.api.equipment().isWeaponEquipped()) {
+            return false;
+        }
+
+        return getRecommendedAxes().contains(Alfred.api.equipment().getWeaponId());
+    }
+
+    private RSInventoryItem getRecommendedAxeFromInventory() {
+        List<RSInventoryItem> inventoryItems = Alfred.api.inventory().getItems();
+
+        for (int recommendedItemId : getRecommendedAxes()) {
+            for (RSInventoryItem rsInventoryItem : inventoryItems) {
+                if (rsInventoryItem.getId() == recommendedItemId) {
+                    return rsInventoryItem;
+                }
+            }
+        }
+
+        return null;
     }
 
 }

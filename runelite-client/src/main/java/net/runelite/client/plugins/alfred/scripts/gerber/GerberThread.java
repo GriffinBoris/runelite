@@ -23,34 +23,16 @@ public class GerberThread extends Thread {
         Alfred.getPlayTimer().setRandomTimeout(15, 90);
         Alfred.getPlayTimer().start();
 
-//        RSBank rsBank = Alfred.api.banks().getNearestBanks().stream().findFirst().orElse(null);
-//        if (rsBank == null) {
-//            return;
-//        }
-//
-//        Alfred.api.banks().open(rsBank);
-//        Alfred.sleep(1500);
-//        Alfred.api.banks().withdrawItem("logs");
-//        Alfred.sleep(1500);
-//        Alfred.api.banks().withdrawX("logs", 7);
-//        Alfred.sleep(1500);
-//        Alfred.api.banks().withdrawAll("logs");
-//        Alfred.sleep(1500);
-//        Alfred.api.banks().depositAll("logs");
-//        Alfred.sleep(1500);
-//        System.out.println(Alfred.api.banks().containsItem("logs"));
-//        Alfred.sleep(1500);
-//        Alfred.api.banks().close();
 
-        System.out.println(Alfred.api.equipment().isWeaponEquipped());
+//        System.out.println(Alfred.api.equipment().isWeaponEquipped());
 
 //        Alfred.setTaskStatus("Training Mining");
 //        Mining mining = new Mining(config);
 //        mining.run();
 
-//        Alfred.setTaskStatus("Training Woodcutting");
-//        Woodcutting woodcutting = new Woodcutting(config);
-//        woodcutting.run();
+        Alfred.setTaskStatus("Training Woodcutting");
+        Woodcutting woodcutting = new Woodcutting(config);
+        woodcutting.run();
 //
 //        if (trainCombat()) {
 //            Alfred.setTaskStatus("Training Combat");
@@ -65,6 +47,12 @@ public class GerberThread extends Thread {
         if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
             Alfred.api.account().login();
             Alfred.sleep(2000);
+        }
+    }
+
+    private void logout() {
+        if (Alfred.getClient().getGameState() == GameState.LOGGED_IN) {
+            Alfred.api.account().logout();
         }
     }
 

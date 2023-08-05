@@ -31,7 +31,8 @@ public class NodeLoader {
                 int x = rs.getInt("x");
                 int y = rs.getInt("y");
                 int z = rs.getInt("z");
-                boolean isOperable = rs.getBoolean("is_operable");
+                String operableName = rs.getString("operable_object_name");
+                boolean isOperable = rs.getBoolean("is_operable") && rs.getBoolean("operable_verified") && operableName != null;
                 boolean blocked = rs.getBoolean("blocked");
                 boolean blockedMovementNorth = rs.getBoolean("blocked_movement_north");
                 boolean blockedMovementSouth = rs.getBoolean("blocked_movement_south");
@@ -41,6 +42,8 @@ public class NodeLoader {
                 boolean blockedMovementNorthWest = rs.getBoolean("blocked_movement_north_west");
                 boolean blockedMovementSouthEast = rs.getBoolean("blocked_movement_south_east");
                 boolean blockedMovementSouthWest = rs.getBoolean("blocked_movement_south_west");
+                boolean blockedMovementUp = rs.getBoolean("blocked_movement_up");
+                boolean blockedMovementDown = rs.getBoolean("blocked_movement_down");
                 boolean blockedMovementObject = rs.getBoolean("blocked_movement_object");
                 boolean blockedMovementFloorDecoration = rs.getBoolean("blocked_movement_floor_decoration");
                 boolean blockedMovementFloor = rs.getBoolean("blocked_movement_floor");
@@ -49,6 +52,7 @@ public class NodeLoader {
 
                 AStarNode node = new AStarNode();
                 node.setWorldLocation(new WorldPoint(x, y, z));
+                node.setOperableName(operableName);
                 node.setIsOperable(isOperable);
                 node.setBlocked(blocked);
                 node.setBlockedMovementNorth(blockedMovementNorth);
@@ -59,6 +63,8 @@ public class NodeLoader {
                 node.setBlockedMovementNorthWest(blockedMovementNorthWest);
                 node.setBlockedMovementSouthEast(blockedMovementSouthEast);
                 node.setBlockedMovementSouthWest(blockedMovementSouthWest);
+                node.setBlockedMovementUp(blockedMovementUp);
+                node.setBlockedMovementDown(blockedMovementDown);
                 node.setBlockedMovementObject(blockedMovementObject);
                 node.setBlockedMovementFloorDecoration(blockedMovementFloorDecoration);
                 node.setBlockedMovementFloor(blockedMovementFloor);
@@ -77,19 +83,22 @@ public class NodeLoader {
         return nodes;
     }
 
-    public AStarNode[][] getGrid() {
+    public AStarNode[][][] getGrid() {
         List<AStarNode> nodes = read();
         int maxX = nodes.stream().mapToInt(node -> node.getWorldLocation().getX()).max().getAsInt();
         int maxY = nodes.stream().mapToInt(node -> node.getWorldLocation().getY()).max().getAsInt();
+        int maxZ = nodes.stream().mapToInt(node -> node.getWorldLocation().getPlane()).max().getAsInt();
         int minX = nodes.stream().mapToInt(node -> node.getWorldLocation().getX()).min().getAsInt();
         int minY = nodes.stream().mapToInt(node -> node.getWorldLocation().getY()).min().getAsInt();
+        int minZ = nodes.stream().mapToInt(node -> node.getWorldLocation().getPlane()).min().getAsInt();
 
-        AStarNode[][] grid = new AStarNode[maxY + 1][maxX + 1];
+        AStarNode[][][] grid = new AStarNode[maxZ + 1][maxY + 1][maxX + 1];
 
         for (AStarNode node : nodes) {
             int x = node.getWorldLocation().getX();
             int y = node.getWorldLocation().getY();
-            grid[y][x] = node;
+            int z = node.getWorldLocation().getPlane();
+            grid[z][y][x] = node;
         }
 
         return grid;

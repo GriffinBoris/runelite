@@ -8,8 +8,15 @@ import net.runelite.http.api.worlds.World;
 import net.runelite.http.api.worlds.WorldResult;
 
 public class RSAccountHelper {
+    private final int LOGOUT_WIDGET_ID = 11927560;
 
     public RSAccountHelper() {
+    }
+
+    public void logout() {
+        Alfred.api.tabs().clickLogoutTab();
+        Alfred.api.widgets().leftClickWidget(LOGOUT_WIDGET_ID);
+        Alfred.sleepUntil(() -> Alfred.getClient().getGameState() == GameState.LOGIN_SCREEN, 500, 5000);
     }
 
     public void login() {

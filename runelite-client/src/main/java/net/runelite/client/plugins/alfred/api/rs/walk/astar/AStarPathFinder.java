@@ -8,15 +8,15 @@ import java.util.List;
 
 public class AStarPathFinder {
     public static List<AStarNode> path = new ArrayList<>();
-    private final AStarNode[][] grid;
+    private final AStarNode[][][] grid;
 
-    public AStarPathFinder(AStarNode[][] grid) {
+    public AStarPathFinder(AStarNode[][][] grid) {
         this.grid = grid;
     }
 
     public List<AStarNode> findPath(WorldPoint startPoint, WorldPoint endPoint) {
-        AStarNode startNode = grid[startPoint.getY()][startPoint.getX()];
-        AStarNode endNode = grid[endPoint.getY()][endPoint.getX()];
+        AStarNode startNode = grid[startPoint.getPlane()][startPoint.getY()][startPoint.getX()];
+        AStarNode endNode = grid[endPoint.getPlane()][endPoint.getY()][endPoint.getX()];
 
         if (startNode == null || endNode == null) {
             System.out.println("Start or end node is null");
@@ -48,7 +48,11 @@ public class AStarPathFinder {
             }
 
             for (AStarNode neighbor : getNeighbors(currentNode)) {
-                if (!currentNode.isWalkable(neighbor) || closedNodes.contains(neighbor)) {
+                if (closedNodes.contains(neighbor)) {
+                    continue;
+                }
+
+                if (!currentNode.isWalkable(neighbor) && !neighbor.getIsOperable()) {
                     continue;
                 }
 
@@ -84,6 +88,31 @@ public class AStarPathFinder {
     }
 
 
+//    private List<AStarNode> getNeighbors(AStarNode node) {
+//        List<AStarNode> neighbors = new ArrayList<>();
+//
+//        for (int x = -1; x < 2; x++) {
+//            for (int y = -1; y < 2; y++) {
+//                if (x == 0 && y == 0) {
+//                    continue;
+//                }
+//
+//                int checkX = node.getWorldLocation().getX() + x;
+//                int checkY = node.getWorldLocation().getY() + y;
+//
+//                if (checkX >= 0 && checkX < grid[0].length && checkY >= 0 && checkY < grid.length) {
+//                    AStarNode neighbor = grid[0][checkY][checkX];
+//                    if (neighbor != null) {
+//                        neighbors.add(grid[0][checkY][checkX]);
+//                    }
+//                }
+//            }
+//        }
+//
+//        return neighbors;
+//    }
+
+
     private List<AStarNode> getNeighbors(AStarNode node) {
         List<AStarNode> neighbors = new ArrayList<>();
 
@@ -93,15 +122,54 @@ public class AStarPathFinder {
                     continue;
                 }
 
+
                 int checkX = node.getWorldLocation().getX() + x;
                 int checkY = node.getWorldLocation().getY() + y;
+                int checkZ = node.getWorldLocation().getPlane();
 
-                if (checkX >= 0 && checkX < grid[0].length && checkY >= 0 && checkY < grid.length) {
-                    AStarNode neighbor = grid[checkY][checkX];
-                    if (neighbor != null) {
-                        neighbors.add(grid[checkY][checkX]);
-                    }
+                if (checkZ < 0 || checkZ > grid.length - 1) {
+                    continue;
                 }
+
+                if (checkY < 0 || checkY > grid[0].length - 1) {
+                    continue;
+                }
+
+                if (checkX < 0 || checkX > grid[0][0].length - 1) {
+                    continue;
+                }
+
+                AStarNode neighbor = grid[checkZ][checkY][checkX];
+                if (neighbor != null) {
+                    neighbors.add(grid[checkZ][checkY][checkX]);
+                }
+            }
+        }
+
+        for (int z = -1; z < 2; z++) {
+            if (z == 0) {
+                continue;
+            }
+
+            int checkX = node.getWorldLocation().getX();
+            int checkY = node.getWorldLocation().getY();
+            int checkZ = node.getWorldLocation().getPlane() + z;
+
+            if (checkZ < 0 || checkZ > grid.length - 1) {
+                continue;
+            }
+
+            if (checkY < 0 || checkY > grid[0].length - 1) {
+                continue;
+            }
+
+            if (checkX < 0 || checkX > grid[0][0].length - 1) {
+                continue;
+            }
+
+            AStarNode neighbor = grid[checkZ][checkY][checkX];
+            if (neighbor != null) {
+                neighbors.add(grid[checkZ][checkY][checkX]);
             }
         }
 

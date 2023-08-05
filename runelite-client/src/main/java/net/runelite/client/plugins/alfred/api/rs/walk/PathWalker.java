@@ -1,8 +1,6 @@
 package net.runelite.client.plugins.alfred.api.rs.walk;
 
-import net.runelite.api.Point;
-import net.runelite.api.Tile;
-import net.runelite.api.WallObject;
+import net.runelite.api.*;
 import net.runelite.client.plugins.alfred.Alfred;
 import net.runelite.client.plugins.alfred.api.rs.math.Calculations;
 import net.runelite.client.plugins.alfred.api.rs.menu.RSMenu;
@@ -24,7 +22,6 @@ public class PathWalker {
     public void walkPath() {
         for (AStarNode currentNode : tiles) {
             Point minimapPoint = Alfred.api.miniMap().getWorldPointToScreenPoint(currentNode.getWorldLocation());
-
             if (minimapPoint == null) {
                 continue;
             }
@@ -46,8 +43,7 @@ public class PathWalker {
                     continue;
                 }
 
-//                if (!operateOnTile(realTile.getTile())) {
-                if (!operateOnTileV2(realTile.getTile())) {
+                if (!operateOnTile(currentNode, realTile.getTile())) {
                     continue;
                 }
             }
@@ -75,9 +71,27 @@ public class PathWalker {
         }, 200, 1000 * 30);
     }
 
-    private boolean operateOnTileV2(Tile tile) {
+    private boolean operateOnTile(AStarNode node, Tile tile) {
         Alfred.sleepUntil(() -> !player.isMoving() && !player.isInteracting() && player.isIdle(), 200, 1000 * 10);
+        boolean success = false;
+        if (node.getOperableName().equals("DOOR") || node.getOperableName().equals("GATE")) {
+            success = operateOnDoor(tile);
 
+        } else if (node.getOperableName().equals("STAIRS") || node.getOperableName().equals("STAIRCASE")) {
+            success = operateOnStair(tile);
+        }
+
+        if (!success) {
+            return false;
+        }
+
+        Alfred.sleep(1000);
+        Alfred.sleepUntil(() -> !player.isMoving() && !player.isInteracting() && player.isIdle(), 200, 1000 * 10);
+        Alfred.sleep(250, 500);
+        return true;
+    }
+
+    private boolean operateOnDoor(Tile tile) {
         WallObject wallObject = tile.getWallObject();
         if (wallObject == null) {
             return false;
@@ -101,32 +115,37 @@ public class PathWalker {
             System.out.println("Failed to operate on tile");
             return false;
         }
-
-        Alfred.sleep(1000);
-        Alfred.sleepUntil(() -> !player.isMoving() && !player.isInteracting() && player.isIdle(), 200, 1000 * 10);
-        Alfred.sleep(250, 500);
         return true;
     }
 
-    private boolean operateOnTile(Tile tile) {
-        Alfred.sleepUntil(() -> !player.isMoving() && !player.isInteracting() && player.isIdle(), 200, 1000 * 10);
-        Alfred.sleep(200, 400);
+    private boolean operateOnStair(Tile tile) {
+        RSPlayer player = Alfred.api.players().getLocalPlayer();
+        GameObject foundGameObject = null;
 
-        WallObject wallObject = tile.getWallObject();
-        if (wallObject == null) {
-            Tile operableNeighbor = getFirstOperableNeighbor(tile);
-            if (operableNeighbor != null) {
-                wallObject = operableNeighbor.getWallObject();
+        for (GameObject gameObject : tile.getGameObjects()) {
+            if (gameObject == null) {
+                continue;
+            }
+
+            String tileName = Alfred.api.objects().getObjectIdVariableName(gameObject.getId());
+            if (tileName.contains("STAIRS") || tileName.contains("STAIRCASE")) {
+                foundGameObject = gameObject;
+                break;
             }
         }
 
-        if (wallObject == null) {
-            System.out.println("Wall is null");
+        if (foundGameObject == null) {
             return false;
         }
 
-        Alfred.getMouse().rightClick(wallObject.getConvexHull().getBounds());
+        Alfred.getMouse().rightClick(foundGameObject.getClickbox().getBounds());
         Alfred.sleep(200);
+
+        int playerZ = player.getWorldLocation().getPlane();
+        int tileZ = tile.getPlane();
+
+        boolean goingUp = tileZ > playerZ;
+        String action = goingUp ? "climb-up" : "climb-down";
 
         RSMenu rsMenu = Alfred.api.menu().getMenu();
         if (rsMenu == null) {
@@ -134,21 +153,20 @@ public class PathWalker {
             return false;
         }
 
-        if (!rsMenu.hasAction("open")) {
-            System.out.println("Menu does not contain open action");
+        if (!rsMenu.hasAction(action)) {
+            System.out.println("Menu does not contain action");
             return true;
         }
 
-        if (!rsMenu.clickAction("open")) {
+        if (!rsMenu.clickAction(action)) {
             System.out.println("Failed to operate on tile");
             return false;
         }
 
-        Alfred.sleep(1000);
-        Alfred.sleepUntil(() -> !player.isMoving() && !player.isInteracting() && player.isIdle(), 200, 1000 * 10);
-        Alfred.sleep(250, 500);
-        return true;
+        return Alfred.sleepUntil(() -> player.getWorldLocation().getPlane() == tileZ, 100, 5000);
     }
+
+
 
     private RSTile findTile(AStarNode node) {
         List<RSTile> tiles = Alfred.api.walk().getWalkableTiles();

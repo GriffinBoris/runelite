@@ -56,26 +56,25 @@ public class RSWalkHelper {
 
                     if (field.getName().startsWith("DOOR")) {
                         operableObjectIds.add(fieldValue);
-                    } else if (field.getName().startsWith("LARGE_DOOR")) {
-                        operableObjectIds.add(fieldValue);
+//                    } else if (field.getName().startsWith("LARGE_DOOR")) {
+//                        operableObjectIds.add(fieldValue);
                     } else if (field.getName().startsWith("GATE")) {
                         operableObjectIds.add(fieldValue);
-                    }
-//                    } else if (field.getName().startsWith("TRAPDOOR")) {
-//                        operableObjectIds.add(fieldValue);
-//                    } else if (field.getName().startsWith("STAIRCASE")) {
-//                        operableObjectIds.add(fieldValue);
+                    } else if (field.getName().startsWith("TRAPDOOR")) {
+                        operableObjectIds.add(fieldValue);
+                    } else if (field.getName().startsWith("STAIRCASE")) {
+                        operableObjectIds.add(fieldValue);
 //                    } else if (field.getName().startsWith("CAVE_ENTRANCE")) {
 //                        operableObjectIds.add(fieldValue);
-//                    } else if (field.getName().startsWith("STAIRS")) {
-//                        operableObjectIds.add(fieldValue);
+                    } else if (field.getName().startsWith("STAIRS")) {
+                        operableObjectIds.add(fieldValue);
 //                    } else if (field.getName().startsWith("ANCIENT_GATE")) {
 //                        operableObjectIds.add(fieldValue);
 //                    } else if (field.getName().startsWith("TEMPLE_DOOR")) {
 //                        operableObjectIds.add(fieldValue);
-//                    } else if (field.getName().startsWith("LADDER")) {
-//                        operableObjectIds.add(fieldValue);
-//                    }
+                    } else if (field.getName().startsWith("LADDER")) {
+                        operableObjectIds.add(fieldValue);
+                    }
 
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();

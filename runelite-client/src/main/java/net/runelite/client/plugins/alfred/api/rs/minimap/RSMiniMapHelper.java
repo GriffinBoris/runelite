@@ -17,6 +17,10 @@ public class RSMiniMapHelper {
 
     public Point getWorldPointToScreenPoint(WorldPoint worldPoint) {
         LocalPoint localPoint = LocalPoint.fromWorld(Alfred.getClient(), worldPoint);
+        if (localPoint == null) {
+            return null;
+        }
+
         return Perspective.localToMinimap(Alfred.getClient(), localPoint);
     }
 

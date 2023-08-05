@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 public class WorldDataCollectionThread extends Thread {
     public final ExecutorService executor = Executors.newFixedThreadPool(100);
     public static int completed = 0;
-    private int started = 0;
+    public static int started = 0;
 
     @Override
     public void run() {

@@ -102,6 +102,8 @@ public class RSBankHelper {
             return false;
         }
 
+        Alfred.sleep(250, 750);
+
         Alfred.setStatus("Opened bank");
         return true;
     }
@@ -274,6 +276,10 @@ public class RSBankHelper {
         });
     }
 
+    public RSInventoryItem findItem(int itemId) {
+        return getItems().stream().filter(item -> item.getId() == itemId).findFirst().orElse(null);
+    }
+
     public RSInventoryItem findItem(String name) {
         return getItems().stream().filter(item -> item.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
@@ -297,6 +303,19 @@ public class RSBankHelper {
         return internalDepositAll(item);
     }
 
+    private boolean internalWithdrawItem(int itemId, String action) {
+        RSInventoryItem foundItem = findItem(itemId);
+        if (foundItem == null) {
+            log.warn("Could not find item in bank");
+            return false;
+        }
+        boolean success = foundItem.interact(action);
+        if (success) {
+            Alfred.sleep(150, 350);
+        }
+        return success;
+    }
+
     private boolean internalWithdrawItem(String name, String action) {
         RSInventoryItem foundItem = findItem(name);
         if (foundItem == null) {
@@ -309,6 +328,10 @@ public class RSBankHelper {
             }
         }
         return foundItem.interact(action);
+    }
+
+    public boolean withdrawItem(int itemId) {
+        return internalWithdrawItem(itemId, "withdraw-1");
     }
 
     public boolean withdrawItem(String name) {
