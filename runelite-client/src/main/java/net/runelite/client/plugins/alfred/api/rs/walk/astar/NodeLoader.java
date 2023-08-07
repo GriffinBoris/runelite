@@ -33,6 +33,7 @@ public class NodeLoader {
                 int z = rs.getInt("z");
                 String operableName = rs.getString("operable_object_name");
                 boolean isOperable = rs.getBoolean("is_operable") && rs.getBoolean("operable_verified") && operableName != null;
+//                boolean isOperable = rs.getBoolean("is_operable");
                 boolean blocked = rs.getBoolean("blocked");
                 boolean blockedMovementNorth = rs.getBoolean("blocked_movement_north");
                 boolean blockedMovementSouth = rs.getBoolean("blocked_movement_south");

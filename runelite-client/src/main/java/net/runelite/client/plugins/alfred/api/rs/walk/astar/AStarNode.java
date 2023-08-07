@@ -126,18 +126,16 @@ public class AStarNode {
 
         // Up
         if (neighborX == myX && neighborY == myY && neighborZ == myZ + 1) {
-            return true;
-//            if (!neighbor.getBlockedMovementUp()) {
-//                return true;
-//            }
+            if (!neighbor.getBlockedMovementUp()) {
+                return true;
+            }
         }
 
         // Down
         if (neighborX == myX && neighborY == myY && neighborZ == myZ - 1) {
-            return true;
-//            if (!neighbor.getBlockedMovementDown()) {
-//                return true;
-//            }
+            if (!neighbor.getBlockedMovementDown()) {
+                return true;
+            }
         }
 
 //        // North-East

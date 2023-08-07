@@ -1,12 +1,17 @@
 package net.runelite.client.plugins.alfred.api.rs.walk;
 
-import net.runelite.api.*;
+import net.runelite.api.GameObject;
+import net.runelite.api.Point;
+import net.runelite.api.Tile;
+import net.runelite.api.WallObject;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.alfred.Alfred;
 import net.runelite.client.plugins.alfred.api.rs.math.Calculations;
 import net.runelite.client.plugins.alfred.api.rs.menu.RSMenu;
 import net.runelite.client.plugins.alfred.api.rs.player.RSPlayer;
 import net.runelite.client.plugins.alfred.api.rs.walk.astar.AStarNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PathWalker {
@@ -18,40 +23,197 @@ public class PathWalker {
         this.player = Alfred.api.players().getLocalPlayer();
     }
 
+    private List<Path> buildPath() {
+        List<Path> paths = new ArrayList<>();
+        int upperBound = tiles.size() - 1;
 
-    public void walkPath() {
-        for (AStarNode currentNode : tiles) {
-            Point minimapPoint = Alfred.api.miniMap().getWorldPointToScreenPoint(currentNode.getWorldLocation());
-            if (minimapPoint == null) {
+        AStarNode previousNode = null;
+        for (int i = 0; i < tiles.size() - 1; i++) {
+            AStarNode currentNode = tiles.get(i);
+            AStarNode nextNode = null;
+
+//            if (previousNode == currentNode) {
+//                continue;
+//            }
+
+            if (i + 1 <= upperBound) {
+                nextNode = tiles.get(i + 1);
+            }
+
+            if (paths.isEmpty()) {
+                if (nextNode == null) {
+                    paths.add(new Path(currentNode.getWorldLocation(), currentNode.getWorldLocation(), currentNode));
+                } else {
+                    paths.add(new Path(currentNode.getWorldLocation(), nextNode.getWorldLocation(), currentNode));
+                }
+
+                previousNode = currentNode;
                 continue;
             }
 
-            int distance = (int) Calculations.distanceBetweenPoints(player.getWorldLocation(), currentNode.getWorldLocation());
-            boolean isLastNode = currentNode.getWorldLocation().equals(tiles.get(tiles.size() - 1).getWorldLocation());
-
-            if (isLastNode && distance < 3) {
-                continue;
-
-            } else if (isLastNode) {
-                clickPoint(minimapPoint);
+            if (nextNode == null) {
+                paths.add(new Path(currentNode.getWorldLocation(), currentNode.getWorldLocation(), currentNode));
                 continue;
             }
 
             if (currentNode.getIsOperable()) {
-                RSTile realTile = findTile(currentNode);
-                if (realTile == null) {
-                    continue;
-                }
-
-                if (!operateOnTile(currentNode, realTile.getTile())) {
-                    continue;
-                }
+                paths.add(new Path(currentNode.getWorldLocation(), nextNode.getWorldLocation(), currentNode));
+                previousNode = currentNode;
+                continue;
             }
 
-            if (distance >= 7) {
-                clickPointWhileRunning(minimapPoint, currentNode);
+            if (nextNode.getIsOperable()) {
+                paths.add(new Path(currentNode.getWorldLocation(), nextNode.getWorldLocation(), currentNode));
+                previousNode = currentNode;
+                continue;
+            }
+
+            int distance = (int) Calculations.distanceBetweenPoints(previousNode.getWorldLocation(), currentNode.getWorldLocation());
+            if (distance >= 5) {
+                paths.add(new Path(currentNode.getWorldLocation(), nextNode.getWorldLocation(), currentNode));
+                previousNode = currentNode;
             }
         }
+
+        for (Path p : paths) {
+            System.out.println(p.getStart() + ", " + p.getNode().getIsOperable() + ", " + p.getEnd());
+        }
+
+        return paths;
+
+//        for (AStarNode currentNode : tiles) {
+//            int distance = (int) Calculations.distanceBetweenPoints(player.getWorldLocation(), currentNode.getWorldLocation());
+//            boolean isLastNode = currentNode.getWorldLocation().equals(tiles.get(tiles.size() - 1).getWorldLocation());
+//
+//            if (isLastNode && distance < 3) {
+//                continue;
+//
+//            } else if (isLastNode) {
+//                clickPoint(minimapPoint);
+//                continue;
+//            }
+//
+//            if (currentNode.getIsOperable()) {
+//                RSTile realTile = findTile(currentNode);
+//                if (realTile == null) {
+//                    continue;
+//                }
+//
+//                if (!operateOnTile(currentNode, realTile.getTile())) {
+//                    continue;
+//                }
+//            }
+//
+//            if (distance >= 7) {
+//                clickPointWhileRunning(minimapPoint, currentNode);
+//            }
+//        }
+    }
+
+//    public void walkPath() {
+//        for (AStarNode currentNode : tiles) {
+//            System.out.println(currentNode.getWorldLocation());
+//
+//            Point minimapPoint = Alfred.api.miniMap().getWorldPointToScreenPoint(currentNode.getWorldLocation());
+//            if (minimapPoint == null) {
+//                continue;
+//            }
+//
+//            int distance = (int) Calculations.distanceBetweenPoints(player.getWorldLocation(), currentNode.getWorldLocation());
+//            boolean isLastNode = currentNode.getWorldLocation().equals(tiles.get(tiles.size() - 1).getWorldLocation());
+//
+//            if (isLastNode && distance < 3) {
+//                continue;
+//
+//            } else if (isLastNode) {
+//                clickPoint(minimapPoint);
+//                continue;
+//            }
+//
+//            if (currentNode.getIsOperable()) {
+//                RSTile realTile = findTile(currentNode);
+//                if (realTile == null) {
+//                    continue;
+//                }
+//
+//                if (!operateOnTile(currentNode, realTile.getTile())) {
+//                    continue;
+//                }
+//            }
+//
+//            if (distance >= 7) {
+//                clickPointWhileRunning(minimapPoint, currentNode);
+//            }
+//        }
+//    }
+//
+    public void walkPath() {
+        int upperBound = tiles.size() - 1;
+
+        AStarNode previousNode = null;
+        for (int i = 0; i < tiles.size() - 1; i++) {
+            AStarNode currentNode = tiles.get(i);
+            AStarNode nextNode = null;
+
+            if (i + 1 <= upperBound) {
+                nextNode = tiles.get(i + 1);
+            }
+
+            if (nextNode == null) {
+                Point minimapPoint = getMinimapPoint(currentNode.getWorldLocation());
+                if (minimapPoint == null) {
+                    continue;
+                }
+                clickPoint(minimapPoint);
+                previousNode = currentNode;
+                continue;
+            }
+
+            if (currentNode.getIsOperable()) {
+                Path p = new Path(currentNode.getWorldLocation(), nextNode.getWorldLocation(), currentNode);
+                p.walk();
+                previousNode = currentNode;
+                continue;
+            }
+
+            if (nextNode.getIsOperable()) {
+                Path p = new Path(currentNode.getWorldLocation(), nextNode.getWorldLocation(), currentNode);
+                p.walk();
+                previousNode = currentNode;
+                continue;
+            }
+
+            if (previousNode == null) {
+                Point minimapPoint = getMinimapPoint(currentNode.getWorldLocation());
+                if (minimapPoint == null) {
+                    continue;
+                }
+                clickPoint(minimapPoint);
+                previousNode = currentNode;
+                continue;
+            }
+
+            int distance = (int) Calculations.distanceBetweenPoints(previousNode.getWorldLocation(), currentNode.getWorldLocation());
+            if (distance >= 5) {
+                Point minimapPoint = getMinimapPoint(currentNode.getWorldLocation());
+                if (minimapPoint == null) {
+                    continue;
+                }
+                clickPointWhileRunning(minimapPoint, currentNode);
+                previousNode = currentNode;
+            }
+        }
+    }
+
+//    public void walkPath() {
+//        List<Path> paths = buildPath();
+//
+//        for (Path currentPath : paths) {
+//            currentPath.walk();
+//        }
+//    }
+    private Point getMinimapPoint(WorldPoint worldPoint) {
+        return Alfred.api.miniMap().getWorldPointToScreenPoint(worldPoint);
     }
 
     private void clickPoint(Point minimapPoint) {
@@ -167,9 +329,8 @@ public class PathWalker {
     }
 
 
-
     private RSTile findTile(AStarNode node) {
-        List<RSTile> tiles = Alfred.api.walk().getWalkableTiles();
+        List<RSTile> tiles = Alfred.api.walk().getAllTiles();
         for (RSTile tile : tiles) {
             if (tile.getWorldLocation().equals(node.getWorldLocation())) {
                 return tile;

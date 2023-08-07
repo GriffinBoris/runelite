@@ -117,7 +117,6 @@ public class RSWalkHelper {
                     movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_EAST),
                     movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH),
                     movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
-
                     movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
                     movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_EAST),
                     movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_NORTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
@@ -131,48 +130,14 @@ public class RSWalkHelper {
 
         return walkableTiles;
     }
-//
-//    public List<RSTile> getTilesForMap() {
-//        List<RSTile> tiles = new ArrayList<>();
-//
-//        for (Tile tile : Alfred.api.world().getTiles()) {
-//            Set<WorldMovementFlag> movementFlags = getMovementFlagsForTile(tile);
-//            RSTile newTile = new RSWalkableTile(tile);
-//            newTile.setBlocked(true);
-//
-//            Boolean[] blocked = new Boolean[]{
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FULL),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FLOOR),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FLOOR_DECORATION),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_OBJECT)
-//            };
-//
-//            if (Arrays.asList(blocked).contains(true)) {
-//                newTile.setBlocked(true);
-//                newTile.setMovementPenalty(50);
-//                tiles.add(newTile);
-//                continue;
-//            }
-//
-//            Boolean[] blockedDirections = new Boolean[]{
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_NORTH),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_EAST),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
-//
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_EAST),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_NORTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
-//                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_NORTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_EAST),
-//            };
-//
-//            if (Arrays.asList(blockedDirections).contains(false)) {
-//                newTile.setBlocked(false);
-//            }
-//            tiles.add(newTile);
-//        }
-//
-//        return tiles;
-//    }
 
+    public List<RSTile> getAllTiles() {
+        List<RSTile> walkableTiles = new ArrayList<>();
+
+        for (Tile tile : Alfred.api.world().getTiles()) {
+            walkableTiles.add(new RSTile(tile));
+        }
+
+        return walkableTiles;
+    }
 }

@@ -9,6 +9,7 @@ import net.runelite.api.coords.WorldPoint;
 public enum WorldDestinations {
     DRAYNOR_VILLAGE_BANK("Draynor Village Bank", new WorldPoint(3093, 3244, 0)),
     EDGEVILLE_BANK("Edgeville Bank", new WorldPoint(3094, 3495, 0)),
+    LUMBRIDGE_BANK("Lumbridge Bank", new WorldPoint(3209, 3219, 2)),
     LUMBRIDGE_CASTLE("Lumbridge Castle", new WorldPoint(3221, 3218, 0)),
     LUMBRIDGE_CHICKENS("Lumbridge Chickens", new WorldPoint(3234, 3294, 0)),
     LUMBRIDGE_COWS("Lumbridge Cows", new WorldPoint(3258, 3266, 0)),

@@ -88,31 +88,6 @@ public class AStarPathFinder {
     }
 
 
-//    private List<AStarNode> getNeighbors(AStarNode node) {
-//        List<AStarNode> neighbors = new ArrayList<>();
-//
-//        for (int x = -1; x < 2; x++) {
-//            for (int y = -1; y < 2; y++) {
-//                if (x == 0 && y == 0) {
-//                    continue;
-//                }
-//
-//                int checkX = node.getWorldLocation().getX() + x;
-//                int checkY = node.getWorldLocation().getY() + y;
-//
-//                if (checkX >= 0 && checkX < grid[0].length && checkY >= 0 && checkY < grid.length) {
-//                    AStarNode neighbor = grid[0][checkY][checkX];
-//                    if (neighbor != null) {
-//                        neighbors.add(grid[0][checkY][checkX]);
-//                    }
-//                }
-//            }
-//        }
-//
-//        return neighbors;
-//    }
-
-
     private List<AStarNode> getNeighbors(AStarNode node) {
         List<AStarNode> neighbors = new ArrayList<>();
 
