@@ -119,7 +119,7 @@ public class TransportHelperPlugin extends Plugin {
         stringBuilder.append(", ");
 
         // Object Name
-        stringBuilder.append(objectName);
+        stringBuilder.append(String.format("'%s'", objectName));
         stringBuilder.append("),");
 
         System.out.println(stringBuilder.toString());

@@ -10,6 +10,10 @@ import net.runelite.client.plugins.alfred.api.rs.player.RSPlayer;
 import net.runelite.client.plugins.alfred.api.rs.walk.astar.AStarNode;
 import net.runelite.client.plugins.alfred.api.rs.walk.astar.AStarPathFinder;
 import net.runelite.client.plugins.alfred.api.rs.walk.astar.NodeLoader;
+import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathFinder;
+import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathNode;
+import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathWalker;
+import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.WorldDataLoader;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -27,18 +31,44 @@ public class RSWalkHelper {
         RSPlayer player = Alfred.api.players().getLocalPlayer();
         WorldPoint start = player.getWorldLocation();
 
-        NodeLoader nodeLoader = new NodeLoader("/home/griffin/PycharmProjects/OSRSWorld/world/db.sqlite3");
-        AStarPathFinder pathFinder = new AStarPathFinder(nodeLoader.getGrid());
+        WorldDataLoader worldDataLoader = new WorldDataLoader("/home/griffin/PycharmProjects/OSRSWorld/world/db.sqlite3");
+        worldDataLoader.getGrid();
 
-        List<AStarNode> pathNodes = pathFinder.findPath(start, worldPoint);
-        if (pathNodes.isEmpty()) {
-            System.out.println("NO PATH");
+        PathFinder pathFinder = new PathFinder(worldDataLoader.getGrid());
+        List<PathNode> nodes = pathFinder.findPath(start, worldPoint);
+
+        for (PathNode pathNode : nodes) {
+//            boolean hasTransport = pathNode.getPathTransport() != null;
+            boolean hasTransport = !pathNode.getPathTransports().isEmpty();
+            System.out.println(String.format("Loc: %s, Trans: %s", pathNode.getWorldLocation(), hasTransport));
         }
-        PathWalker pathWalker = new PathWalker(pathNodes);
+
+        PathWalker pathWalker = new PathWalker(nodes);
+//        List<PathNode> filteredNodes = pathWalker.buildPath();
+//        for (PathNode node : filteredNodes) {
+//            System.out.println(node.getWorldLocation());
+//        }
 
         pathWalker.walkPath();
         return true;
     }
+
+//    public boolean walkTo(WorldPoint worldPoint) {
+//        RSPlayer player = Alfred.api.players().getLocalPlayer();
+//        WorldPoint start = player.getWorldLocation();
+//
+//        NodeLoader nodeLoader = new NodeLoader("/home/griffin/PycharmProjects/OSRSWorld/world/db.sqlite3");
+//        AStarPathFinder pathFinder = new AStarPathFinder(nodeLoader.getGrid());
+//
+//        List<AStarNode> pathNodes = pathFinder.findPath(start, worldPoint);
+//        if (pathNodes.isEmpty()) {
+//            System.out.println("NO PATH");
+//        }
+//        PathWalker pathWalker = new PathWalker(pathNodes);
+//
+//        pathWalker.walkPath();
+//        return true;
+//    }
 
 
     public List<AStarNode> getPath() {

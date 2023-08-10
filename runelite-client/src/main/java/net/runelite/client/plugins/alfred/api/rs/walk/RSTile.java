@@ -9,7 +9,6 @@ import net.runelite.client.plugins.alfred.Alfred;
 import java.awt.*;
 
 public class RSTile {
-    @Getter
     private final Tile tile;
 
     public RSTile(Tile tile) {
@@ -40,4 +39,7 @@ public class RSTile {
         return Perspective.getCanvasTilePoly(Alfred.getClient(), tile.getLocalLocation());
     }
 
+    public Tile getTile() {
+        return tile;
+    }
 }

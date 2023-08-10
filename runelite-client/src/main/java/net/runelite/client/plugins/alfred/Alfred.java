@@ -2,10 +2,15 @@ package net.runelite.client.plugins.alfred;
 
 import lombok.Getter;
 import net.runelite.api.Client;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ProfileManager;
 import net.runelite.client.game.WorldService;
 import net.runelite.client.plugins.alfred.api.rs.BaseAPI;
+import net.runelite.client.plugins.alfred.api.rs.player.RSPlayer;
+import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathFinder;
+import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathNode;
+import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.WorldDataLoader;
 import net.runelite.client.plugins.alfred.api.task.BaseTasks;
 import net.runelite.client.plugins.alfred.device.Keyboard;
 import net.runelite.client.plugins.alfred.device.Mouse;
@@ -23,7 +28,6 @@ public class Alfred {
     private static Client client;
     @Getter
     private static ClientThread clientThread;
-    @Getter
     private static Mouse mouse;
     @Getter
     private static Keyboard keyboard;
@@ -68,6 +72,8 @@ public class Alfred {
     public void stop() throws Exception {
 //        rpcServer.stop();
     }
+
+    public static Mouse getMouse() {return mouse;}
 
     public static void setStatus(String status) {
         System.out.println(status);
