@@ -3,7 +3,7 @@ package net.runelite.client.plugins.alfred.api.rs.walk.pathfinder
 import net.runelite.api.coords.WorldPoint
 import java.sql.DriverManager
 
-class WorldDataLoader(private val path: String) {
+class SavedWorldDataLoader(private val path: String) {
     private val nodes: MutableList<PathNode> = mutableListOf()
 
     init {
@@ -64,10 +64,10 @@ class WorldDataLoader(private val path: String) {
                     blockedMovementSouth = rs.getBoolean("blocked_movement_south"),
                     blockedMovementEast = rs.getBoolean("blocked_movement_east"),
                     blockedMovementWest = rs.getBoolean("blocked_movement_west"),
-                    blockedMovementObject = rs.getBoolean("blocked_movement_object"),
-                    blockedMovementFloorDecoration = rs.getBoolean("blocked_movement_floor_decoration"),
-                    blockedMovementFloor = rs.getBoolean("blocked_movement_floor"),
-                    blockedMovementFull = rs.getBoolean("blocked_movement_full")
+//                    blockedMovementObject = rs.getBoolean("blocked_movement_object"),
+//                    blockedMovementFloorDecoration = rs.getBoolean("blocked_movement_floor_decoration"),
+//                    blockedMovementFloor = rs.getBoolean("blocked_movement_floor"),
+//                    blockedMovementFull = rs.getBoolean("blocked_movement_full")
                 )
                 nodes.add(node)
 

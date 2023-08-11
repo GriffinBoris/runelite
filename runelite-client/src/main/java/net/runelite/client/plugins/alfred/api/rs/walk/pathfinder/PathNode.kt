@@ -2,7 +2,7 @@ package net.runelite.client.plugins.alfred.api.rs.walk.pathfinder
 
 import net.runelite.api.coords.WorldPoint
 
-data class PathNode(
+class PathNode(
     var id: Int,
     var gCost: Int,
     var hCost: Int,
@@ -17,10 +17,10 @@ data class PathNode(
     val blockedMovementSouth: Boolean,
     val blockedMovementEast: Boolean,
     val blockedMovementWest: Boolean,
-    val blockedMovementObject: Boolean,
-    val blockedMovementFloorDecoration: Boolean,
-    val blockedMovementFloor: Boolean,
-    val blockedMovementFull: Boolean
+//    val blockedMovementObject: Boolean,
+//    val blockedMovementFloorDecoration: Boolean,
+//    val blockedMovementFloor: Boolean,
+//    val blockedMovementFull: Boolean
 ) {
     val fCost get() = gCost + hCost
 }

@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.alfred.api.rs.walk.pathfinder
 
 import net.runelite.api.coords.WorldPoint
+import java.util.*
 import kotlin.math.abs
 
 class PathFinder(private val grid: Array<Array<Array<PathNode?>>>) {
@@ -20,21 +21,13 @@ class PathFinder(private val grid: Array<Array<Array<PathNode?>>>) {
             return emptyList()
         }
 
-        val openNodes: MutableList<PathNode> = ArrayList()
-        val closedNodes: MutableList<PathNode> = ArrayList()
+        val closedNodes = HashSet<PathNode>()
+        val openNodes = PriorityQueue<PathNode> { nodeA, nodeB -> nodeA.fCost.compareTo(nodeB.fCost) }
 
         openNodes.add(startNode)
 
         while (openNodes.isNotEmpty()) {
-            var currentNode = openNodes[0]
-
-            for (node in openNodes) {
-                if (node.fCost < currentNode.fCost || node.fCost == currentNode.fCost) {
-                    if (node.hCost < currentNode.hCost) {
-                        currentNode = node
-                    }
-                }
-            }
+            val currentNode = openNodes.peek()
 
             openNodes.remove(currentNode)
             closedNodes.add(currentNode)
