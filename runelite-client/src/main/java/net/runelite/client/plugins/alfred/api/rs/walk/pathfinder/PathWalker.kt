@@ -47,7 +47,7 @@ class PathWalker(private val nodes: List<PathNode>) {
             }
 
             val distance = Calculations.distanceBetweenPoints(previousNode.worldLocation, currentNode.worldLocation).toInt()
-            if (distance >= 5) {
+            if (distance >= 4) {
                 val minimapPoint = getMinimapPoint(currentNode.worldLocation) ?: continue
                 clickPointWhileRunning(minimapPoint, currentNode);
                 previousNode = currentNode;

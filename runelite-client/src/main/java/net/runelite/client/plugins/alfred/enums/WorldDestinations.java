@@ -10,6 +10,7 @@ public enum WorldDestinations {
     DRAYNOR_VILLAGE_BANK("Draynor Village Bank", new WorldPoint(3093, 3244, 0)),
     EDGEVILLE_BANK("Edgeville Bank", new WorldPoint(3094, 3495, 0)),
     LUMBRIDGE_BANK("Lumbridge Bank", new WorldPoint(3209, 3219, 2)),
+    LUMBRIDGE_MONASTERY("Lumbridge Monastery", new WorldPoint(3051, 3484, 0)),
     LUMBRIDGE_CASTLE("Lumbridge Castle", new WorldPoint(3221, 3218, 0)),
     LUMBRIDGE_CHICKENS("Lumbridge Chickens", new WorldPoint(3234, 3294, 0)),
     LUMBRIDGE_COWS("Lumbridge Cows", new WorldPoint(3258, 3266, 0)),
@@ -36,13 +37,21 @@ public enum WorldDestinations {
     AL_KHARID_BANK("Al Kharid Bank", new WorldPoint(3269, 3168, 0)),
     AL_KHARID_MINE("Al Kharid Mine", new WorldPoint(3299, 3287, 0)),
 
-    RIMMINGTON("Rimmington", new WorldPoint(2978, 3238, 0)),
-    RIMMINGTON_MINE("Rimmington Mine", new WorldPoint(3045, 3370, 0)),
+    RIMMINGTON("Rimmington", new WorldPoint(3045, 3370, 0)),
+    RIMMINGTON_MINE("Rimmington Mine", new WorldPoint(2978, 3238, 0)),
+
+    ARDOUGNE_NORTH_BANK("Ardougne North Bank", new WorldPoint(2616, 3332, 0)),
+    ARDOUGNE_SOUTH_BANK("Ardougne South Bank", new WorldPoint(2653, 3283, 0)),
+
+    SEERS_VILLAGE_BANK("Seers Village Bank", new WorldPoint(2725, 3489, 0)),
+    CATHERBY_BANK("Catherby Bank", new WorldPoint(2752, 3392, 0)),
 
     BARBARIAN_VILLAGE("Barbarian Village", new WorldPoint(3084, 3419, 0)),
     WIZARDS_TOWER("Wizards Tower", new WorldPoint(3109, 3168, 0)),
     CRAFTING_GUILD("Crafting Guild", new WorldPoint(2933, 3291, 0)),
     DUEL_ARENA_BANK("Duel Arena Bank", new WorldPoint(3384, 3269, 0)),
+    DWARVEN_MINE("Dwarven Mine",new WorldPoint(3015, 3449, 0)),
+    CHAOS_TEMPLE("Chaos Temple",new WorldPoint(2935, 3515, 0)),
 
     NONE("None", new WorldPoint(0, 0, 0));
 

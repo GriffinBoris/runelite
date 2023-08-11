@@ -34,10 +34,10 @@ class WorldDataLoader(private val path: String) {
 
     private fun readTiles(): MutableList<PathNode> {
         val url = "jdbc:sqlite:$path"
+//            Class.forName("org.sqlite.JDBC");
+        val connection = DriverManager.getConnection(url)
 
         try {
-//            Class.forName("org.sqlite.JDBC");
-            val connection = DriverManager.getConnection(url)
             val statement = connection.createStatement()
             val rs = statement.executeQuery("select * from tiles_tile;")
 
@@ -72,10 +72,11 @@ class WorldDataLoader(private val path: String) {
                 nodes.add(node)
 
             }
-            connection.close()
 
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            connection.close()
         }
         return nodes
     }
@@ -83,10 +84,11 @@ class WorldDataLoader(private val path: String) {
     private fun readTransports(): MutableList<PathTransport> {
         val transports = mutableListOf<PathTransport>()
         val url = "jdbc:sqlite:$path"
+//            Class.forName("org.sqlite.JDBC");
+        val connection = DriverManager.getConnection(url)
 
         try {
-//            Class.forName("org.sqlite.JDBC");
-            val connection = DriverManager.getConnection(url)
+
             val statement = connection.createStatement()
             val rs = statement.executeQuery("select * from tiles_transport;")
 
@@ -105,12 +107,12 @@ class WorldDataLoader(private val path: String) {
                     objectId = rs.getInt("object_id")
                 )
                 transports.add(transport)
-
             }
-            connection.close()
 
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            connection.close()
         }
         return transports
     }
