@@ -29,12 +29,14 @@ public abstract class BaseTask {
             for (Integer itemId : itemIds) {
                 if (Alfred.api.banks().containsItem(itemId)) {
                     if (Alfred.api.banks().withdrawItem(itemId)) {
+                        Alfred.sleep(100, 200);
                         break;
                     }
                 }
             }
         }
 
+        Alfred.sleep(250, 750);
         Alfred.api.banks().close();
         Alfred.sleep(250, 750);
     }

@@ -1,39 +1,37 @@
-package net.runelite.client.plugins.alfred.api.rs.item;
+package net.runelite.client.plugins.alfred.api.rs.item
 
-import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.alfred.Alfred;
+import net.runelite.api.coords.WorldPoint
+import net.runelite.client.plugins.alfred.Alfred
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class RSGroundItemHelper {
-
-    public RSGroundItemHelper() {
+class RSGroundItemHelper {
+    private fun internalGetGroundItems(): List<RSGroundItem> {
+        return Alfred.api.objects().getItemsFromTiles()
     }
 
-    private List<RSGroundItem> internalGetGroundItems() {
-        return Alfred.api.objects().getItemsFromTiles();
+    fun getItemsFromTiles(name: String): List<RSGroundItem> {
+        return internalGetGroundItems().filter { rsGroundItem: RSGroundItem -> rsGroundItem.name.equals(name, ignoreCase = true) }
     }
 
-    public List<RSGroundItem> getItemsFromTiles(String name) {
-        return internalGetGroundItems().stream().filter(rsGroundItem -> rsGroundItem.getName().strip().equalsIgnoreCase(name.strip())).collect(Collectors.toList());
+    fun getItemsFromTiles(id: Int): List<RSGroundItem> {
+        return internalGetGroundItems().filter { rsGroundItem: RSGroundItem -> rsGroundItem.id == id }
     }
 
-    public List<RSGroundItem> getItemsFromTiles(int id) {
-        return internalGetGroundItems().stream().filter(rsGroundItem -> rsGroundItem.getId() == id).collect(Collectors.toList());
+    fun getItemsFromTiles(radius: Int, name: String): List<RSGroundItem> {
+        val playerLocation = Alfred.api.players().localPlayer.worldLocation
+        return getItemsFromTiles(name)
+            .filter { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) <= radius }
+            .sortedBy { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) }
     }
 
-    public List<RSGroundItem> getItemsFromTiles(int radius, String name) {
-        return getItemsFromTiles(name).stream().filter(rsGroundItem -> rsGroundItem.getWorldLocation().distanceTo(Alfred.api.players().getLocalPlayer().getWorldLocation()) <= radius).collect(Collectors.toList());
-//        return items.stream().filter(rsGroundItem -> rsGroundItem.getWorldLocation().distanceTo(Alfred.api.players().getLocalPlayer().getWorldLocation()) <= radius).sorted(Comparator.comparingInt(item -> item.getWorldLocation().distanceTo(Alfred.api.players().getLocalPlayer().getWorldLocation()))).collect(Collectors.toList());
+    fun getItemsFromTiles(radius: Int, id: Int): List<RSGroundItem> {
+        val playerLocation = Alfred.api.players().localPlayer.worldLocation
+        return internalGetGroundItems()
+            .filter { rsGroundItem: RSGroundItem -> rsGroundItem.id == id }
+            .filter { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) <= radius }
+            .sortedBy { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) }
     }
 
-    public List<RSGroundItem> getItemsFromTiles(int radius, int id) {
-        return internalGetGroundItems().stream().filter(rsGroundItem -> rsGroundItem.getId() == id && rsGroundItem.getWorldLocation().distanceTo(Alfred.api.players().getLocalPlayer().getWorldLocation()) <= radius).sorted(Comparator.comparingInt(item -> item.getWorldLocation().distanceTo(Alfred.api.players().getLocalPlayer().getWorldLocation()))).collect(Collectors.toList());
-    }
-
-    public boolean isItemOnGround(int id, WorldPoint worldPoint) {
-        return internalGetGroundItems().stream().anyMatch(rsGroundItem -> rsGroundItem.getId() == id && rsGroundItem.getWorldLocation().equals(worldPoint));
+    fun isItemOnGround(id: Int, worldPoint: WorldPoint): Boolean {
+        return internalGetGroundItems().filter { rsGroundItem: RSGroundItem -> rsGroundItem.id == id && rsGroundItem.worldLocation == worldPoint }.isNotEmpty()
     }
 }

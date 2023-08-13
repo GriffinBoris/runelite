@@ -1,127 +1,94 @@
-package net.runelite.client.plugins.alfred.scripts.transporthelper;
+package net.runelite.client.plugins.alfred.scripts.transporthelper
 
-import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Client;
-import net.runelite.api.GameObject;
-import net.runelite.api.Perspective;
-import net.runelite.api.Tile;
-import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.Plugin;
-import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.alfred.Alfred;
-import net.runelite.client.plugins.alfred.api.rs.walk.RSTile;
-import net.runelite.client.ui.overlay.OverlayManager;
-
-import javax.inject.Inject;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import net.runelite.api.Perspective
+import net.runelite.api.Tile
+import net.runelite.client.plugins.Plugin
+import net.runelite.client.plugins.PluginDescriptor
+import net.runelite.client.plugins.alfred.Alfred
+import net.runelite.client.ui.overlay.OverlayManager
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
+import javax.inject.Inject
 
 @PluginDescriptor(name = "Alfred Transport Helper", enabledByDefault = false)
-@Slf4j
-public class TransportHelperPlugin extends Plugin {
+class TransportHelperPlugin : Plugin() {
     @Inject
-    private OverlayManager overlayManager;
-    @Inject
-    private TransportHelperOverlay overlay;
-    private MouseListener mouseListener;
+    private lateinit var overlayManager: OverlayManager
 
-    @Override
-    protected void startUp() throws Exception {
-        overlayManager.add(overlay);
-        setupMouseListener();
+    @Inject
+    private lateinit var overlay: TransportHelperOverlay
+    private var mouseListener: MouseListener? = null
+
+    override fun startUp() {
+        overlayManager.add(overlay)
+        setupMouseListener()
     }
 
-    @Override
-    protected void shutDown() throws Exception {
-        overlayManager.remove(overlay);
-        Alfred.getClient().getCanvas().removeMouseListener(mouseListener);
+    override fun shutDown() {
+        overlayManager.remove(overlay)
+        Alfred.getClient().getCanvas().removeMouseListener(mouseListener)
     }
 
-    private void setupMouseListener() {
-        mouseListener = new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                Client client = Alfred.getClient();
-                for (RSTile tile : Alfred.api.walk().getAllTiles()) {
-                    final LocalPoint tileLocalLocation = tile.getTile().getLocalLocation();
-                    Polygon poly = Perspective.getCanvasTilePoly(client, tileLocalLocation);
-                    if (poly != null && poly.contains(client.getMouseCanvasPosition().getX(), client.getMouseCanvasPosition().getY())) {
-                        getTileTransportInformation(tile.getTile());
+    private fun setupMouseListener() {
+        mouseListener = object : MouseListener {
+            override fun mouseClicked(e: MouseEvent) {
+                val client = Alfred.getClient()
+                for (tile in Alfred.api.walk().getAllTiles()) {
+                    val tileLocalLocation = tile.tile.getLocalLocation()
+                    val poly = Perspective.getCanvasTilePoly(client, tileLocalLocation)
+                    if (poly != null && poly.contains(client.getMouseCanvasPosition().x, client.getMouseCanvasPosition().y)) {
+                        getTileTransportInformation(tile.tile)
                     }
                 }
             }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
-        };
-
-        Alfred.getClient().getCanvas().addMouseListener(mouseListener);
+            override fun mousePressed(e: MouseEvent) {}
+            override fun mouseReleased(e: MouseEvent) {}
+            override fun mouseEntered(e: MouseEvent) {}
+            override fun mouseExited(e: MouseEvent) {}
+        }
+        Alfred.getClient().getCanvas().addMouseListener(mouseListener)
     }
 
-    private void getTileTransportInformation(Tile tile) {
-        String objectName = "";
-        int objectId = -1;
-
-        WorldPoint worldPoint = tile.getWorldLocation();
-
-
+    private fun getTileTransportInformation(tile: Tile) {
+        var objectName: String? = ""
+        var objectId = -1
+        val worldPoint = tile.getWorldLocation()
         if (tile.getWallObject() != null) {
-            objectName = Alfred.api.objects().getObjectIdVariableName(tile.getWallObject().getId());
-            objectId = tile.getWallObject().getId();
+            objectName = Alfred.api.objects().getObjectIdVariableName(tile.getWallObject().getId())
+            objectId = tile.getWallObject().getId()
         } else {
-            for (GameObject gameObject : tile.getGameObjects()) {
+            for (gameObject in tile.getGameObjects()) {
                 if (gameObject == null) {
-                    continue;
+                    continue
                 }
-
-                objectName = Alfred.api.objects().getObjectIdVariableName(gameObject.getId());
-                objectId = gameObject.getId();
-                break;
+                objectName = Alfred.api.objects().getObjectIdVariableName(gameObject.getId())
+                objectId = gameObject.getId()
+                break
             }
         }
-
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("(");
+        val stringBuilder = StringBuilder()
+        stringBuilder.append("(")
 
         // Start tile
-        stringBuilder.append(String.format("%d, %d, %d", worldPoint.getX(), worldPoint.getY(), worldPoint.getPlane()));
-        stringBuilder.append(", ");
+        stringBuilder.append(String.format("%d, %d, %d", worldPoint.x, worldPoint.y, worldPoint.plane))
+        stringBuilder.append(", ")
 
         // End tile
-        stringBuilder.append("None, None, None");
-        stringBuilder.append(", ");
+        stringBuilder.append("None, None, None")
+        stringBuilder.append(", ")
 
         // Name
-        stringBuilder.append("'Name'");
-        stringBuilder.append(", ");
+        stringBuilder.append("'Name'")
+        stringBuilder.append(", ")
 
         // Object ID
-        stringBuilder.append(String.format("%d", objectId));
-        stringBuilder.append(", ");
+        stringBuilder.append(String.format("%d", objectId))
+        stringBuilder.append(", ")
 
         // Object Name
-        stringBuilder.append(String.format("'%s'", objectName));
-        stringBuilder.append("),");
-
-        System.out.println(stringBuilder.toString());
+        stringBuilder.append(String.format("'%s'", objectName))
+        stringBuilder.append("),")
+        println(stringBuilder.toString())
     }
 }

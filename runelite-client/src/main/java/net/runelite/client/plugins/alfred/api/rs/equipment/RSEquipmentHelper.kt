@@ -1,177 +1,130 @@
-package net.runelite.client.plugins.alfred.api.rs.equipment;
+package net.runelite.client.plugins.alfred.api.rs.equipment
 
-import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.client.plugins.alfred.Alfred;
+import net.runelite.api.widgets.WidgetInfo
+import net.runelite.client.plugins.alfred.Alfred
 
-public class RSEquipmentHelper {
+class RSEquipmentHelper {
     //    child 2 empty
-//    child 1 equipped
-    private final int HELMET_WIDGET_ID = 25362447;
-    private final int CAPE_WIDGET_ID = 25362448;
-    private final int NECKLACE_WIDGET_ID = 25362449;
-    private final int ARROW_WIDGET_ID = 25362457;
-    private final int WEAPON_WIDGET_ID = 25362450;
-    private final int CHEST_WIDGET_ID = 25362451;
-    private final int SHIELD_WIDGET_ID = 25362452;
-    private final int LEGS_WIDGET_ID = 25362453;
-    private final int GLOVES_WIDGET_ID = 25362454;
-    private final int BOOTS_WIDGET_ID = 25362455;
-    private final int RING_WIDGET_ID = 25362456;
-
-    private boolean clickSlot(int slot) {
-        return Alfred.api.widgets().leftClickWidget(slot);
+    //    child 1 equipped
+    companion object {
+        private const val HELMET_WIDGET_ID = 25362447
+        private const val CAPE_WIDGET_ID = 25362448
+        private const val NECKLACE_WIDGET_ID = 25362449
+        private const val ARROW_WIDGET_ID = 25362457
+        private const val WEAPON_WIDGET_ID = 25362450
+        private const val CHEST_WIDGET_ID = 25362451
+        private const val SHIELD_WIDGET_ID = 25362452
+        private const val LEGS_WIDGET_ID = 25362453
+        private const val GLOVES_WIDGET_ID = 25362454
+        private const val BOOTS_WIDGET_ID = 25362455
+        private const val RING_WIDGET_ID = 25362456
     }
 
-    private int getEquippedItemId(int slot) {
-        if (Alfred.api.tabs().getCurrentTab() != WidgetInfo.FIXED_VIEWPORT_EQUIPMENT_TAB) {
-            Alfred.api.tabs().clickEquipmentTab();
+    private fun clickSlot(slot: Int): Boolean {
+        return Alfred.api.widgets().leftClickWidget(slot)
+    }
+
+    private fun getEquippedItemId(slot: Int): Int {
+        if (Alfred.api.tabs().currentTab != WidgetInfo.FIXED_VIEWPORT_EQUIPMENT_TAB) {
+            Alfred.api.tabs().clickEquipmentTab()
         }
-
-        Widget childOne = Alfred.api.widgets().getChildWidget(slot, 1);
-        Widget childTwo = Alfred.api.widgets().getChildWidget(slot, 2);
-
-        if (!childTwo.isHidden()) {
-            return -1;
-        }
-
-        return childOne.getItemId();
+        val childOne = Alfred.api.widgets().getChildWidget(slot, 1)
+        val childTwo = Alfred.api.widgets().getChildWidget(slot, 2)
+        return if (!childTwo.isHidden()) {
+            -1
+        } else childOne.getItemId()
     }
 
-    private boolean isEquipped(int slot) {
-        return getEquippedItemId(slot) != -1;
+    private fun isEquipped(slot: Int): Boolean {
+        return getEquippedItemId(slot) != -1
     }
 
-    public boolean isHelmetEquipped() {
-        return isEquipped(HELMET_WIDGET_ID);
+    val isHelmetEquipped: Boolean
+        get() = isEquipped(HELMET_WIDGET_ID)
+    val isCapeEquipped: Boolean
+        get() = isEquipped(CAPE_WIDGET_ID)
+    val isNecklaceEquipped: Boolean
+        get() = isEquipped(NECKLACE_WIDGET_ID)
+    val isArrowEquipped: Boolean
+        get() = isEquipped(ARROW_WIDGET_ID)
+    val isWeaponEquipped: Boolean
+        get() = isEquipped(WEAPON_WIDGET_ID)
+    val isChestEquipped: Boolean
+        get() = isEquipped(CHEST_WIDGET_ID)
+    val isShieldEquipped: Boolean
+        get() = isEquipped(SHIELD_WIDGET_ID)
+    val isLegsEquipped: Boolean
+        get() = isEquipped(LEGS_WIDGET_ID)
+    val isGlovesEquipped: Boolean
+        get() = isEquipped(GLOVES_WIDGET_ID)
+    val isBootsEquipped: Boolean
+        get() = isEquipped(BOOTS_WIDGET_ID)
+    val isRingEquipped: Boolean
+        get() = isEquipped(RING_WIDGET_ID)
+    val helmetId: Int
+        get() = getEquippedItemId(HELMET_WIDGET_ID)
+    val capeId: Int
+        get() = getEquippedItemId(CAPE_WIDGET_ID)
+    val necklaceId: Int
+        get() = getEquippedItemId(NECKLACE_WIDGET_ID)
+    val arrowId: Int
+        get() = getEquippedItemId(ARROW_WIDGET_ID)
+    val weaponId: Int
+        get() = getEquippedItemId(WEAPON_WIDGET_ID)
+    val chestId: Int
+        get() = getEquippedItemId(CHEST_WIDGET_ID)
+    val shieldId: Int
+        get() = getEquippedItemId(SHIELD_WIDGET_ID)
+    val legsId: Int
+        get() = getEquippedItemId(LEGS_WIDGET_ID)
+    val glovesId: Int
+        get() = getEquippedItemId(GLOVES_WIDGET_ID)
+    val bootsId: Int
+        get() = getEquippedItemId(BOOTS_WIDGET_ID)
+    val ringId: Int
+        get() = getEquippedItemId(RING_WIDGET_ID)
+
+    fun clickHelmet(): Boolean {
+        return clickSlot(HELMET_WIDGET_ID)
     }
 
-    public boolean isCapeEquipped() {
-        return isEquipped(CAPE_WIDGET_ID);
+    fun clickCape(): Boolean {
+        return clickSlot(CAPE_WIDGET_ID)
     }
 
-    public boolean isNecklaceEquipped() {
-        return isEquipped(NECKLACE_WIDGET_ID);
+    fun clickNecklace(): Boolean {
+        return clickSlot(NECKLACE_WIDGET_ID)
     }
 
-    public boolean isArrowEquipped() {
-        return isEquipped(ARROW_WIDGET_ID);
+    fun clickArrow(): Boolean {
+        return clickSlot(ARROW_WIDGET_ID)
     }
 
-    public boolean isWeaponEquipped() {
-        return isEquipped(WEAPON_WIDGET_ID);
+    fun clickWeapon(): Boolean {
+        return clickSlot(WEAPON_WIDGET_ID)
     }
 
-    public boolean isChestEquipped() {
-        return isEquipped(CHEST_WIDGET_ID);
+    fun clickChest(): Boolean {
+        return clickSlot(CHEST_WIDGET_ID)
     }
 
-    public boolean isShieldEquipped() {
-        return isEquipped(SHIELD_WIDGET_ID);
+    fun clickShield(): Boolean {
+        return clickSlot(SHIELD_WIDGET_ID)
     }
 
-    public boolean isLegsEquipped() {
-        return isEquipped(LEGS_WIDGET_ID);
+    fun clickLegs(): Boolean {
+        return clickSlot(LEGS_WIDGET_ID)
     }
 
-    public boolean isGlovesEquipped() {
-        return isEquipped(GLOVES_WIDGET_ID);
+    fun clickGloves(): Boolean {
+        return clickSlot(GLOVES_WIDGET_ID)
     }
 
-    public boolean isBootsEquipped() {
-        return isEquipped(BOOTS_WIDGET_ID);
+    fun clickBoots(): Boolean {
+        return clickSlot(BOOTS_WIDGET_ID)
     }
 
-    public boolean isRingEquipped() {
-        return isEquipped(RING_WIDGET_ID);
+    fun clickRing(): Boolean {
+        return clickSlot(RING_WIDGET_ID)
     }
-
-    public int getHelmetId() {
-        return getEquippedItemId(HELMET_WIDGET_ID);
-    }
-
-    public int getCapeId() {
-        return getEquippedItemId(CAPE_WIDGET_ID);
-    }
-
-    public int getNecklaceId() {
-        return getEquippedItemId(NECKLACE_WIDGET_ID);
-    }
-
-    public int getArrowId() {
-        return getEquippedItemId(ARROW_WIDGET_ID);
-    }
-
-    public int getWeaponId() {
-        return getEquippedItemId(WEAPON_WIDGET_ID);
-    }
-
-    public int getChestId() {
-        return getEquippedItemId(CHEST_WIDGET_ID);
-    }
-
-    public int getShieldId() {
-        return getEquippedItemId(SHIELD_WIDGET_ID);
-    }
-
-    public int getLegsId() {
-        return getEquippedItemId(LEGS_WIDGET_ID);
-    }
-
-    public int getGlovesId() {
-        return getEquippedItemId(GLOVES_WIDGET_ID);
-    }
-
-    public int getBootsId() {
-        return getEquippedItemId(BOOTS_WIDGET_ID);
-    }
-
-    public int getRingId() {
-        return getEquippedItemId(RING_WIDGET_ID);
-    }
-
-    public boolean clickHelmet() {
-        return clickSlot(HELMET_WIDGET_ID);
-    }
-
-    public boolean clickCape() {
-        return clickSlot(CAPE_WIDGET_ID);
-    }
-
-    public boolean clickNecklace() {
-        return clickSlot(NECKLACE_WIDGET_ID);
-    }
-
-    public boolean clickArrow() {
-        return clickSlot(ARROW_WIDGET_ID);
-    }
-
-    public boolean clickWeapon() {
-        return clickSlot(WEAPON_WIDGET_ID);
-    }
-
-    public boolean clickChest() {
-        return clickSlot(CHEST_WIDGET_ID);
-    }
-
-    public boolean clickShield() {
-        return clickSlot(SHIELD_WIDGET_ID);
-    }
-
-    public boolean clickLegs() {
-        return clickSlot(LEGS_WIDGET_ID);
-    }
-
-    public boolean clickGloves() {
-        return clickSlot(GLOVES_WIDGET_ID);
-    }
-
-    public boolean clickBoots() {
-        return clickSlot(BOOTS_WIDGET_ID);
-    }
-
-    public boolean clickRing() {
-        return clickSlot(RING_WIDGET_ID);
-    }
-
 }

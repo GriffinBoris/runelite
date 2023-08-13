@@ -20,24 +20,15 @@ public class Alfred {
     public static BaseAPI api;
     public static BaseTasks tasks;
     private static Client client;
-    @Getter
     private static ClientThread clientThread;
     private static Mouse mouse;
-    @Getter
     private static Keyboard keyboard;
-    @Getter
     private static EventHandler eventHandler;
-    @Getter
     private static WorldService worldService;
-    @Getter
     private static ProfileManager profileManager;
-    @Getter
     private static PlayTimer playTimer;
-    @Getter
     private static String taskStatus;
-    @Getter
     private static String taskSubStatus;
-    @Getter
     private static String status;
     private static RPCServer rpcServer;
 
@@ -67,8 +58,17 @@ public class Alfred {
 //        rpcServer.stop();
     }
 
-    public static Mouse getMouse() {return mouse;}
     public static Client getClient() {return client;}
+    public static ClientThread getClientThread() {return clientThread;}
+    public static Mouse getMouse() {return mouse;}
+    public static Keyboard getKeyboard() {return keyboard;}
+    public static EventHandler getEventHandler() {return eventHandler;}
+    public static WorldService getWorldService() {return worldService;}
+    public static ProfileManager getProfileManager() {return profileManager;}
+    public static PlayTimer getPlayTimer() {return playTimer;}
+    public static String getStatus() {return status;}
+    public static String getTaskStatus() {return taskStatus;}
+    public static String getTaskSubStatus() {return taskSubStatus;}
 
     public static void setStatus(String status) {
         System.out.println(status);

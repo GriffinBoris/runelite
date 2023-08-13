@@ -1,142 +1,87 @@
-package net.runelite.client.plugins.alfred.api.rs.item;
+package net.runelite.client.plugins.alfred.api.rs.item
 
-import net.runelite.api.ItemComposition;
-import net.runelite.api.Point;
-import net.runelite.api.Tile;
-import net.runelite.api.TileItem;
-import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.alfred.Alfred;
-import net.runelite.client.plugins.alfred.api.rs.menu.RSMenu;
-import net.runelite.client.plugins.alfred.api.rs.player.RSPlayer;
+import net.runelite.api.Tile
+import net.runelite.api.TileItem
+import net.runelite.api.coords.WorldPoint
+import net.runelite.client.plugins.alfred.Alfred
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class RSGroundItem {
-
-    private final TileItem tileItem;
-    private final Tile tile;
-
-    public RSGroundItem(TileItem item, Tile tile) {
-        this.tileItem = item;
-        this.tile = tile;
-    }
-
-    public int getId() {
-        return tileItem.getId();
-    }
-
-    public int getQuantity() {
-        return tileItem.getQuantity();
-    }
-
-    public WorldPoint getWorldLocation() {
-        return tile.getWorldLocation();
-    }
-
-    public String getName() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.getName();
-        });
-    }
-
-    public String getMembersName() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.getMembersName();
-        });
-    }
-
-    public int getPrice() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.getPrice();
-        });
-    }
-
-    public int getHighAlchemyPrice() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.getHaPrice();
-        });
-    }
-
-    public boolean isTradeable() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.isTradeable();
-        });
-    }
-
-    public boolean isMembers() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.isMembers();
-        });
-    }
-
-    public boolean isStackable() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.isStackable();
-        });
-    }
-
-    public List<String> getInventoryActions() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            List<String> actions = new ArrayList<>();
-            for (String action : itemComposition.getInventoryActions()) {
-                if (action != null) {
-                    actions.add(action);
-                }
-            }
-            return actions;
-        });
-    }
-
-    public boolean leftClick() {
-        LocalPoint localPoint = tile.getLocalLocation();
-        int plane = tile.getPlane();
-
-        if (Alfred.api.screen().isPointOnScreen(localPoint, plane)) {
-            Point screenPoint = Alfred.api.screen().getLocalPointToScreenPoint(localPoint, plane);
-            Alfred.getMouse().leftClick(screenPoint);
-            return true;
+class RSGroundItem(private val tileItem: TileItem, private val tile: Tile) {
+    val id: Int
+        get() = tileItem.id
+    val quantity: Int
+        get() = tileItem.quantity
+    val worldLocation: WorldPoint
+        get() = tile.worldLocation
+    val name: String
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.name
+        }
+    val membersName: String
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.membersName
+        }
+    val price: Int
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.price
+        }
+    val highAlchemyPrice: Int
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.haPrice
+        }
+    val isTradeable: Boolean
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.isTradeable
+        }
+    val isMembers: Boolean
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.isMembers
+        }
+    val isStackable: Boolean
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.isStackable
+        }
+    val inventoryActions: List<String>
+        get() = Alfred.getClientThread().invokeOnClientThread<List<String>> {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.inventoryActions.filterNotNull().toMutableList()
         }
 
-        return false;
-    }
-
-    public boolean rightClick() {
-        LocalPoint localPoint = tile.getLocalLocation();
-        int plane = tile.getPlane();
-
+    fun leftClick(): Boolean {
+        val localPoint = tile.getLocalLocation()
+        val plane = tile.getPlane()
         if (Alfred.api.screen().isPointOnScreen(localPoint, plane)) {
-            Point screenPoint = Alfred.api.screen().getLocalPointToScreenPoint(localPoint, plane);
-            Alfred.getMouse().rightClick(screenPoint);
-            return true;
+            val screenPoint = Alfred.api.screen().getLocalPointToScreenPoint(localPoint, plane)
+            Alfred.getMouse().leftClick(screenPoint)
+            return true
         }
-
-        return false;
+        return false
     }
 
-    public boolean clickAction(String action) {
-        Alfred.setStatus("Clicking " + action + " on " + getName());
+    fun rightClick(): Boolean {
+        val localPoint = tile.getLocalLocation()
+        val plane = tile.getPlane()
+        if (Alfred.api.screen().isPointOnScreen(localPoint, plane)) {
+            val screenPoint = Alfred.api.screen().getLocalPointToScreenPoint(localPoint, plane)
+            Alfred.getMouse().rightClick(screenPoint)
+            return true
+        }
+        return false
+    }
 
+    fun clickAction(action: String): Boolean {
+        Alfred.setStatus("Clicking " + action + " on " + name)
         if (!rightClick()) {
-            return false;
+            return false
         }
-
-        Alfred.sleep(200, 400);
-        RSMenu rsMenu = Alfred.api.menu().getMenu();
-
-        if (rsMenu == null) {
-            return false;
-        }
-
-        return rsMenu.clickAction(action, getName());
+        Alfred.sleep(200, 400)
+        val rsMenu = Alfred.api.menu().menu ?: return false
+        return rsMenu.clickAction(action, name)
     }
 }

@@ -1,52 +1,35 @@
-package net.runelite.client.plugins.alfred.api.rs.npc;
+package net.runelite.client.plugins.alfred.api.rs.npc
 
-import net.runelite.api.NPC;
-import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.alfred.Alfred;
+import net.runelite.api.NPC
+import net.runelite.api.coords.WorldPoint
+import net.runelite.client.plugins.alfred.Alfred
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class RSNpcHelper {
-
-    public RSNpcHelper() {
+class RSNpcHelper {
+    private fun internalGetNpcs(): List<RSNpc> {
+        return Alfred.getClientThread().invokeOnClientThread {
+            return@invokeOnClientThread Alfred.getClient().npcs.filterNotNull().map { npc: NPC -> RSNpc(npc) }.toList()
+        }
     }
 
-    private List<RSNpc> internalGetNpcs() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            List<RSNpc> npcList = new ArrayList<>();
+    val npcs: List<RSNpc>
+        get() = internalGetNpcs()
 
-            for (NPC npc : Alfred.getClient().getNpcs()) {
-                npcList.add(new RSNpc(npc));
-            }
-
-            return npcList;
-        });
+    fun getNpcs(name: String): List<RSNpc> {
+        return internalGetNpcs().filter { rsNpc: RSNpc -> rsNpc.name.equals(name, ignoreCase = true) }.toList()
     }
 
-    public List<RSNpc> getNpcs() {
-        return internalGetNpcs();
+    fun getNpcs(id: Int): List<RSNpc> {
+        return internalGetNpcs().filter { rsNpc: RSNpc -> rsNpc.id == id }.toList()
     }
 
-    public List<RSNpc> getNpcs(String name) {
-        return internalGetNpcs().stream().filter(npc -> npc.getName().equalsIgnoreCase(name)).collect(Collectors.toList());
+    val attackableNpcs: List<RSNpc>
+        get() = internalGetNpcs().filter { rsNpc: RSNpc -> !rsNpc.isInteracting && !rsNpc.isDead }.toList()
+
+    fun getAttackableNpcs(name: String): List<RSNpc> {
+        return internalGetNpcs().filter { rsNpc: RSNpc -> !rsNpc.isInteracting && !rsNpc.isDead && rsNpc.name.equals(name, ignoreCase = true) }.toList()
     }
 
-    public List<RSNpc> getNpcs(int id) {
-        return internalGetNpcs().stream().filter(npc -> npc.getId() == id).collect(Collectors.toList());
-    }
-
-    public List<RSNpc> getAttackableNpcs() {
-        return internalGetNpcs().stream().filter(npc -> !npc.isInteracting() && !npc.isDead()).collect(Collectors.toList());
-    }
-
-    public List<RSNpc> getAttackableNpcs(String name) {
-        return internalGetNpcs().stream().filter(npc -> !npc.isInteracting() && !npc.isDead() && npc.getName().equalsIgnoreCase(name)).collect(Collectors.toList());
-    }
-
-    public RSNpc getNearestAttackableNpc(String name, WorldPoint worldPoint) {
-        return getAttackableNpcs(name).stream().min(Comparator.comparingInt(c -> c.getWorldLocation().distanceTo(worldPoint))).orElse(null);
+    fun getNearestAttackableNpc(name: String, worldPoint: WorldPoint): RSNpc? {
+        return getAttackableNpcs(name).sortedBy { rsNpc: RSNpc -> rsNpc.worldLocation.distanceTo(worldPoint) }.firstOrNull()
     }
 }

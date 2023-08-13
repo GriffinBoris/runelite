@@ -55,8 +55,8 @@ public enum WorldDestinations {
 
     NONE("None", new WorldPoint(0, 0, 0));
 
-    private final String name;
-    private final WorldPoint worldPoint;
+    public final String name;
+    public final WorldPoint worldPoint;
 
     @Override
     public String toString() {

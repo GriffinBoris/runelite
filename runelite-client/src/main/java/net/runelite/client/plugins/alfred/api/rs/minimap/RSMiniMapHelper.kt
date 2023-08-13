@@ -1,27 +1,18 @@
-package net.runelite.client.plugins.alfred.api.rs.minimap;
+package net.runelite.client.plugins.alfred.api.rs.minimap
 
-import net.runelite.api.Perspective;
-import net.runelite.api.Point;
-import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.alfred.Alfred;
+import net.runelite.api.Perspective
+import net.runelite.api.Point
+import net.runelite.api.coords.LocalPoint
+import net.runelite.api.coords.WorldPoint
+import net.runelite.client.plugins.alfred.Alfred
 
-public class RSMiniMapHelper {
-
-    public RSMiniMapHelper() {
+class RSMiniMapHelper {
+    fun getLocalPointToScreenPoint(localPoint: LocalPoint?, plane: Int): Point? {
+        return Perspective.localToMinimap(Alfred.getClient(), localPoint!!, plane)
     }
 
-    public Point getLocalPointToScreenPoint(LocalPoint localPoint, int plane) {
-        return Perspective.localToMinimap(Alfred.getClient(), localPoint, plane);
+    fun getWorldPointToScreenPoint(worldPoint: WorldPoint?): Point? {
+        val localPoint = LocalPoint.fromWorld(Alfred.getClient(), worldPoint) ?: return null
+        return Perspective.localToMinimap(Alfred.getClient(), localPoint)
     }
-
-    public Point getWorldPointToScreenPoint(WorldPoint worldPoint) {
-        LocalPoint localPoint = LocalPoint.fromWorld(Alfred.getClient(), worldPoint);
-        if (localPoint == null) {
-            return null;
-        }
-
-        return Perspective.localToMinimap(Alfred.getClient(), localPoint);
-    }
-
 }

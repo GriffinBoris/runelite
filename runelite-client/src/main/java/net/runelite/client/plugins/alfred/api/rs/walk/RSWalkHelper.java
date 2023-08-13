@@ -1,21 +1,19 @@
 package net.runelite.client.plugins.alfred.api.rs.walk;
 
 import lombok.Getter;
-import net.runelite.api.Client;
 import net.runelite.api.ObjectID;
 import net.runelite.api.Tile;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.alfred.Alfred;
 import net.runelite.client.plugins.alfred.api.rs.player.RSPlayer;
-import net.runelite.client.plugins.alfred.api.rs.walk.astar.AStarNode;
-import net.runelite.client.plugins.alfred.api.rs.walk.astar.AStarPathFinder;
 import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathFinder;
 import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathNode;
 import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathWalker;
 import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.SavedWorldDataLoader;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RSWalkHelper {
     @Getter
@@ -45,8 +43,8 @@ public class RSWalkHelper {
         return true;
     }
 
-    public List<AStarNode> getPath() {
-        return AStarPathFinder.path;
+    public List<PathNode> getPath() {
+        return PathFinder.Companion.getPath();
     }
 
     private void gatherOperableObjectIds() {
@@ -85,54 +83,6 @@ public class RSWalkHelper {
                 }
             }
         }
-    }
-
-    public Set<WorldMovementFlag> getMovementFlagsForTile(Tile tile) {
-        Client client = Alfred.getClient();
-        if (client.getCollisionMaps() != null) {
-            int[][] flags = client.getCollisionMaps()[client.getPlane()].getFlags();
-            int data = flags[tile.getSceneLocation().getX()][tile.getSceneLocation().getY()];
-
-            return WorldMovementFlag.getSetFlags(data);
-        }
-
-        return new HashSet<>();
-    }
-
-    public List<RSTile> getWalkableTiles() {
-        List<RSTile> walkableTiles = new ArrayList<>();
-
-        for (Tile tile : Alfred.api.world().getTiles()) {
-            Set<WorldMovementFlag> movementFlags = getMovementFlagsForTile(tile);
-
-            Boolean[] blocked = new Boolean[]{
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FULL),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FLOOR),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_FLOOR_DECORATION),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_OBJECT)
-            };
-
-            if (Arrays.asList(blocked).contains(true)) {
-                continue;
-            }
-
-            Boolean[] blockedDirections = new Boolean[]{
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_NORTH),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_EAST),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_EAST),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_NORTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_WEST),
-                    movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_NORTH) && movementFlags.contains(WorldMovementFlag.BLOCK_MOVEMENT_EAST),
-            };
-
-            if (Arrays.asList(blockedDirections).contains(false)) {
-                walkableTiles.add(new RSTile(tile));
-            }
-        }
-
-        return walkableTiles;
     }
 
     public List<RSTile> getAllTiles() {

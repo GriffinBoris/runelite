@@ -27,7 +27,7 @@ public class RSAccountHelper {
 
         Alfred.sleep(300, 600);
         Alfred.getKeyboard().pressEnter();
-        changeWorld(326);
+        changeWorld(302);
 //        changeWorld(316);
         Alfred.sleep(300, 600);
         Alfred.getClient().setUsername(profile.getName());

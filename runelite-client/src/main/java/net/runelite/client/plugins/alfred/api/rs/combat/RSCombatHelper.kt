@@ -1,80 +1,48 @@
-package net.runelite.client.plugins.alfred.api.rs.combat;
+package net.runelite.client.plugins.alfred.api.rs.combat
 
-import net.runelite.api.VarPlayer;
-import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.client.plugins.alfred.Alfred;
+import net.runelite.api.VarPlayer
+import net.runelite.api.widgets.WidgetInfo
+import net.runelite.client.plugins.alfred.Alfred
 
-public class RSCombatHelper {
-
-    public RSCombatHelper() {
+class RSCombatHelper {
+    fun clickPunch(): Boolean {
+        Alfred.api.tabs().clickCombatTab()
+        Alfred.sleep(200, 400)
+        val punch = Alfred.getClientThread().invokeOnClientThread { Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_ONE) } ?: return false
+        Alfred.getMouse().leftClick(punch.bounds)
+        return true
     }
 
-    public boolean clickPunch() {
-        Alfred.api.tabs().clickCombatTab();
-        Alfred.sleep(200, 400);
-
-        Widget punch = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_ONE));
-        if (punch == null) {
-            return false;
-        }
-
-        Alfred.getMouse().leftClick(punch.getBounds());
-        return true;
+    fun clickKick(): Boolean {
+        Alfred.api.tabs().clickCombatTab()
+        Alfred.sleep(200, 400)
+        val punch = Alfred.getClientThread().invokeOnClientThread { Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_TWO) } ?: return false
+        Alfred.getMouse().leftClick(punch.bounds)
+        return true
     }
 
-    public boolean clickKick() {
-        Alfred.api.tabs().clickCombatTab();
-        Alfred.sleep(200, 400);
-
-        Widget punch = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_TWO));
-        if (punch == null) {
-            return false;
-        }
-
-        Alfred.getMouse().leftClick(punch.getBounds());
-        return true;
+    fun clickBlock(): Boolean {
+        Alfred.api.tabs().clickCombatTab()
+        Alfred.sleep(200, 400)
+        val punch = Alfred.getClientThread().invokeOnClientThread { Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_FOUR) } ?: return false
+        Alfred.getMouse().leftClick(punch.bounds)
+        return true
     }
 
-    public boolean clickBlock() {
-        Alfred.api.tabs().clickCombatTab();
-        Alfred.sleep(200, 400);
-
-        Widget punch = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(WidgetInfo.COMBAT_STYLE_FOUR));
-        if (punch == null) {
-            return false;
-        }
-
-        Alfred.getMouse().leftClick(punch.getBounds());
-        return true;
+    fun clickAutoRetaliate(): Boolean {
+        Alfred.api.tabs().clickCombatTab()
+        Alfred.sleep(200, 400)
+        val punch = Alfred.getClientThread().invokeOnClientThread { Alfred.getClient().getWidget(WidgetInfo.COMBAT_AUTO_RETALIATE) } ?: return false
+        Alfred.getMouse().leftClick(punch.bounds)
+        return true
     }
 
-    public boolean clickAutoRetaliate() {
-        Alfred.api.tabs().clickCombatTab();
-        Alfred.sleep(200, 400);
-
-        Widget punch = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(WidgetInfo.COMBAT_AUTO_RETALIATE));
-        if (punch == null) {
-            return false;
-        }
-
-        Alfred.getMouse().leftClick(punch.getBounds());
-        return true;
-    }
-
-    public boolean isPunchSelected() {
-        return Alfred.getVarbitPlayerValue(VarPlayer.ATTACK_STYLE) == 0;
-    }
-
-    public boolean isKickSelected() {
-        return Alfred.getVarbitPlayerValue(VarPlayer.ATTACK_STYLE) == 1;
-    }
-
-    public boolean isBlockSelected() {
-        return Alfred.getVarbitPlayerValue(VarPlayer.ATTACK_STYLE) == 3;
-    }
-
-    public boolean isAutoRetaliateSelected() {
-        return Alfred.getVarbitPlayerValue(172) == 0;
-    }
+    val isPunchSelected: Boolean
+        get() = Alfred.getVarbitPlayerValue(VarPlayer.ATTACK_STYLE) == 0
+    val isKickSelected: Boolean
+        get() = Alfred.getVarbitPlayerValue(VarPlayer.ATTACK_STYLE) == 1
+    val isBlockSelected: Boolean
+        get() = Alfred.getVarbitPlayerValue(VarPlayer.ATTACK_STYLE) == 3
+    val isAutoRetaliateSelected: Boolean
+        get() = Alfred.getVarbitPlayerValue(172) == 0
 }

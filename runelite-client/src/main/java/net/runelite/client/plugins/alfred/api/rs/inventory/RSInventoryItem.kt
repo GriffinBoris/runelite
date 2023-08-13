@@ -1,113 +1,79 @@
-package net.runelite.client.plugins.alfred.api.rs.inventory;
+package net.runelite.client.plugins.alfred.api.rs.inventory
 
-import net.runelite.api.ItemComposition;
-import net.runelite.api.widgets.Widget;
-import net.runelite.client.plugins.alfred.Alfred;
-import net.runelite.client.plugins.alfred.api.rs.menu.RSMenu;
+import net.runelite.api.widgets.Widget
+import net.runelite.client.plugins.alfred.Alfred
+import java.awt.Rectangle
 
-import java.awt.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+class RSInventoryItem(private val item: Widget) {
+    val id: Int
+        get() = item.itemId
+    val quantity: Int
+        get() = item.itemQuantity
+    val name: String
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.name
+        }
+    val membersName: String
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.membersName
+        }
+    val price: Int
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.price
+        }
+    val highAlchemyPrice: Int
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.haPrice
+        }
+    val isTradeable: Boolean
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.isTradeable
+        }
+    val isMembers: Boolean
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.isMembers
+        }
+    val isStackable: Boolean
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.isStackable
+        }
+    val inventoryActions: List<String>
+        get() = Alfred.getClientThread().invokeOnClientThread {
+            val itemComposition = Alfred.getClient().getItemDefinition(id)
+            itemComposition.inventoryActions.filterNotNull().toList()
+        }
+    val bounds: Rectangle
+        get() = item.bounds
 
-public class RSInventoryItem {
-    private final Widget item;
-
-    public RSInventoryItem(Widget item) {
-        this.item = item;
+    fun drop(): Boolean {
+        return Alfred.api.inventory().drop(this)
     }
 
-    public int getId() {
-        return item.getItemId();
+    fun leftClick(): Boolean {
+        Alfred.getMouse().leftClick(bounds)
+        return true
     }
 
-    public int getQuantity() {
-        return ((Widget) item).getItemQuantity();
+    fun rightClick(): Boolean {
+        Alfred.getMouse().rightClick(bounds)
+        return true
     }
 
-    public String getName() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.getName();
-        });
-    }
-
-    public String getMembersName() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.getMembersName();
-        });
-    }
-
-    public int getPrice() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.getPrice();
-        });
-    }
-
-    public int getHighAlchemyPrice() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.getHaPrice();
-        });
-    }
-
-    public boolean isTradeable() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.isTradeable();
-        });
-    }
-
-    public boolean isMembers() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.isMembers();
-        });
-    }
-
-    public boolean isStackable() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return itemComposition.isStackable();
-        });
-    }
-
-    public List<String> getInventoryActions() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
-            ItemComposition itemComposition = Alfred.getClient().getItemDefinition(this.getId());
-            return Arrays.stream(itemComposition.getInventoryActions()).filter(action -> action != null).collect(Collectors.toList());
-        });
-    }
-
-    public Rectangle getBounds() {
-        return item.getBounds();
-    }
-
-    public boolean drop() {
-        return Alfred.api.inventory().drop(this);
-    }
-
-    public boolean leftClick() {
-        Alfred.getMouse().leftClick(this.getBounds());
-        return true;
-    }
-
-    public boolean rightClick() {
-        Alfred.getMouse().rightClick(this.getBounds());
-        return true;
-    }
-
-    public boolean interact(String action) {
+    fun interact(action: String): Boolean {
         if (!rightClick()) {
-            return false;
+            return false
         }
-        if (!Alfred.sleepUntil(() -> Alfred.api.menu().getMenu().hasAction(action), 200, 2000)) {
-            return false;
+        if (!Alfred.sleepUntil({ Alfred.api.menu().menu.hasAction(action) }, 200, 2000)) {
+            return false
         }
-        RSMenu rsMenu = Alfred.api.menu().getMenu();
-        return rsMenu.clickAction(action);
+        val rsMenu = Alfred.api.menu().menu
+        return rsMenu.clickAction(action)
     }
-
 }

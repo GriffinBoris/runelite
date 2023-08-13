@@ -33,23 +33,25 @@ public class RSInventoryHelper {
 
     public int count() {
         open();
-        Widget inventoryWidget = Alfred.api.widgets().getWidget(INVENTORY_CONTAINER_ID);
-        int itemCount = 0;
+        return Alfred.getClientThread().invokeOnClientThread(() -> {
+            Widget inventoryWidget = Alfred.api.widgets().getWidget(INVENTORY_CONTAINER_ID);
+            int itemCount = 0;
 
-        for (Widget item : inventoryWidget.getDynamicChildren()) {
-            if (item == null) {
-                continue;
-            }
+            for (Widget item : inventoryWidget.getDynamicChildren()) {
+                if (item == null) {
+                    continue;
+                }
 
-            if (item.isHidden() || item.isSelfHidden()) {
-                continue;
-            }
+                if (item.isHidden() || item.isSelfHidden()) {
+                    continue;
+                }
 
-            if (!item.getName().isEmpty()) {
-                itemCount++;
+                if (!item.getName().isEmpty()) {
+                    itemCount++;
+                }
             }
-        }
-        return itemCount;
+            return itemCount;
+        });
     }
 
     public boolean isFull() {

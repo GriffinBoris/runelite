@@ -1,136 +1,74 @@
-package net.runelite.client.plugins.alfred.api.rs.npc;
+package net.runelite.client.plugins.alfred.api.rs.npc
 
-import net.runelite.api.Actor;
-import net.runelite.api.NPC;
-import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.coords.WorldArea;
-import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.alfred.Alfred;
-import net.runelite.client.plugins.alfred.api.rs.menu.RSMenu;
+import net.runelite.api.NPC
+import net.runelite.api.coords.LocalPoint
+import net.runelite.api.coords.WorldArea
+import net.runelite.api.coords.WorldPoint
+import net.runelite.client.plugins.alfred.Alfred
+import java.awt.Rectangle
+import java.awt.Shape
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+class RSNpc(private val npc: NPC) {
+    val id: Int
+        get() = npc.id
+    val name: String?
+        get() = npc.name
+    val localLocation: LocalPoint
+        get() = npc.localLocation
+    val worldLocation: WorldPoint
+        get() = npc.worldLocation
+    val worldArea: WorldArea
+        get() = npc.worldArea
+    val convexHull: Shape
+        get() = npc.convexHull
+    val clickBox: Rectangle
+        get() = npc.convexHull.bounds
+    val actions: List<String>
+        get() {
+            return npc.composition.actions.filterNotNull().toList()
+        }
 
-public class RSNpc {
-
-    private final NPC npc;
-
-    public RSNpc(NPC npc) {
-        this.npc = npc;
+    fun hasAction(action: String): Boolean {
+        return actions.contains(action)
     }
 
-    public int getId() {
-        return npc.getId();
-    }
+    val combatLevel: Int
+        get() = npc.combatLevel
+    val isAnimating: Boolean
+        get() = npc.animation != -1
+    val isVisible: Boolean
+        get() = npc.composition.isVisible
+    val isClickable: Boolean
+        get() = npc.composition.isClickable
+    val isDead: Boolean
+        get() = npc.isDead
+    val isInteracting: Boolean
+        get() = npc.isInteracting
 
-    public String getName() {
-        return npc.getName();
-    }
-
-    public LocalPoint getLocalLocation() {
-        return npc.getLocalLocation();
-    }
-
-    public WorldPoint getWorldLocation() {
-        return npc.getWorldLocation();
-    }
-
-    public WorldArea getWorldArea() {
-        return npc.getWorldArea();
-    }
-
-    public Shape getConvexHull() {
-        return npc.getConvexHull();
-    }
-
-    public Rectangle getClickBox() {
-        return npc.getConvexHull().getBounds();
-    }
-
-    public List<String> getActions() {
-        List<String> actions = new ArrayList<>();
-
-        for (String action : npc.getComposition().getActions()) {
-            if (action != null) {
-                actions.add(action);
+    fun attack(): Boolean {
+        if (npc.isInteracting || npc.isDead) {
+            return false
+        }
+        val clickBox = clickBox ?: return false
+        Alfred.getMouse().leftClick(clickBox)
+        return Alfred.sleepUntil({
+            val interactingActor = npc.interacting ?: return@sleepUntil false
+            if (interactingActor.name != null) {
+                return@sleepUntil interactingActor.name == Alfred.getClient().localPlayer.name
             }
+            false
+        }, 100, 3000)
+    }
+
+    fun interact(action: String): Boolean {
+        Alfred.setStatus("Interacting with " + name)
+        if (!actions.contains(action)) {
+            return false
         }
-
-        return actions;
+        val clickBox = clickBox ?: return false
+        Alfred.getMouse().rightClick(clickBox)
+        Alfred.sleep(200, 600)
+        val menu = Alfred.api.menu().menu
+        return menu.clickAction(action)
     }
-
-    public boolean hasAction(String action) {
-        return getActions().contains(action);
-    }
-
-    public int getCombatLevel() {
-        return npc.getCombatLevel();
-    }
-
-    public boolean isAnimating() {
-        return npc.getAnimation() != -1;
-    }
-
-    public boolean isVisible() {
-        return npc.getComposition().isVisible();
-    }
-
-    public boolean isClickable() {
-        return npc.getComposition().isClickable();
-    }
-
-    public boolean isDead() {
-        return npc.isDead();
-    }
-
-    public boolean isInteracting() {
-        return npc.isInteracting();
-    }
-
-    public boolean attack() {
-        if (npc.isInteracting() || npc.isDead()) {
-            return false;
-        }
-
-        Rectangle clickBox = getClickBox();
-        if (clickBox == null) {
-            return false;
-        }
-
-        Alfred.getMouse().leftClick(clickBox);
-        return Alfred.sleepUntil(() -> {
-            Actor interactingActor = npc.getInteracting();
-            if (interactingActor == null) {
-                return false;
-            }
-
-            if (interactingActor.getName() != null) {
-                return interactingActor.getName().equals(Alfred.getClient().getLocalPlayer().getName());
-            }
-
-            return false;
-        }, 100, 3000);
-    }
-
-    public boolean interact(String action) {
-        Alfred.setStatus("Interacting with " + getName());
-
-        if (!getActions().contains(action)) {
-            return false;
-        }
-
-        Rectangle clickBox = getClickBox();
-        if (clickBox == null) {
-            return false;
-        }
-
-        Alfred.getMouse().rightClick(clickBox);
-        Alfred.sleep(200, 600);
-
-        RSMenu menu = Alfred.api.menu().getMenu();
-        return menu.clickAction(action);
-    }
-
 }
-

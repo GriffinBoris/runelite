@@ -1,9 +1,7 @@
 package net.runelite.client.plugins.alfred.scripts.transporthelper;
 
 import net.runelite.api.Client;
-import net.runelite.api.GameObject;
 import net.runelite.api.Perspective;
-import net.runelite.api.WallObject;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.client.plugins.alfred.Alfred;
 import net.runelite.client.plugins.alfred.api.rs.walk.RSTile;

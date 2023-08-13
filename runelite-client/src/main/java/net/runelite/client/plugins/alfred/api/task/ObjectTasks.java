@@ -40,6 +40,7 @@ public class ObjectTasks {
         RSPlayer player = Alfred.api.players().getLocalPlayer();
         List<RSObject> objects = Alfred.api.objects().getObjectsFromTiles(name);
         if (objects.isEmpty()) {
+            Alfred.setStatus("No trees found");
             return;
         }
 
@@ -47,7 +48,8 @@ public class ObjectTasks {
                 .min(Comparator.comparingInt(gameObject -> gameObject.getWorldLocation().distanceTo(player.getWorldLocation())))
                 .orElse(null);
 
-        if (nearestObject.getWorldLocation().distanceTo(player.getWorldLocation()) >= 5) {
+        if (nearestObject.getWorldLocation().distanceTo(player.getWorldLocation()) >= 2) {
+            Alfred.setStatus("No trees near me, walking to nearest tree");
             Alfred.api.walk().walkTo(nearestObject.getWorldLocation());
         }
 
