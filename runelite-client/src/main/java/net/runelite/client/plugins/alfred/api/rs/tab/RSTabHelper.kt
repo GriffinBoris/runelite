@@ -7,8 +7,8 @@ import net.runelite.client.plugins.alfred.Alfred
 class RSTabHelper {
     val currentTab: WidgetInfo
         get() {
-            val tabVar = Alfred.getClient().getVarcIntValue(VarClientInt.INVENTORY_TAB)
-            return when (tabVar) {
+            val tab = Alfred.getClient().getVarcIntValue(VarClientInt.INVENTORY_TAB)
+            return when (tab) {
                 0 -> WidgetInfo.FIXED_VIEWPORT_COMBAT_TAB
                 1 -> WidgetInfo.FIXED_VIEWPORT_STATS_TAB
                 2 -> WidgetInfo.FIXED_VIEWPORT_QUESTS_TAB
@@ -22,7 +22,7 @@ class RSTabHelper {
                 11 -> WidgetInfo.FIXED_VIEWPORT_OPTIONS_TAB
                 12 -> WidgetInfo.FIXED_VIEWPORT_EMOTES_TAB
                 13 -> WidgetInfo.FIXED_VIEWPORT_MUSIC_TAB
-                else -> throw IllegalStateException("Unexpected tab value: $tabVar")
+                else -> throw IllegalStateException("Unexpected tab value: $tab")
             }
         }
 

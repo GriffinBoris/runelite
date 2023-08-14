@@ -36,7 +36,14 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
     }
 
     public override fun getBankLocation(): WorldPoint {
-        return WorldDestinations.VARROCK_WEST_BANK.worldPoint
+        val player = Alfred.api.players().localPlayer
+        val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
+
+        return if (minimumSkillRequirement < 30) {
+            WorldDestinations.VARROCK_WEST_BANK.worldPoint
+        } else {
+            WorldDestinations.SEERS_VILLAGE_BANK.worldPoint
+        }
     }
 
     fun run() {
@@ -44,6 +51,7 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
 
         while (!Alfred.getPlayTimer().isTimerComplete()) {
             val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
+
             if (minimumSkillRequirement < 15) {
                 Alfred.setTaskSubStatus("Chopping Trees")
                 chopTrees(VARROCK_WEST_TREE_WORLD_AREA, VARROCK_WEST_TREE_WORLD_POINT, "tree", "logs")
@@ -117,7 +125,7 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
                         retrieveRecommendedItems(recommendedItems)
                     }
                 } else {
-                    scriptState = ScriptState.WAITING
+                    scriptState = ScriptState.BANKING
                 }
             }
 
@@ -129,14 +137,15 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
             }
 
             ScriptState.CHOPPING -> {
-                Alfred.tasks.objects().chopTree(treeName)
+                Alfred.tasks.woodcutting.findAndChopTree(treeName)
                 scriptState = ScriptState.BANKING
             }
 
             ScriptState.BANKING -> {
                 if (config.keepLogs()) {
                     if (Alfred.api.inventory().isFull) {
-                        bankInventory()
+                        Alfred.api.walk().walkTo(bankLocation)
+                        Alfred.tasks.banking.depositInventory()
                         Alfred.sleep(200)
                     }
                 } else {
@@ -149,23 +158,6 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
                 scriptState = ScriptState.WAITING
             }
         }
-    }
-
-    private fun bankInventory() {
-        Alfred.api.walk().walkTo(bankLocation)
-        val bank = Alfred.api.banks().getNearestBanks().stream().findFirst().orElse(null)
-        if (bank == null) {
-            println("HELP")
-            return
-        }
-        Alfred.api.banks().open(bank)
-        Alfred.sleepUntil({ Alfred.api.banks().isOpen() }, 100, 5000)
-        Alfred.api.banks().depositInventory()
-        Alfred.sleepUntil({ Alfred.api.inventory().isEmpty }, 100, 5000)
-        Alfred.sleep(200, 400)
-        Alfred.api.banks().close()
-        Alfred.sleepUntil({ Alfred.api.banks().isClosed() }, 100, 5000)
-        Alfred.sleep(200, 400)
     }
 
     private val isWieldingRecommendedAxe: Boolean

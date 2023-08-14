@@ -12,9 +12,7 @@ import net.runelite.client.plugins.alfred.api.rs.inventory.RSInventoryItem;
 import net.runelite.client.plugins.alfred.api.rs.objects.RSObject;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j(topic = "RSBankHelper")
@@ -34,12 +32,8 @@ public class RSBankHelper {
         }
 
         WorldPoint playerLocation = Alfred.getClient().getLocalPlayer().getWorldLocation();
-        bankAPIList.sort((o1, o2) -> {
-            int distance1 = o1.getWorldLocation().distanceTo(playerLocation);
-            int distance2 = o2.getWorldLocation().distanceTo(playerLocation);
-            return Integer.compare(distance1, distance2);
-        });
-
+        bankAPIList = bankAPIList.stream().sorted(Comparator.comparingInt(rsbank -> rsbank.getWorldLocation().distanceTo(playerLocation))).collect(Collectors.toList());
+        Collections.reverse(bankAPIList);
         return bankAPIList;
     }
 

@@ -36,32 +36,5 @@ public class ObjectTasks {
         }
     }
 
-    public void chopTree(String name) {
-        RSPlayer player = Alfred.api.players().getLocalPlayer();
-        List<RSObject> objects = Alfred.api.objects().getObjectsFromTiles(name);
-        if (objects.isEmpty()) {
-            Alfred.setStatus("No trees found");
-            return;
-        }
 
-        RSObject nearestObject = objects.stream()
-                .min(Comparator.comparingInt(gameObject -> gameObject.getWorldLocation().distanceTo(player.getWorldLocation())))
-                .orElse(null);
-
-        if (nearestObject.getWorldLocation().distanceTo(player.getWorldLocation()) >= 2) {
-            Alfred.setStatus("No trees near me, walking to nearest tree");
-            Alfred.api.walk().walkTo(nearestObject.getWorldLocation());
-        }
-
-//        if (!Alfred.api.screen().isPointOnScreen(nearestObject.getWorldLocation())) {
-        Alfred.api.camera().lookAt(nearestObject.getWorldLocation());
-//        }
-
-        if (nearestObject.clickAction("chop down")) {
-//        if (nearestObject.leftClick()) {
-            Alfred.sleepUntil(player::isAnimating, 100, 1000 * 10);
-            Alfred.setStatus("Waiting to finish chopping down tree");
-            Alfred.sleepUntil(() -> !player.isMoving() && player.isIdle() && !player.isAnimating(), 100, 1000 * 90);
-        }
-    }
 }
