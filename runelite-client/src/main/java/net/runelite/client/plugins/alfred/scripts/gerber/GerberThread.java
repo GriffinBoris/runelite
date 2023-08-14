@@ -26,13 +26,13 @@ public class GerberThread extends Thread {
 
 //        System.out.println(Alfred.api.equipment().isWeaponEquipped());
 
-//        Alfred.setTaskStatus("Training Mining");
-//        Mining mining = new Mining(config);
-//        mining.run();
+        Alfred.setTaskStatus("Training Mining");
+        Mining mining = new Mining(config);
+        mining.run();
 
-        Alfred.setTaskStatus("Training Woodcutting");
-        Woodcutting woodcutting = new Woodcutting(config);
-        woodcutting.run();
+//        Alfred.setTaskStatus("Training Woodcutting");
+//        Woodcutting woodcutting = new Woodcutting(config);
+//        woodcutting.run();
 //
 //        if (trainCombat()) {
 //            Alfred.setTaskStatus("Training Combat");

@@ -10,7 +10,15 @@ class Banking {
 
         bank ?: return false
         if (bank.worldLocation.distanceTo(player.worldLocation) >= 2) {
-            Alfred.api.walk().walkTo(bank.worldLocation)
+            if (!Alfred.api.screen().isPointOnScreen(bank.localLocation, bank.worldLocation.plane)) {
+                return false
+            }
+
+            val minimapPoint = Alfred.api.miniMap().getWorldPointToScreenPoint(bank.worldLocation)
+            minimapPoint ?: return false
+            Alfred.getMouse().leftClick(minimapPoint)
+            Alfred.sleep(1000)
+            Alfred.sleepUntil({ !player.isMoving && !player.isInteracting && player.isIdle }, 200, 1000 * 10)
         }
 
         Alfred.api.banks().open(bank)
