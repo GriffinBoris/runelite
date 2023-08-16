@@ -2,6 +2,7 @@ package net.runelite.client.plugins.alfred.api.rs.item
 
 import net.runelite.api.Tile
 import net.runelite.api.TileItem
+import net.runelite.api.coords.LocalPoint
 import net.runelite.api.coords.WorldPoint
 import net.runelite.client.plugins.alfred.Alfred
 
@@ -12,6 +13,8 @@ class RSGroundItem(private val tileItem: TileItem, private val tile: Tile) {
         get() = tileItem.quantity
     val worldLocation: WorldPoint
         get() = tile.worldLocation
+    val localLocation: LocalPoint
+        get() = tile.localLocation
     val name: String
         get() = Alfred.getClientThread().invokeOnClientThread {
             val itemComposition = Alfred.getClient().getItemDefinition(id)

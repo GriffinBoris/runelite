@@ -12,13 +12,20 @@ class PathWalker(private val nodes: List<PathNode>) {
     private var player: RSPlayer = Alfred.api.players().localPlayer
 
     fun walkPath() {
+        val skipDistance = 4
         val upperBound = nodes.size - 1
         var previousNode: PathNode? = null
         var nextNode: PathNode? = null
 
+        val player = Alfred.api.players().localPlayer
+
         for (currentNode in nodes) {
             val index = nodes.indexOf(currentNode)
             val isLastNode = nodes.indexOf(currentNode) == nodes.lastIndex
+
+//            if (player.runEnergy >= 30 && !player.isRunningActive) {
+//                player.toggleRunning(true)
+//            }
 
             if (index + 1 <= upperBound) {
                 nextNode = nodes.get(index + 1)
@@ -26,31 +33,36 @@ class PathWalker(private val nodes: List<PathNode>) {
 
             if (isLastNode) {
                 val minimapPoint = getMinimapPoint(currentNode.worldLocation) ?: continue
-                clickPoint(minimapPoint);
-                previousNode = currentNode;
-                continue;
+                clickPoint(minimapPoint)
+                previousNode = currentNode
+                continue
             }
 
             if (currentNode.pathTransports.isNotEmpty()) {
                 val tile = findTile(currentNode) ?: continue
                 nextNode ?: continue
                 operateTransport(currentNode, nextNode, tile)
-                previousNode = currentNode;
-                continue;
+                previousNode = currentNode
+                continue
             }
 
-            if (previousNode == null) {
+            if (previousNode == null && nodes.count() < skipDistance) {
                 val minimapPoint = getMinimapPoint(currentNode.worldLocation) ?: continue
-                clickPoint(minimapPoint);
-                previousNode = currentNode;
-                continue;
+                clickPoint(minimapPoint)
+                previousNode = currentNode
+                continue
+
+            } else if (previousNode == null) {
+                previousNode = currentNode
+                continue
             }
+
 
             val distance = Calculations.distanceBetweenPoints(previousNode.worldLocation, currentNode.worldLocation).toInt()
-            if (distance >= 4) {
+            if (distance >= skipDistance) {
                 val minimapPoint = getMinimapPoint(currentNode.worldLocation) ?: continue
-                clickPointWhileRunning(minimapPoint, currentNode);
-                previousNode = currentNode;
+                clickPointWhileRunning(minimapPoint, currentNode)
+                previousNode = currentNode
             }
         }
     }
@@ -115,13 +127,13 @@ class PathWalker(private val nodes: List<PathNode>) {
         }
 
         if (!rsMenu.hasAction("open")) {
-            println("Menu does not contain open action");
-            return true;
+            println("Menu does not contain open action")
+            return true
         }
 
         if (!rsMenu.clickAction("open")) {
-            println("Failed to operate action");
-            return true;
+            println("Failed to operate action")
+            return true
         }
 
         return true
@@ -154,11 +166,7 @@ class PathWalker(private val nodes: List<PathNode>) {
             return false
         }
 
-        val foundEndPathNode = pathNode.pathTransports
-            .map { pathTransport -> pathTransport.endPathNode }
-            .filterNotNull()
-            .filter { p -> p.worldLocation.equals(nextNode.worldLocation) }
-            .firstOrNull()
+        val foundEndPathNode = pathNode.pathTransports.map { pathTransport -> pathTransport.endPathNode }.filterNotNull().filter { p -> p.worldLocation.equals(nextNode.worldLocation) }.firstOrNull()
 
         if (foundEndPathNode == null) {
             println("No path transport found")
@@ -175,17 +183,17 @@ class PathWalker(private val nodes: List<PathNode>) {
         }
 
         if (!Alfred.sleepUntil({ Alfred.api.menu().menu.hasAction(action) }, 200, 2000)) {
-            println("Menu does not contain action");
+            println("Menu does not contain action")
             return false
         }
 
         val rsMenu = Alfred.api.menu().menu
         if (!rsMenu.clickAction(action)) {
-            println("Failed to operate on tile");
-            return false;
+            println("Failed to operate on tile")
+            return false
         }
 
-        return Alfred.sleepUntil({ player.worldLocation.plane == tileZ }, 100, 5000);
+        return Alfred.sleepUntil({ player.worldLocation.plane == tileZ }, 100, 5000)
 
     }
 

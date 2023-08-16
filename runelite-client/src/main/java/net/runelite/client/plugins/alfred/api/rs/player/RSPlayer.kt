@@ -29,6 +29,8 @@ class RSPlayer(private val runelitePlayer: Player) {
         get() = runelitePlayer.convexHull
     val runEnergy: Int
         get() = Alfred.getClient().energy / 100
+    val isDead: Boolean
+        get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.isDead }
     val isWalking: Boolean
         get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.poseAnimation != ANIMATION_WALKING }
     val isRunning: Boolean

@@ -26,7 +26,6 @@ public class Alfred {
     private static EventHandler eventHandler;
     private static WorldService worldService;
     private static ProfileManager profileManager;
-    private static PlayTimer playTimer;
     private static String taskStatus;
     private static String taskSubStatus;
     private static String status;
@@ -39,7 +38,6 @@ public class Alfred {
         Alfred.clientThread = clientThread;
         Alfred.worldService = worldService;
         Alfred.profileManager = profileManager;
-        Alfred.playTimer = new PlayTimer();
         Alfred.mouse = new Mouse();
         Alfred.keyboard = new Keyboard();
         Alfred.eventHandler = new EventHandler();
@@ -65,7 +63,6 @@ public class Alfred {
     public static EventHandler getEventHandler() {return eventHandler;}
     public static WorldService getWorldService() {return worldService;}
     public static ProfileManager getProfileManager() {return profileManager;}
-    public static PlayTimer getPlayTimer() {return playTimer;}
     public static String getStatus() {return status;}
     public static String getTaskStatus() {return taskStatus;}
     public static String getTaskSubStatus() {return taskSubStatus;}

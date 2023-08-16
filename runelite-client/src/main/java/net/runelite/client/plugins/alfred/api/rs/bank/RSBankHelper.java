@@ -67,7 +67,7 @@ public class RSBankHelper {
             return false;
         }
 
-        Alfred.api.camera().lookAt(bank.getWorldLocation());
+//        Alfred.api.camera().lookAt(bank.getWorldLocation());
 
         if (bank.getClickbox() == null) {
             log.warn("Could not find bank clickbox");
@@ -324,16 +324,7 @@ public class RSBankHelper {
         return foundItem.interact(action);
     }
 
-    public boolean withdrawItem(int itemId) {
-        return internalWithdrawItem(itemId, "withdraw-1");
-    }
-
-    public boolean withdrawItem(String name) {
-        return internalWithdrawItem(name, "withdraw-1");
-    }
-
-    public boolean withdrawX(String name, int amount) {
-        internalWithdrawItem(name, "withdraw-x");
+    private boolean internalWithdrawX(int amount) {
         Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.CHATBOX_TITLE);
         boolean searchBoxShown = Alfred.sleepUntil(() -> {
             if (widget.isHidden() || widget.isSelfHidden()) {
@@ -352,8 +343,34 @@ public class RSBankHelper {
         return true;
     }
 
+    public boolean withdrawItem(int itemId) {
+        return internalWithdrawItem(itemId, "withdraw-1");
+    }
+
+    public boolean withdrawItem(String name) {
+        return internalWithdrawItem(name, "withdraw-1");
+    }
+
+    public boolean withdrawX(String name, int amount) {
+        if (internalWithdrawItem(name, "withdraw-x")) {
+            return internalWithdrawX(amount);
+        }
+        return false;
+    }
+
+    public boolean withdrawX(int itemId, int amount) {
+        if (internalWithdrawItem(itemId, "withdraw-x")) {
+            return internalWithdrawX(amount);
+        }
+        return false;
+    }
+
     public boolean withdrawAll(String name) {
         return internalWithdrawItem(name, "withdraw-all");
+    }
+
+    public boolean withdrawAllButOne(String name) {
+        return internalWithdrawItem(name, "withdraw-all-but-1");
     }
 
 //    public static boolean scrollTo(Widget widget) {

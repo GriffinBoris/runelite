@@ -8,6 +8,7 @@ import net.runelite.client.plugins.alfred.Alfred
 import net.runelite.client.plugins.alfred.api.rs.inventory.RSInventoryItem
 import net.runelite.client.plugins.alfred.enums.WorldDestinations
 import net.runelite.client.plugins.alfred.scripts.gerber.GerberConfig
+import net.runelite.client.plugins.alfred.scripts.gerber.GerberThread
 
 class Mining(private val config: GerberConfig) : BaseTask() {
     companion object {
@@ -20,22 +21,46 @@ class Mining(private val config: GerberConfig) : BaseTask() {
     }
 
     private var scriptState: ScriptState
-    private val recommendedItems: MutableList<List<Int>>
 
     init {
         scriptState = ScriptState.SETUP
-        recommendedItems = ArrayList()
-        recommendedItems.add(recommendedPickaxes)
     }
 
-    public override fun getBankLocation(): WorldPoint {
+    override fun getBankLocation(): WorldPoint {
         return WorldDestinations.VARROCK_EAST_BANK.worldPoint
+    }
+
+    override fun getRequiredItems(): List<Pair<Int, Int>> {
+        val player = Alfred.api.players().localPlayer
+        val skillLevel = player.getSkillLevel(Skill.WOODCUTTING)
+        val requiredItems: MutableList<Pair<Int, Int>> = mutableListOf()
+
+        if (skillLevel >= 1) {
+            requiredItems.add(Pair(ItemID.BRONZE_PICKAXE, 1))
+            requiredItems.add(Pair(ItemID.IRON_PICKAXE, 1))
+        }
+        if (skillLevel >= 6) {
+            requiredItems.add(Pair(ItemID.STEEL_PICKAXE, 1))
+        }
+        if (skillLevel >= 11) {
+            requiredItems.add(Pair(ItemID.BLACK_PICKAXE, 1))
+        }
+        if (skillLevel >= 21) {
+            requiredItems.add(Pair(ItemID.MITHRIL_PICKAXE, 1))
+        }
+        if (skillLevel >= 31) {
+            requiredItems.add(Pair(ItemID.ADAMANT_PICKAXE, 1))
+        }
+        if (skillLevel >= 41) {
+            requiredItems.add(Pair(ItemID.RUNE_PICKAXE, 1))
+        }
+        return requiredItems
     }
 
     fun run() {
         val player = Alfred.api.players().localPlayer
 
-        while (!Alfred.getPlayTimer().isTimerComplete()) {
+        while (!GerberThread.taskTimer.isTimerComplete()) {
             val minimumSkillRequirement = player.getSkillLevel(Skill.MINING)
 
             if (minimumSkillRequirement < 15) {
@@ -62,8 +87,8 @@ class Mining(private val config: GerberConfig) : BaseTask() {
 
         when (scriptState) {
             ScriptState.SETUP -> {
-                if (!isWieldingRecommendedPickaxe) {
-                    val pickaxe = recommendedPickaxeFromInventory
+                if (!isWieldingRequiredPickaxe) {
+                    val pickaxe = getRequiredPickaxeFromInventory
                     if (pickaxe != null) {
                         val inventoryCount = Alfred.api.inventory().count()
                         pickaxe.leftClick()
@@ -71,17 +96,7 @@ class Mining(private val config: GerberConfig) : BaseTask() {
 
                     } else {
                         Alfred.setStatus("Going to get an pickaxe")
-                        Alfred.api.walk().walkTo(bankLocation)
-
-                        val itemsAndQuantities: MutableList<Pair<Int, Int>> = mutableListOf()
-
-                        for (itemIds in recommendedItems) {
-                            for (itemId in itemIds) {
-                                itemsAndQuantities.add(Pair(itemId, 1))
-                            }
-                        }
-
-                        Alfred.tasks.banking.withdrawItems(itemsAndQuantities)
+                        fetchRequiredItems()
                     }
                 } else {
                     scriptState = ScriptState.BANKING
@@ -104,7 +119,7 @@ class Mining(private val config: GerberConfig) : BaseTask() {
             ScriptState.BANKING -> {
                 if (config.keepOre()) {
                     if (Alfred.api.inventory().isFull) {
-                        Alfred.api.walk().walkTo(bankLocation)
+                        Alfred.api.walk().walkTo(getBankLocation())
                         Alfred.tasks.banking.depositInventory()
                         Alfred.sleep(200)
                     }
@@ -120,52 +135,27 @@ class Mining(private val config: GerberConfig) : BaseTask() {
         }
     }
 
-    private val recommendedPickaxes: List<Int>
-        get() {
-            val player = Alfred.api.players().localPlayer
-            val skillLevel = player.getSkillLevel(Skill.MINING)
-            val itemIds: MutableList<Int> = ArrayList()
 
-            if (skillLevel >= 1) {
-                itemIds.add(ItemID.BRONZE_PICKAXE)
-                itemIds.add(ItemID.IRON_PICKAXE)
-            }
-            if (skillLevel >= 6) {
-                itemIds.add(ItemID.STEEL_PICKAXE)
-            }
-            if (skillLevel >= 11) {
-                itemIds.add(ItemID.BLACK_PICKAXE)
-            }
-            if (skillLevel >= 21) {
-                itemIds.add(ItemID.MITHRIL_PICKAXE)
-            }
-            if (skillLevel >= 31) {
-                itemIds.add(ItemID.ADAMANT_PICKAXE)
-            }
-
-            if (skillLevel >= 41) {
-                itemIds.add(ItemID.RUNE_PICKAXE)
-            }
-            return itemIds
-        }
-
-    private val isWieldingRecommendedPickaxe: Boolean
+    private val isWieldingRequiredPickaxe: Boolean
         get() {
             Alfred.setStatus("Checking for pickaxe")
-            return if (!Alfred.api.equipment().isWeaponEquipped) {
-                false
-            } else recommendedPickaxes.contains(Alfred.api.equipment().weaponId)
+            if (!Alfred.api.equipment().isWeaponEquipped) {
+                return false
+            }
+            return getRequiredItems().map { thing: Pair<Int, Int> -> thing.first }.contains(Alfred.api.equipment().weaponId)
         }
-    private val recommendedPickaxeFromInventory: RSInventoryItem?
+    private val getRequiredPickaxeFromInventory: RSInventoryItem?
         get() {
             val inventoryItems = Alfred.api.inventory().items
-            for (recommendedItemId in recommendedPickaxes) {
-                for (rsInventoryItem in inventoryItems) {
-                    if (rsInventoryItem.id == recommendedItemId) {
-                        return rsInventoryItem
+            getRequiredItems()
+                .map { thing: Pair<Int, Int> -> thing.first }
+                .forEach { requiredItemId: Int ->
+                    inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
+                        if (rsInventoryItem.id == requiredItemId) {
+                            return rsInventoryItem
+                        }
                     }
                 }
-            }
             return null
         }
 }

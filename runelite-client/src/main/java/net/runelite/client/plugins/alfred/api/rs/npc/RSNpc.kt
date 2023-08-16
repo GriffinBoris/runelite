@@ -25,7 +25,7 @@ class RSNpc(private val npc: NPC) {
         get() = npc.convexHull.bounds
     val actions: List<String>
         get() {
-            return npc.composition.actions.filterNotNull().toList()
+            return npc.composition.actions.filterNotNull().map { action: String -> action.lowercase() }.toList()
         }
 
     fun hasAction(action: String): Boolean {

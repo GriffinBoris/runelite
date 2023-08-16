@@ -22,7 +22,10 @@ class Mining {
             }
         }
 
-        Alfred.api.camera().lookAt(nearestOre.worldLocation)
+        if (!Alfred.api.screen().isPointOnScreen(nearestOre.localLocation, nearestOre.plane)) {
+            Alfred.api.camera().lookAt(nearestOre.worldLocation)
+        }
+            
         val success = nearestOre.leftClick()
         if (!success) {
             return false

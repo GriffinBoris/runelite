@@ -8,6 +8,7 @@ import net.runelite.client.plugins.alfred.Alfred
 import net.runelite.client.plugins.alfred.api.rs.inventory.RSInventoryItem
 import net.runelite.client.plugins.alfred.enums.WorldDestinations
 import net.runelite.client.plugins.alfred.scripts.gerber.GerberConfig
+import net.runelite.client.plugins.alfred.scripts.gerber.GerberThread
 
 class Woodcutting(private val config: GerberConfig) : BaseTask() {
     companion object {
@@ -27,42 +28,74 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
     }
 
     private var scriptState: ScriptState
-    private val recommendedItems: MutableList<List<Int>>
 
     init {
         scriptState = ScriptState.SETUP
-        recommendedItems = ArrayList()
-        recommendedItems.add(recommendedAxes)
     }
 
-    public override fun getBankLocation(): WorldPoint {
-        val player = Alfred.api.players().localPlayer
-        val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
+//    public override fun getBankLocation(): WorldPoint {
+//        val player = Alfred.api.players().localPlayer
+//        val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
+//
+//        return if (minimumSkillRequirement < 30) {
+//            WorldDestinations.VARROCK_WEST_BANK.worldPoint
+//        } else {
+//            WorldDestinations.SEERS_VILLAGE_BANK.worldPoint
+//        }
+//    }
 
-        return if (minimumSkillRequirement < 30) {
-            WorldDestinations.VARROCK_WEST_BANK.worldPoint
-        } else {
-            WorldDestinations.SEERS_VILLAGE_BANK.worldPoint
+    override fun getBankLocation(): WorldPoint? {
+        return WorldDestinations.VARROCK_WEST_BANK.worldPoint
+    }
+
+    override fun getRequiredItems(): List<Pair<Int, Int>> {
+        val player = Alfred.api.players().localPlayer
+        val skillLevel = player.getSkillLevel(Skill.WOODCUTTING)
+        val requiredItems: MutableList<Pair<Int, Int>> = mutableListOf()
+
+        if (skillLevel >= 1) {
+            requiredItems.add(Pair(ItemID.BRONZE_AXE, 1))
+            requiredItems.add(Pair(ItemID.IRON_AXE, 1))
         }
+        if (skillLevel >= 6) {
+            requiredItems.add(Pair(ItemID.STEEL_AXE, 1))
+        }
+        if (skillLevel >= 11) {
+            requiredItems.add(Pair(ItemID.BLACK_AXE, 1))
+        }
+        if (skillLevel >= 21) {
+            requiredItems.add(Pair(ItemID.MITHRIL_AXE, 1))
+        }
+        if (skillLevel >= 31) {
+            requiredItems.add(Pair(ItemID.ADAMANT_AXE, 1))
+        }
+//        if (skillLevel >= 35 && player.isMembers()) {
+//            requiredItems.add(Pair(ItemID.BLESSED_AXE, 1));
+//        }
+        if (skillLevel >= 41) {
+            requiredItems.add(Pair(ItemID.RUNE_AXE, 1))
+        }
+        return requiredItems
     }
 
     fun run() {
         val player = Alfred.api.players().localPlayer
 
-        while (!Alfred.getPlayTimer().isTimerComplete()) {
+        while (!GerberThread.taskTimer.isTimerComplete()) {
             val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
 
             if (minimumSkillRequirement < 15) {
                 Alfred.setTaskSubStatus("Chopping Trees")
                 chopTrees(VARROCK_WEST_TREE_WORLD_AREA, VARROCK_WEST_TREE_WORLD_POINT, "tree", "logs")
 
-            } else if (minimumSkillRequirement < 30) {
+//            } else if (minimumSkillRequirement < 30) {
+            } else if (minimumSkillRequirement < 99) {
                 Alfred.setTaskSubStatus("Chopping Oak Trees")
                 chopTrees(VARROCK_WEST_OAK_TREE_WORLD_AREA, VARROCK_WEST_OAK_TREE_WORLD_POINT, "oak tree", "oak logs")
 
-            } else if (minimumSkillRequirement < 99) {
-                Alfred.setTaskSubStatus("Chopping Willow Trees")
-                chopTrees(SEERS_WILLOW_TREE_WORLD_AREA, SEERS_WILLOW_TREE_WORLD_POINT, "willow tree", "willow logs")
+//            } else if (minimumSkillRequirement < 99) {
+//                Alfred.setTaskSubStatus("Chopping Willow Trees")
+//                chopTrees(SEERS_WILLOW_TREE_WORLD_AREA, SEERS_WILLOW_TREE_WORLD_POINT, "willow tree", "willow logs")
 
             } else {
                 return
@@ -70,38 +103,6 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
             Alfred.sleep(100)
         }
     }
-
-    private val recommendedAxes: List<Int>
-        get() {
-            val player = Alfred.api.players().localPlayer
-            val skillLevel = player.getSkillLevel(Skill.WOODCUTTING)
-            val itemIds: MutableList<Int> = ArrayList()
-
-            if (skillLevel >= 1) {
-                itemIds.add(ItemID.BRONZE_AXE)
-                itemIds.add(ItemID.IRON_AXE)
-            }
-            if (skillLevel >= 6) {
-                itemIds.add(ItemID.STEEL_AXE)
-            }
-            if (skillLevel >= 11) {
-                itemIds.add(ItemID.BLACK_AXE)
-            }
-            if (skillLevel >= 21) {
-                itemIds.add(ItemID.MITHRIL_AXE)
-            }
-            if (skillLevel >= 31) {
-                itemIds.add(ItemID.ADAMANT_AXE)
-            }
-
-//        if (skillLevel >= 35 && player.isMembers()) {
-//            itemIds.add(ItemID.BLESSED_AXE);
-//        }
-            if (skillLevel >= 41) {
-                itemIds.add(ItemID.RUNE_AXE)
-            }
-            return itemIds
-        }
 
     private fun chopTrees(treeArea: WorldArea, treePoint: WorldPoint, treeName: String, itemName: String) {
         val player = Alfred.api.players().localPlayer
@@ -112,8 +113,8 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
 
         when (scriptState) {
             ScriptState.SETUP -> {
-                if (!isWieldingRecommendedAxe) {
-                    val axe = recommendedAxeFromInventory
+                if (!isWieldingRequiredAxe) {
+                    val axe = getRequiredAxeFromInventory
                     if (axe != null) {
                         val inventoryCount = Alfred.api.inventory().count()
                         axe.leftClick()
@@ -121,8 +122,7 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
 
                     } else {
                         Alfred.setStatus("Going to get an axe")
-                        // walk to bank, get an axe, close the bank and then loop around so it equips it
-                        retrieveRecommendedItems(recommendedItems)
+                        fetchRequiredItems()
                     }
                 } else {
                     scriptState = ScriptState.BANKING
@@ -144,7 +144,7 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
             ScriptState.BANKING -> {
                 if (config.keepLogs()) {
                     if (Alfred.api.inventory().isFull) {
-                        Alfred.api.walk().walkTo(bankLocation)
+                        Alfred.api.walk().walkTo(getBankLocation())
                         Alfred.tasks.banking.depositInventory()
                         Alfred.sleep(200)
                     }
@@ -160,23 +160,26 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
         }
     }
 
-    private val isWieldingRecommendedAxe: Boolean
+    private val isWieldingRequiredAxe: Boolean
         get() {
             Alfred.setStatus("Checking for axe")
-            return if (!Alfred.api.equipment().isWeaponEquipped) {
-                false
-            } else recommendedAxes.contains(Alfred.api.equipment().weaponId)
+            if (!Alfred.api.equipment().isWeaponEquipped) {
+                return false
+            }
+            return getRequiredItems().map { thing: Pair<Int, Int> -> thing.first }.contains(Alfred.api.equipment().weaponId)
         }
-    private val recommendedAxeFromInventory: RSInventoryItem?
+    private val getRequiredAxeFromInventory: RSInventoryItem?
         get() {
             val inventoryItems = Alfred.api.inventory().items
-            for (recommendedItemId in recommendedAxes) {
-                for (rsInventoryItem in inventoryItems) {
-                    if (rsInventoryItem.id == recommendedItemId) {
-                        return rsInventoryItem
+            getRequiredItems()
+                .map { thing: Pair<Int, Int> -> thing.first }
+                .forEach { requiredItemId: Int ->
+                    inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
+                        if (rsInventoryItem.id == requiredItemId) {
+                            return rsInventoryItem
+                        }
                     }
                 }
-            }
             return null
         }
 }

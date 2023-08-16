@@ -27,12 +27,12 @@ public class RSAccountHelper {
 
         Alfred.sleep(300, 600);
         Alfred.getKeyboard().pressEnter();
-        changeWorld(305);
-//        changeWorld(316);
         Alfred.sleep(300, 600);
         Alfred.getClient().setUsername(profile.getName());
         Alfred.sleep(300, 600);
         Alfred.getClient().setPassword(profile.getPassword());
+        Alfred.sleep(300, 600);
+        changeWorld(305);
         Alfred.sleep(300, 600);
         Alfred.getKeyboard().pressEnter();
         Alfred.sleepUntil(() -> Alfred.getClient().getGameState() == GameState.LOGGED_IN, 100, 1000 * 15);

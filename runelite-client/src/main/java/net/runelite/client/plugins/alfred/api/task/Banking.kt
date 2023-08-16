@@ -4,7 +4,7 @@ import net.runelite.client.plugins.alfred.Alfred
 
 class Banking {
 
-    private fun openBank(): Boolean {
+    fun openBank(): Boolean {
         val player = Alfred.api.players().localPlayer
         val bank = Alfred.api.banks().nearestBanks.firstOrNull()
 
@@ -25,7 +25,7 @@ class Banking {
         return Alfred.sleepUntil({ Alfred.api.banks().isOpen() }, 100, 5000)
     }
 
-    private fun closeBank(): Boolean {
+    fun closeBank(): Boolean {
         Alfred.api.banks().close()
         return Alfred.sleepUntil({ Alfred.api.banks().isClosed() }, 100, 5000)
     }
@@ -60,8 +60,7 @@ class Banking {
             when {
                 itemAndQuantity.second <= 0 -> continue
                 itemAndQuantity.second == 1 -> Alfred.api.banks().withdrawItem(itemAndQuantity.first)
-                else -> continue
-//                else -> Alfred.api.banks().withdrawX(itemAndQuantity.first, itemAndQuantity.second)
+                else -> Alfred.api.banks().withdrawX(itemAndQuantity.first, itemAndQuantity.second)
             }
 
             Alfred.sleep(100, 200)
