@@ -44,7 +44,44 @@ class RSCameraHelper {
         }
     }
 
+    fun setYaw(angle: Int) {
+        val cameraAngle = dumbCameraAngle
+        val distance = getAngleDistance(cameraAngle, angle)
+        val turnLeft = distance in 1..179
+
+        if (turnLeft) {
+            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_RIGHT)
+            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_RIGHT) }, { getAngleDistance(dumbCameraAngle, angle) <= 5 }, 10, 1000 * 30)
+        } else {
+            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_LEFT)
+            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_LEFT) }, { getAngleDistance(dumbCameraAngle, angle) <= 5 }, 10, 1000 * 30)
+        }
+    }
+
     fun lookAt(worldPoint: WorldPoint) {
         internalLookAt(worldPoint)
+    }
+
+    private fun cameraPitchPercentage(): Float {
+        val minPitch = 128
+        val maxPitch = 383
+        val currentPitch = Alfred.getClient().cameraPitch
+
+        val adjustedPitch = currentPitch - minPitch
+        val adjustedMaxPitch = maxPitch - minPitch
+
+        return adjustedPitch.toFloat() / adjustedMaxPitch.toFloat()
+    }
+
+    fun setPitch(percentage: Float) {
+        val currentPercentage = cameraPitchPercentage()
+
+        if (currentPercentage < percentage) {
+            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_UP)
+            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_UP) }, { cameraPitchPercentage() >= percentage }, 10, 1000 * 30)
+        } else {
+            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_DOWN)
+            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_DOWN) }, { cameraPitchPercentage() <= percentage }, 10, 1000 * 30)
+        }
     }
 }

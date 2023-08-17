@@ -48,6 +48,10 @@ public class RSBankHelper {
             if (field.getType() == int.class) {
                 try {
                     if (field.getName().contains("BANK_BOOTH")) {
+                        if (field.getInt(null) == 10527) {
+                            continue;
+                        }
+
                         bankBoothObjectIds.add(field.getInt(null));
                     }
                 } catch (IllegalAccessException e) {
@@ -291,6 +295,14 @@ public class RSBankHelper {
 
     public boolean depositAll(String itemName) {
         RSInventoryItem item = Alfred.api.inventory().getItems(itemName).stream().findFirst().orElse(null);
+        if (item == null) {
+            return false;
+        }
+        return internalDepositAll(item);
+    }
+
+    public boolean depositAll(int itemId) {
+        RSInventoryItem item = Alfred.api.inventory().getItems(itemId).stream().findFirst().orElse(null);
         if (item == null) {
             return false;
         }

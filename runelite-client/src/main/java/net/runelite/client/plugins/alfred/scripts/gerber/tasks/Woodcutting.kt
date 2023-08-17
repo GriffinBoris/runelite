@@ -30,27 +30,27 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
     private var scriptState: ScriptState
 
     init {
+        Alfred.setStatus("Training Woodcutting")
         scriptState = ScriptState.SETUP
     }
 
-//    public override fun getBankLocation(): WorldPoint {
-//        val player = Alfred.api.players().localPlayer
-//        val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
-//
-//        return if (minimumSkillRequirement < 30) {
-//            WorldDestinations.VARROCK_WEST_BANK.worldPoint
-//        } else {
-//            WorldDestinations.SEERS_VILLAGE_BANK.worldPoint
-//        }
-//    }
+    override fun getBankLocation(): WorldPoint {
+        val player = Alfred.api.players().localPlayer
+        val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
 
-    override fun getBankLocation(): WorldPoint? {
-        return WorldDestinations.VARROCK_WEST_BANK.worldPoint
+        return if (minimumSkillRequirement < 30) {
+            WorldDestinations.VARROCK_WEST_BANK.worldPoint
+        } else {
+            WorldDestinations.SEERS_VILLAGE_BANK.worldPoint
+        }
     }
+//    override fun getBankLocation(): WorldPoint {
+//        return WorldDestinations.VARROCK_WEST_BANK.worldPoint
+//    }
 
     override fun getRequiredItems(): List<Pair<Int, Int>> {
         val player = Alfred.api.players().localPlayer
-        val skillLevel = player.getSkillLevel(Skill.WOODCUTTING)
+        val skillLevel = player.getSkillLevel(Skill.ATTACK)
         val requiredItems: MutableList<Pair<Int, Int>> = mutableListOf()
 
         if (skillLevel >= 1) {
@@ -69,39 +69,42 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
         if (skillLevel >= 31) {
             requiredItems.add(Pair(ItemID.ADAMANT_AXE, 1))
         }
-//        if (skillLevel >= 35 && player.isMembers()) {
-//            requiredItems.add(Pair(ItemID.BLESSED_AXE, 1));
-//        }
         if (skillLevel >= 41) {
             requiredItems.add(Pair(ItemID.RUNE_AXE, 1))
         }
         return requiredItems
     }
 
-    fun run() {
+    override fun shouldTrain(): Boolean {
         val player = Alfred.api.players().localPlayer
+        val skillLevel = player.getSkillLevel(Skill.WOODCUTTING)
+        return skillLevel < config.woodcuttingLevel()
+    }
 
-        while (!GerberThread.taskTimer.isTimerComplete()) {
-            val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
+    override fun process(): Boolean {
+        val player = Alfred.api.players().localPlayer
+        val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
 
-            if (minimumSkillRequirement < 15) {
-                Alfred.setTaskSubStatus("Chopping Trees")
-                chopTrees(VARROCK_WEST_TREE_WORLD_AREA, VARROCK_WEST_TREE_WORLD_POINT, "tree", "logs")
+        if (minimumSkillRequirement < 15) {
+            Alfred.setTaskSubStatus("Chopping Trees")
+            GerberThread.countLabel = "Logs Collected"
+            chopTrees(VARROCK_WEST_TREE_WORLD_AREA, VARROCK_WEST_TREE_WORLD_POINT, "tree", "logs")
 
-//            } else if (minimumSkillRequirement < 30) {
-            } else if (minimumSkillRequirement < 99) {
-                Alfred.setTaskSubStatus("Chopping Oak Trees")
-                chopTrees(VARROCK_WEST_OAK_TREE_WORLD_AREA, VARROCK_WEST_OAK_TREE_WORLD_POINT, "oak tree", "oak logs")
+        } else if (minimumSkillRequirement < 30) {
+            Alfred.setTaskSubStatus("Chopping Oak Trees")
+            GerberThread.countLabel = "Oak Logs Collected"
+            chopTrees(VARROCK_WEST_OAK_TREE_WORLD_AREA, VARROCK_WEST_OAK_TREE_WORLD_POINT, "oak tree", "oak logs")
 
-//            } else if (minimumSkillRequirement < 99) {
-//                Alfred.setTaskSubStatus("Chopping Willow Trees")
-//                chopTrees(SEERS_WILLOW_TREE_WORLD_AREA, SEERS_WILLOW_TREE_WORLD_POINT, "willow tree", "willow logs")
+        } else if (minimumSkillRequirement < 99) {
+            Alfred.setTaskSubStatus("Chopping Willow Trees")
+            GerberThread.countLabel = "Willow Logs Collected"
+            chopTrees(SEERS_WILLOW_TREE_WORLD_AREA, SEERS_WILLOW_TREE_WORLD_POINT, "willow tree", "willow logs")
 
-            } else {
-                return
-            }
-            Alfred.sleep(100)
+        } else {
+            return false
         }
+
+        return true
     }
 
     private fun chopTrees(treeArea: WorldArea, treePoint: WorldPoint, treeName: String, itemName: String) {
@@ -119,10 +122,6 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
                         val inventoryCount = Alfred.api.inventory().count()
                         axe.leftClick()
                         Alfred.sleepUntil({ Alfred.api.inventory().count() == inventoryCount - 1 }, 100, 3000)
-
-                    } else {
-                        Alfred.setStatus("Going to get an axe")
-                        fetchRequiredItems()
                     }
                 } else {
                     scriptState = ScriptState.BANKING
@@ -137,8 +136,13 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
             }
 
             ScriptState.CHOPPING -> {
-                Alfred.tasks.woodcutting.findAndChopTree(treeName)
-                scriptState = ScriptState.BANKING
+                val countBefore = Alfred.api.inventory().getItems(itemName).count()
+
+                if (Alfred.tasks.woodcutting.findAndChopTree(treeName)) {
+                    val countAfter = Alfred.api.inventory().getItems(itemName).count()
+                    GerberThread.count += countAfter - countBefore
+                    scriptState = ScriptState.BANKING
+                }
             }
 
             ScriptState.BANKING -> {

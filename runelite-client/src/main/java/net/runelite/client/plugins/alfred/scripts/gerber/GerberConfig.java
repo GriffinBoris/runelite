@@ -82,6 +82,17 @@ public interface GerberConfig extends Config {
         return 0;
     }
 
+    @ConfigItem(
+            keyName = "fishingLevel",
+            name = "Fishing",
+            description = "Fishing Level",
+            position = 5,
+            section = skillsSection
+    )
+    default int fishingLevel() {
+        return 0;
+    }
+
     @ConfigSection(
             name = "Combat Settings",
             description = "Combat Settings",
@@ -147,6 +158,25 @@ public interface GerberConfig extends Config {
             section = woodcuttingSettingsSection
     )
     default boolean keepLogs() {
+        return true;
+    }
+
+    @ConfigSection(
+            name = "Fishing Settings",
+            description = "Fishing Settings",
+            position = 4,
+            closedByDefault = false
+    )
+    String fishingSettingsSection = "fishingSettings";
+
+    @ConfigItem(
+            keyName = "keepFish",
+            name = "Keep Fish",
+            description = "Keep Fish",
+            position = 0,
+            section = fishingSettingsSection
+    )
+    default boolean keepFish() {
         return true;
     }
 }

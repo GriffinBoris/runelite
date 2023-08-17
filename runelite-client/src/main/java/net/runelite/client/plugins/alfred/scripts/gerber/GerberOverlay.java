@@ -42,11 +42,8 @@ public class GerberOverlay extends Overlay {
         overlayBuilder.drawBounds();
         overlayBuilder.drawTitle("Alfred Gerber");
 
-        overlayBuilder.drawText("Overall Max Run Time:", GerberThread.Companion.getOverallTimer().getTimeout() + " minutes", false);
-        overlayBuilder.drawText("Overall Elapsed Run Time:", GerberThread.Companion.getOverallTimer().getElapsedTimeString(), false);
-        overlayBuilder.drawText("", false);
-        overlayBuilder.drawText("Task Max Run Time:", GerberThread.Companion.getTaskTimer().getTimeout() + " minutes", false);
-        overlayBuilder.drawText("Task Elapsed Run Time:", GerberThread.Companion.getTaskTimer().getElapsedTimeString(), false);
+        overlayBuilder.drawText("Task/Overall Max Time:", GerberThread.Companion.getTaskTimer().getTimeout() + " minutes / " + GerberThread.Companion.getOverallTimer().getTimeout() + " minutes", false);
+        overlayBuilder.drawText("Task/Overall Elapsed Time:", GerberThread.Companion.getTaskTimer().getElapsedTimeString() + " / " + GerberThread.Companion.getOverallTimer().getElapsedTimeString(), false);
 
 //        overlayBuilder.drawText("", true);
 //        overlayBuilder.drawText("", false);
@@ -56,5 +53,9 @@ public class GerberOverlay extends Overlay {
 
         overlayBuilder.drawText("", false);
         overlayBuilder.drawText("Current Status:", Alfred.getStatus(), true);
+
+        if (!GerberThread.Companion.getCountLabel().isEmpty()) {
+            overlayBuilder.drawText(GerberThread.Companion.getCountLabel() + ":", Integer.toString(GerberThread.Companion.getCount()), true);
+        }
     }
 }

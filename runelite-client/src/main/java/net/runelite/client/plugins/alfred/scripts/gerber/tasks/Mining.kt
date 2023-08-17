@@ -23,6 +23,7 @@ class Mining(private val config: GerberConfig) : BaseTask() {
     private var scriptState: ScriptState
 
     init {
+        Alfred.setStatus("Training Mining")
         scriptState = ScriptState.SETUP
     }
 
@@ -32,7 +33,7 @@ class Mining(private val config: GerberConfig) : BaseTask() {
 
     override fun getRequiredItems(): List<Pair<Int, Int>> {
         val player = Alfred.api.players().localPlayer
-        val skillLevel = player.getSkillLevel(Skill.WOODCUTTING)
+        val skillLevel = player.getSkillLevel(Skill.ATTACK)
         val requiredItems: MutableList<Pair<Int, Int>> = mutableListOf()
 
         if (skillLevel >= 1) {
@@ -57,25 +58,31 @@ class Mining(private val config: GerberConfig) : BaseTask() {
         return requiredItems
     }
 
-    fun run() {
+    override fun shouldTrain(): Boolean {
         val player = Alfred.api.players().localPlayer
+        val skillLevel = player.getSkillLevel(Skill.MINING)
+        return skillLevel < config.miningLevel()
+    }
 
-        while (!GerberThread.taskTimer.isTimerComplete()) {
-            val minimumSkillRequirement = player.getSkillLevel(Skill.MINING)
+    override fun process(): Boolean {
+        val player = Alfred.api.players().localPlayer
+        val minimumSkillRequirement = player.getSkillLevel(Skill.MINING)
 
-            if (minimumSkillRequirement < 15) {
-                Alfred.setTaskSubStatus("Mining Copper")
-                mineOre(VARROCK_EAST_MINE_WORLD_AREA, VARROCK_EAST_MINE_WORLD_POINT, "copper rocks", "copper ore")
+        if (minimumSkillRequirement < 15) {
+            Alfred.setTaskSubStatus("Mining Copper")
+            GerberThread.countLabel = "Copper Mined"
+            mineOre(VARROCK_EAST_MINE_WORLD_AREA, VARROCK_EAST_MINE_WORLD_POINT, "copper rocks", "copper ore")
 
-            } else if (minimumSkillRequirement < 70) {
-                Alfred.setTaskSubStatus("Mining Iron")
-                mineOre(VARROCK_EAST_MINE_WORLD_AREA, VARROCK_EAST_MINE_WORLD_POINT, "iron rocks", "iron ore")
+        } else if (minimumSkillRequirement < 70) {
+            Alfred.setTaskSubStatus("Mining Iron")
+            GerberThread.countLabel = "Iron Mined"
+            mineOre(VARROCK_EAST_MINE_WORLD_AREA, VARROCK_EAST_MINE_WORLD_POINT, "iron rocks", "iron ore")
 
-            } else {
-                return
-            }
-            Alfred.sleep(100)
+        } else {
+            return false
         }
+
+        return true
     }
 
     private fun mineOre(oreArea: WorldArea, orePoint: WorldPoint, oreName: String, itemName: String) {
@@ -93,10 +100,6 @@ class Mining(private val config: GerberConfig) : BaseTask() {
                         val inventoryCount = Alfred.api.inventory().count()
                         pickaxe.leftClick()
                         Alfred.sleepUntil({ Alfred.api.inventory().count() == inventoryCount - 1 }, 100, 3000)
-
-                    } else {
-                        Alfred.setStatus("Going to get an pickaxe")
-                        fetchRequiredItems()
                     }
                 } else {
                     scriptState = ScriptState.BANKING
@@ -111,9 +114,10 @@ class Mining(private val config: GerberConfig) : BaseTask() {
             }
 
             ScriptState.MINING -> {
-                Alfred.tasks.mining.findAndMineOre(oreName)
-                Alfred.tasks
-                scriptState = ScriptState.BANKING
+                if (Alfred.tasks.mining.findAndMineOre(oreName)) {
+                    GerberThread.count++
+                    scriptState = ScriptState.BANKING
+                }
             }
 
             ScriptState.BANKING -> {

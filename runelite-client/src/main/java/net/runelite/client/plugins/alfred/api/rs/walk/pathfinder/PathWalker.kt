@@ -7,6 +7,7 @@ import net.runelite.api.coords.WorldPoint
 import net.runelite.client.plugins.alfred.Alfred
 import net.runelite.client.plugins.alfred.api.rs.math.Calculations
 import net.runelite.client.plugins.alfred.api.rs.player.RSPlayer
+import net.runelite.client.plugins.alfred.util.Utility
 
 class PathWalker(private val nodes: List<PathNode>) {
     private var player: RSPlayer = Alfred.api.players().localPlayer
@@ -23,9 +24,13 @@ class PathWalker(private val nodes: List<PathNode>) {
             val index = nodes.indexOf(currentNode)
             val isLastNode = nodes.indexOf(currentNode) == nodes.lastIndex
 
-//            if (player.runEnergy >= 30 && !player.isRunningActive) {
-//                player.toggleRunning(true)
-//            }
+
+            Utility.retryFunction(3, true) {
+                if (player.runEnergy >= 30 && !player.isRunningActive) {
+                    player.toggleRunning(true)
+                }
+                return@retryFunction true
+            }
 
             if (index + 1 <= upperBound) {
                 nextNode = nodes.get(index + 1)
@@ -56,7 +61,6 @@ class PathWalker(private val nodes: List<PathNode>) {
                 previousNode = currentNode
                 continue
             }
-
 
             val distance = Calculations.distanceBetweenPoints(previousNode.worldLocation, currentNode.worldLocation).toInt()
             if (distance >= skipDistance) {

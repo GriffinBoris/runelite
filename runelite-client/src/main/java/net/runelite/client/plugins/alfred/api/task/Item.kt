@@ -37,7 +37,7 @@ class Item {
                 val inventoryCount = Alfred.api.inventory().count()
                 if (rsGroundItem.clickAction("take")) {
                     if (!standingOnItem) {
-                        Alfred.sleepUntil({ !player.isMoving }, 50, 2000)
+                        Alfred.sleepUntil({ !player.isMoving }, 50, 3000)
                     }
 
                     Alfred.sleepUntil({ !player.isMoving && !player.isInteracting && player.isIdle }, 100, 1000 * 10)

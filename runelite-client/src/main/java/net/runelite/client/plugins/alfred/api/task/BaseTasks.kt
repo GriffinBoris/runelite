@@ -6,4 +6,5 @@ class BaseTasks {
     val mining: Mining = Mining()
     val npc: NPC = NPC()
     val item: Item = Item()
+    val fishing: Fishing = Fishing()
 }

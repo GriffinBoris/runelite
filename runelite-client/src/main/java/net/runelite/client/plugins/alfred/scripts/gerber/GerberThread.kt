@@ -4,6 +4,7 @@ import net.runelite.api.GameState
 import net.runelite.api.Skill
 import net.runelite.client.plugins.alfred.Alfred
 import net.runelite.client.plugins.alfred.scripts.gerber.tasks.Combat
+import net.runelite.client.plugins.alfred.scripts.gerber.tasks.Fishing
 import net.runelite.client.plugins.alfred.scripts.gerber.tasks.Mining
 import net.runelite.client.plugins.alfred.scripts.gerber.tasks.Woodcutting
 import net.runelite.client.plugins.alfred.util.PlayTimer
@@ -13,26 +14,33 @@ class GerberThread(private val config: GerberConfig) : Thread() {
     companion object {
         val overallTimer = PlayTimer()
         val taskTimer = PlayTimer()
+        var countLabel = ""
+        var count = 0
     }
 
     override fun run() {
         login()
+        Alfred.api.camera().setPitch(1.0f)
+        Alfred.api.camera().setYaw(315)
 
         val trainableSkills = setupTrainableSkills()
 
-        overallTimer.setRandomTimeout(30, 35)
+        overallTimer.setRandomTimeout(60, 90)
         overallTimer.start()
 
-        while (!overallTimer.isTimerComplete()) {
+        while (!overallTimer.isTimerComplete) {
 
             if (trainableSkills.isEmpty()) {
-                break
+                setupTrainableSkills()
+                if (trainableSkills.isEmpty()) {
+                    break
+                }
             }
 
             val skillToTrain = trainableSkills.removeAt(0)
 
             taskTimer.reset()
-            taskTimer.setRandomTimeout(5, 8)
+            taskTimer.setRandomTimeout(20, 40)
             taskTimer.start()
 
             when (skillToTrain) {
@@ -50,7 +58,15 @@ class GerberThread(private val config: GerberConfig) : Thread() {
                     Alfred.setStatus("Training Woodcutting")
                     Woodcutting(config).run()
                 }
+
+                Fishing::class.toString() -> {
+                    Alfred.setStatus("Training Fishing")
+                    Fishing(config).run()
+                }
             }
+
+            Alfred.api.camera().setPitch(1.0f)
+            Alfred.api.camera().setYaw(315)
         }
 
         logout()
@@ -78,6 +94,10 @@ class GerberThread(private val config: GerberConfig) : Thread() {
 
         if (player.getSkillLevel(Skill.WOODCUTTING) < config.woodcuttingLevel()) {
             trainableSkills.add(Woodcutting::class.toString())
+        }
+
+        if (player.getSkillLevel(Skill.FISHING) < config.fishingLevel()) {
+            trainableSkills.add(Fishing::class.toString())
         }
 
         val skillsList = trainableSkills.toMutableList()
