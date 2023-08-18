@@ -9,9 +9,62 @@ import net.runelite.client.config.ConfigSection;
 public interface GerberConfig extends Config {
 
     @ConfigSection(
+            name = "Tasks",
+            description = "Tasks",
+            position = 0,
+            closedByDefault = false
+    )
+    String taskSection = "tasks";
+
+    @ConfigItem(
+            keyName = "trainCombat",
+            name = "Train Combat",
+            description = "Train Combat",
+            position = 0,
+            section = taskSection
+    )
+    default boolean trainCombat() {
+        return true;
+    }
+
+    @ConfigItem(
+            keyName = "trainWoodcutting",
+            name = "Train Woodcutting",
+            description = "Train Woodcutting",
+            position = 1,
+            section = taskSection
+    )
+    default boolean trainWoodcutting() {
+        return true;
+    }
+
+    @ConfigItem(
+            keyName = "trainMining",
+            name = "Train Mining",
+            description = "Train Mining",
+            position = 2,
+            section = taskSection
+    )
+    default boolean trainMining() {
+        return true;
+    }
+
+    @ConfigItem(
+            keyName = "trainFishing",
+            name = "Train Fishing",
+            description = "Train Fishing",
+            position = 3,
+            section = taskSection
+    )
+    default boolean trainFishing() {
+        return true;
+    }
+
+
+    @ConfigSection(
             name = "Skill Levels",
             description = "Skill Levels",
-            position = 0,
+            position = 1,
             closedByDefault = false
     )
     String skillsSection = "skills";
@@ -96,7 +149,7 @@ public interface GerberConfig extends Config {
     @ConfigSection(
             name = "Combat Settings",
             description = "Combat Settings",
-            position = 1,
+            position = 2,
             closedByDefault = false
     )
     String combatSettingsSection = "combatSettings";
@@ -126,7 +179,7 @@ public interface GerberConfig extends Config {
     @ConfigSection(
             name = "Mining Settings",
             description = "Mining Settings",
-            position = 2,
+            position = 3,
             closedByDefault = false
     )
     String miningSettingsSection = "miningSettings";
@@ -145,7 +198,7 @@ public interface GerberConfig extends Config {
     @ConfigSection(
             name = "Woodcutting Settings",
             description = "Woodcutting Settings",
-            position = 3,
+            position = 4,
             closedByDefault = false
     )
     String woodcuttingSettingsSection = "woodcuttingSettings";
@@ -164,7 +217,7 @@ public interface GerberConfig extends Config {
     @ConfigSection(
             name = "Fishing Settings",
             description = "Fishing Settings",
-            position = 4,
+            position = 5,
             closedByDefault = false
     )
     String fishingSettingsSection = "fishingSettings";

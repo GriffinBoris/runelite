@@ -23,7 +23,7 @@ class GerberThread(private val config: GerberConfig) : Thread() {
         Alfred.api.camera().setPitch(1.0f)
         Alfred.api.camera().setYaw(315)
 
-        val trainableSkills = setupTrainableSkills()
+        var trainableSkills = setupTrainableSkills()
 
         overallTimer.setRandomTimeout(60, 90)
         overallTimer.start()
@@ -31,7 +31,7 @@ class GerberThread(private val config: GerberConfig) : Thread() {
         while (!overallTimer.isTimerComplete) {
 
             if (trainableSkills.isEmpty()) {
-                setupTrainableSkills()
+                trainableSkills = setupTrainableSkills()
                 if (trainableSkills.isEmpty()) {
                     break
                 }
@@ -40,28 +40,32 @@ class GerberThread(private val config: GerberConfig) : Thread() {
             val skillToTrain = trainableSkills.removeAt(0)
 
             taskTimer.reset()
-            taskTimer.setRandomTimeout(20, 40)
+            taskTimer.setRandomTimeout(10, 12)
             taskTimer.start()
 
             when (skillToTrain) {
                 Combat::class.toString() -> {
-                    Alfred.setStatus("Training Combat")
-                    Combat(config).run()
+                    if (config.trainCombat()) {
+                        Combat(config).run()
+                    }
                 }
 
                 Mining::class.toString() -> {
-                    Alfred.setStatus("Training Mining")
-                    Mining(config).run()
+                    if (config.trainMining()) {
+                        Mining(config).run()
+                    }
                 }
 
                 Woodcutting::class.toString() -> {
-                    Alfred.setStatus("Training Woodcutting")
-                    Woodcutting(config).run()
+                    if (config.trainWoodcutting()) {
+                        Woodcutting(config).run()
+                    }
                 }
 
                 Fishing::class.toString() -> {
-                    Alfred.setStatus("Training Fishing")
-                    Fishing(config).run()
+                    if (config.trainFishing()) {
+                        Fishing(config).run()
+                    }
                 }
             }
 

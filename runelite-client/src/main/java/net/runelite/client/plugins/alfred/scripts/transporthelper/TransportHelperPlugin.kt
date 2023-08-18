@@ -88,6 +88,14 @@ class TransportHelperPlugin : Plugin() {
 
         // Object Name
         stringBuilder.append(String.format("'%s'", objectName))
+        stringBuilder.append(", ")
+
+        // start direction unblocks
+        stringBuilder.append("[]")
+        stringBuilder.append(", ")
+
+        // end direction unblocks
+        stringBuilder.append("[]")
         stringBuilder.append("),")
         println(stringBuilder.toString())
     }

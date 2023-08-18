@@ -44,6 +44,13 @@ class PathWalker(private val nodes: List<PathNode>) {
             }
 
             if (currentNode.pathTransports.isNotEmpty()) {
+                if (previousNode != null) {
+                    val minimapPoint = getMinimapPoint(previousNode.worldLocation)
+                    if (minimapPoint != null) {
+                        clickPoint(minimapPoint)
+                    }
+                }
+
                 val tile = findTile(currentNode) ?: continue
                 nextNode ?: continue
                 operateTransport(currentNode, nextNode, tile)

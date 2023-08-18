@@ -1,5 +1,6 @@
 package net.runelite.client.plugins.alfred.api.rs.equipment
 
+import net.runelite.api.widgets.Widget
 import net.runelite.api.widgets.WidgetInfo
 import net.runelite.client.plugins.alfred.Alfred
 
@@ -18,21 +19,41 @@ class RSEquipmentHelper {
         private const val GLOVES_WIDGET_ID = 25362454
         private const val BOOTS_WIDGET_ID = 25362455
         private const val RING_WIDGET_ID = 25362456
+
+        enum class EquipmentSlot {
+            HELMET,
+            CAPE,
+            NECKLACE,
+            ARROW,
+            WEAPON,
+            CHEST,
+            SHIELD,
+            LEGS,
+            GLOVES,
+            BOOTS,
+            RING,
+        }
     }
 
     private fun clickSlot(slot: Int): Boolean {
         return Alfred.api.widgets().leftClickWidget(slot)
     }
 
-    private fun getEquippedItemId(slot: Int): Int {
+    private fun getEquippedItem(slot: Int): Widget? {
         if (Alfred.api.tabs().currentTab != WidgetInfo.FIXED_VIEWPORT_EQUIPMENT_TAB) {
             Alfred.api.tabs().clickEquipmentTab()
         }
         val childOne = Alfred.api.widgets().getChildWidget(slot, 1)
         val childTwo = Alfred.api.widgets().getChildWidget(slot, 2)
         return if (!childTwo.isHidden()) {
-            -1
-        } else childOne.getItemId()
+            null
+        } else childOne
+    }
+
+
+    private fun getEquippedItemId(slot: Int): Int {
+        val item = getEquippedItem(slot) ?: return -1
+        return item.getItemId()
     }
 
     private fun isEquipped(slot: Int): Boolean {
@@ -84,6 +105,21 @@ class RSEquipmentHelper {
     val ringId: Int
         get() = getEquippedItemId(RING_WIDGET_ID)
 
+    fun getItemFromSlot(slot: EquipmentSlot): Widget? {
+        return when (slot) {
+            EquipmentSlot.HELMET -> getEquippedItem(HELMET_WIDGET_ID)
+            EquipmentSlot.CAPE -> getEquippedItem(CAPE_WIDGET_ID)
+            EquipmentSlot.NECKLACE -> getEquippedItem(NECKLACE_WIDGET_ID)
+            EquipmentSlot.ARROW -> getEquippedItem(ARROW_WIDGET_ID)
+            EquipmentSlot.WEAPON -> getEquippedItem(WEAPON_WIDGET_ID)
+            EquipmentSlot.CHEST -> getEquippedItem(CHEST_WIDGET_ID)
+            EquipmentSlot.SHIELD -> getEquippedItem(SHIELD_WIDGET_ID)
+            EquipmentSlot.LEGS -> getEquippedItem(LEGS_WIDGET_ID)
+            EquipmentSlot.GLOVES -> getEquippedItem(GLOVES_WIDGET_ID)
+            EquipmentSlot.BOOTS -> getEquippedItem(BOOTS_WIDGET_ID)
+            EquipmentSlot.RING -> getEquippedItem(RING_WIDGET_ID)
+        }
+    }
     fun clickHelmet(): Boolean {
         return clickSlot(HELMET_WIDGET_ID)
     }
