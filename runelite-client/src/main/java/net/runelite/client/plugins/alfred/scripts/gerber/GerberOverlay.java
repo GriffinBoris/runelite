@@ -29,11 +29,11 @@ public class GerberOverlay extends Overlay {
     }
 
     private void drawStatusBox(Graphics2D graphics) {
-        if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
+        if (Alfred.Companion.getClient().getGameState() != GameState.LOGGED_IN) {
             return;
         }
 
-        Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.CHATBOX_MESSAGE_LINES);
+        Widget widget = Alfred.Companion.getApi().getWidgets().getWidget(WidgetInfo.CHATBOX_MESSAGE_LINES);
         if (widget == null || widget.isHidden() || widget.isSelfHidden()) {
             return;
         }
@@ -48,11 +48,11 @@ public class GerberOverlay extends Overlay {
 //        overlayBuilder.drawText("", true);
 //        overlayBuilder.drawText("", false);
 
-        overlayBuilder.drawText("Task:", Alfred.getTaskStatus(), true);
-        overlayBuilder.drawText("Task Status:", Alfred.getTaskSubStatus(), true);
+        overlayBuilder.drawText("Task:", Alfred.Companion.getTaskStatus(), true);
+        overlayBuilder.drawText("Task Status:", Alfred.Companion.getTaskSubStatus(), true);
 
         overlayBuilder.drawText("", false);
-        overlayBuilder.drawText("Current Status:", Alfred.getStatus(), true);
+        overlayBuilder.drawText("Current Status:", Alfred.Companion.getStatus(), true);
 
         if (!GerberThread.Companion.getCountLabel().isEmpty()) {
             overlayBuilder.drawText(GerberThread.Companion.getCountLabel() + ":", Integer.toString(GerberThread.Companion.getCount()), true);

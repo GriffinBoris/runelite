@@ -5,6 +5,7 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins.alfred.Alfred;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +18,7 @@ public class RSWidgetHelper {
 
 
     private Widget internalGetWidget(int widgetId) {
-        return Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getWidget(widgetId));
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> Alfred.Companion.getClient().getWidget(widgetId));
     }
 
     public Widget getWidget(WidgetInfo widgetInfo) {
@@ -29,11 +30,13 @@ public class RSWidgetHelper {
     }
 
     private Widget internalGetChildWidget(int widgetId, int childId) {
-        Widget parentWidget = internalGetWidget(widgetId);
-        if (parentWidget == null) {
-            return null;
-        }
-        return parentWidget.getChild(childId);
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
+            Widget parentWidget = internalGetWidget(widgetId);
+            if (parentWidget == null) {
+                return null;
+            }
+            return parentWidget.getChild(childId);
+        });
     }
 
     public Widget getChildWidget(WidgetInfo widgetInfo, int childId) {
@@ -58,9 +61,9 @@ public class RSWidgetHelper {
         }
 
         if (rightClick) {
-            Alfred.getMouse().rightClick(widget.getBounds());
+            Alfred.Companion.getMouse().rightClick(widget.getBounds());
         } else {
-            Alfred.getMouse().leftClick(widget.getBounds());
+            Alfred.Companion.getMouse().leftClick(widget.getBounds());
         }
         return true;
     }
@@ -90,10 +93,10 @@ public class RSWidgetHelper {
     }
 
     public Widget findWidget(String text, List<Widget> children, boolean exact) {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
             Widget foundWidget = null;
             if (children == null) {
-                List<Widget> rootWidgets = Arrays.stream(Alfred.getClient().getWidgetRoots()).filter(x -> !x.isHidden()).collect(Collectors.toList());
+                List<Widget> rootWidgets = Arrays.stream(Alfred.Companion.getClient().getWidgetRoots()).filter(x -> !x.isHidden()).collect(Collectors.toList());
                 for (Widget rootWidget : rootWidgets) {
                     if (exact) {
                         if (rootWidget.getText().toLowerCase().contains(text.toLowerCase()) || rootWidget.getName().toLowerCase().contains(">" + text.toLowerCase() + "<")) {
@@ -169,4 +172,46 @@ public class RSWidgetHelper {
         return findWidget(text, null, false) != null;
     }
 
+    private List<Widget> internalGetAllWidgets(Widget widget) {
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
+            List<Widget> foundWidgets = new ArrayList<>();
+
+            if (widget.getChildren() != null) {
+                for (Widget childWidget : widget.getChildren()) {
+                    foundWidgets.add(childWidget);
+                    foundWidgets.addAll(internalGetAllWidgets(childWidget));
+                }
+            }
+
+            for (Widget childWidget : widget.getNestedChildren()) {
+                foundWidgets.add(childWidget);
+                foundWidgets.addAll(internalGetAllWidgets(childWidget));
+            }
+
+            for (Widget childWidget : widget.getNestedChildren()) {
+                foundWidgets.add(childWidget);
+                foundWidgets.addAll(internalGetAllWidgets(childWidget));
+            }
+
+            for (Widget childWidget : widget.getStaticChildren()) {
+                foundWidgets.add(childWidget);
+                foundWidgets.addAll(internalGetAllWidgets(childWidget));
+            }
+
+            return foundWidgets;
+        });
+    }
+
+    public List<Widget> getAllWidgets() {
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
+            List<Widget> foundWidgets = new ArrayList<>();
+
+            for (Widget widget : Alfred.Companion.getClient().getWidgetRoots()) {
+                foundWidgets.add(widget);
+                foundWidgets.addAll(internalGetAllWidgets(widget));
+            }
+
+            return foundWidgets;
+        });
+    }
 }

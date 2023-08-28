@@ -10,7 +10,7 @@ import net.runelite.client.plugins.alfred.api.rs.player.RSPlayer
 import net.runelite.client.plugins.alfred.util.Utility
 
 class PathWalker(private val nodes: List<PathNode>) {
-    private var player: RSPlayer = Alfred.api.players().localPlayer
+    private var player: RSPlayer = Alfred.api.players.localPlayer
 
     fun walkPath() {
         val skipDistance = 4
@@ -18,7 +18,7 @@ class PathWalker(private val nodes: List<PathNode>) {
         var previousNode: PathNode? = null
         var nextNode: PathNode? = null
 
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
 
         for (currentNode in nodes) {
             val index = nodes.indexOf(currentNode)
@@ -79,17 +79,17 @@ class PathWalker(private val nodes: List<PathNode>) {
     }
 
     private fun getMinimapPoint(worldPoint: WorldPoint): Point? {
-        return Alfred.api.miniMap().getWorldPointToScreenPoint(worldPoint)
+        return Alfred.api.miniMap.getWorldPointToScreenPoint(worldPoint)
     }
 
     private fun clickPoint(minimapPoint: Point) {
-        Alfred.getMouse().leftClick(minimapPoint)
+        Alfred.mouse.leftClick(minimapPoint)
         Alfred.sleep(1000)
         Alfred.sleepUntil({ !player.isMoving && !player.isInteracting && player.isIdle }, 200, 1000 * 10)
     }
 
     private fun clickPointWhileRunning(minimapPoint: Point, node: PathNode) {
-        Alfred.getMouse().leftClick(minimapPoint)
+        Alfred.mouse.leftClick(minimapPoint)
         Alfred.sleep(1000)
         Alfred.sleepUntil({
             val distanceToTarget = Calculations.distanceBetweenPoints(player.worldLocation, node.worldLocation).toInt()
@@ -128,10 +128,10 @@ class PathWalker(private val nodes: List<PathNode>) {
             return false
         }
 
-        Alfred.getMouse().rightClick(tile.wallObject.convexHull.bounds)
+        Alfred.mouse.rightClick(tile.wallObject.convexHull.bounds)
         Alfred.sleep(200)
 
-        val rsMenu = Alfred.api.menu().menu
+        val rsMenu = Alfred.api.menu.menu
         if (rsMenu == null) {
             println("Menu is null")
             return false
@@ -158,7 +158,7 @@ class PathWalker(private val nodes: List<PathNode>) {
                 continue
             }
 
-            val tileName = Alfred.api.objects().getObjectIdVariableName(gameObject.getId())
+            val tileName = Alfred.api.objects.getObjectIdVariableName(gameObject.getId())
             if (tileName.contains("STAIR")) {
                 foundGameObject = gameObject
                 break
@@ -169,7 +169,7 @@ class PathWalker(private val nodes: List<PathNode>) {
             return false
         }
 
-        Alfred.getMouse().rightClick(foundGameObject.clickbox!!.bounds)
+        Alfred.mouse.rightClick(foundGameObject.clickbox!!.bounds)
         Alfred.sleep(200)
 
         if (pathNode.pathTransports.isEmpty()) {
@@ -193,12 +193,12 @@ class PathWalker(private val nodes: List<PathNode>) {
             false -> "climb-down"
         }
 
-        if (!Alfred.sleepUntil({ Alfred.api.menu().menu.hasAction(action) }, 200, 2000)) {
+        if (!Alfred.sleepUntil({ Alfred.api.menu.menu.hasAction(action) }, 200, 2000)) {
             println("Menu does not contain action")
             return false
         }
 
-        val rsMenu = Alfred.api.menu().menu
+        val rsMenu = Alfred.api.menu.menu
         if (!rsMenu.clickAction(action)) {
             println("Failed to operate on tile")
             return false
@@ -209,7 +209,7 @@ class PathWalker(private val nodes: List<PathNode>) {
     }
 
     private fun findTile(pathNode: PathNode): Tile? {
-        val tiles = Alfred.api.walk().getAllTiles()
+        val tiles = Alfred.api.walk.getAllTiles()
         for (tile in tiles) {
             if (tile.worldLocation == pathNode.worldLocation) {
                 return tile.tile

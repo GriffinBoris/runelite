@@ -14,15 +14,15 @@ public class RSScreenHelper {
     }
 
     public Rectangle getBounds() {
-        return new Rectangle(Alfred.getClient().getViewportXOffset(), Alfred.getClient().getViewportYOffset(), Alfred.getClient().getViewportWidth(), Alfred.getClient().getViewportHeight());
+        return new Rectangle(Alfred.Companion.getClient().getViewportXOffset(), Alfred.Companion.getClient().getViewportYOffset(), Alfred.Companion.getClient().getViewportWidth(), Alfred.Companion.getClient().getViewportHeight());
     }
 
     public Point getLocalPointToScreenPoint(LocalPoint localPoint, int plane) {
-        return Perspective.localToCanvas(Alfred.getClient(), localPoint, plane);
+        return Perspective.localToCanvas(Alfred.Companion.getClient(), localPoint, plane);
     }
 
     public Point getWorldPointToScreenPoint(WorldPoint worldPoint) {
-        return Perspective.localToCanvas(Alfred.getClient(), worldPoint.getX(), worldPoint.getY(), worldPoint.getPlane());
+        return Perspective.localToCanvas(Alfred.Companion.getClient(), worldPoint.getX(), worldPoint.getY(), worldPoint.getPlane());
     }
 
     private boolean internalIsPointOnScreen(Point point) {

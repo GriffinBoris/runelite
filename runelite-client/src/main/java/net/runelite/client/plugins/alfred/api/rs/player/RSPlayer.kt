@@ -28,51 +28,51 @@ class RSPlayer(private val runelitePlayer: Player) {
     val convexHull: Shape
         get() = runelitePlayer.convexHull
     val runEnergy: Int
-        get() = Alfred.getClient().energy / 100
+        get() = Alfred.client.energy / 100
     val isDead: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.isDead }
+        get() = Alfred.clientThread.invokeOnClientThread { runelitePlayer.isDead }
     val isWalking: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.poseAnimation != ANIMATION_WALKING }
+        get() = Alfred.clientThread.invokeOnClientThread { runelitePlayer.poseAnimation != ANIMATION_WALKING }
     val isRunning: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.poseAnimation == ANIMATION_RUNNING }
+        get() = Alfred.clientThread.invokeOnClientThread { runelitePlayer.poseAnimation == ANIMATION_RUNNING }
     val isIdle: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.poseAnimation == 813 || runelitePlayer.poseAnimation == ANIMATION_IDLE }
+        get() = Alfred.clientThread.invokeOnClientThread { runelitePlayer.poseAnimation == 813 || runelitePlayer.poseAnimation == ANIMATION_IDLE }
     val isMoving: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.poseAnimation == ANIMATION_WALKING || runelitePlayer.poseAnimation == ANIMATION_RUNNING }
+        get() = Alfred.clientThread.invokeOnClientThread { runelitePlayer.poseAnimation == ANIMATION_WALKING || runelitePlayer.poseAnimation == ANIMATION_RUNNING }
     val isAnimating: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.animation != -1 }
+        get() = Alfred.clientThread.invokeOnClientThread { runelitePlayer.animation != -1 }
     val isInteracting: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { runelitePlayer.isInteracting }
+        get() = Alfred.clientThread.invokeOnClientThread { runelitePlayer.isInteracting }
     val isRunningActive: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { Alfred.getClient().getVarpValue(173) == 1 }
+        get() = Alfred.clientThread.invokeOnClientThread { Alfred.client.getVarpValue(173) == 1 }
     val isQuickPrayerActive: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { Alfred.getClient().getVarbitValue(Varbits.QUICK_PRAYER) == 1 }
+        get() = Alfred.clientThread.invokeOnClientThread { Alfred.client.getVarbitValue(Varbits.QUICK_PRAYER) == 1 }
     val isXpDisplayActive: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread { Alfred.getClient().getVarbitValue(4702) == 1 }
+        get() = Alfred.clientThread.invokeOnClientThread { Alfred.client.getVarbitValue(4702) == 1 }
 
     fun toggleRunning(value: Boolean) {
         val isRunning = isRunningActive
         if (value != isRunning) {
-            Alfred.api.widgets().leftClickWidget(WidgetInfo.MINIMAP_TOGGLE_RUN_ORB)
+            Alfred.api.widgets.leftClickWidget(WidgetInfo.MINIMAP_TOGGLE_RUN_ORB)
         }
     }
 
     fun toggleQuickPrayer(value: Boolean) {
         val isOn = isQuickPrayerActive
         if (value != isOn) {
-            Alfred.api.widgets().leftClickWidget(WidgetInfo.MINIMAP_QUICK_PRAYER_ORB)
+            Alfred.api.widgets.leftClickWidget(WidgetInfo.MINIMAP_QUICK_PRAYER_ORB)
         }
     }
 
     fun toggleXpDisplay(value: Boolean) {
         val isOn = isXpDisplayActive
         if (value != isOn) {
-            Alfred.api.widgets().leftClickWidget(WidgetInfo.MINIMAP_XP_ORB)
+            Alfred.api.widgets.leftClickWidget(WidgetInfo.MINIMAP_XP_ORB)
         }
     }
 
     fun getSkillLevel(skill: Skill?): Int {
-        return Alfred.getClient().getRealSkillLevel(skill)
+        return Alfred.client.getRealSkillLevel(skill)
     } //    public int getHealth() {
     //    }
 }

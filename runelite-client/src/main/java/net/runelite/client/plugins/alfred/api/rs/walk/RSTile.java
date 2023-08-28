@@ -27,7 +27,7 @@ public class RSTile {
     }
 
     public boolean isOperable() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
             if (tile.getWallObject() != null) {
                 return RSWalkHelper.getOperableObjectIds().contains(tile.getWallObject().getId());
             }
@@ -36,7 +36,7 @@ public class RSTile {
     }
 
     public Polygon getCanvasPolygon() {
-        return Perspective.getCanvasTilePoly(Alfred.getClient(), tile.getLocalLocation());
+        return Perspective.getCanvasTilePoly(Alfred.Companion.getClient(), tile.getLocalLocation());
     }
 
     public Tile getTile() {

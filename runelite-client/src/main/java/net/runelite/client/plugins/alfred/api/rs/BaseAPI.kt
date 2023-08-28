@@ -12,6 +12,7 @@ import net.runelite.client.plugins.alfred.api.rs.minimap.RSMiniMapHelper
 import net.runelite.client.plugins.alfred.api.rs.npc.RSNpcHelper
 import net.runelite.client.plugins.alfred.api.rs.objects.RSObjectHelper
 import net.runelite.client.plugins.alfred.api.rs.player.RSPlayerHelper
+import net.runelite.client.plugins.alfred.api.rs.quest.RSQuestHelper
 import net.runelite.client.plugins.alfred.api.rs.screen.RSScreenHelper
 import net.runelite.client.plugins.alfred.api.rs.tab.RSTabHelper
 import net.runelite.client.plugins.alfred.api.rs.walk.RSWalkHelper
@@ -19,89 +20,22 @@ import net.runelite.client.plugins.alfred.api.rs.widget.RSWidgetHelper
 import net.runelite.client.plugins.alfred.api.rs.world.RSWorldHelper
 
 class BaseAPI {
-    private val rsBankHelper: RSBankHelper = RSBankHelper()
-    private val rsPlayerHelper: RSPlayerHelper = RSPlayerHelper()
-    private val rsObjectHelper: RSObjectHelper = RSObjectHelper()
-    private val rsTabHelper: RSTabHelper = RSTabHelper()
-    private val rsWorldHelper: RSWorldHelper = RSWorldHelper()
-    private val rsInventoryHelper: RSInventoryHelper = RSInventoryHelper()
-    private val rsMenuHelper: RSMenuHelper = RSMenuHelper()
-    private val rsWidgetHelper: RSWidgetHelper = RSWidgetHelper()
-    private val rsCameraHelper: RSCameraHelper = RSCameraHelper()
-    private val rsNpcHelper: RSNpcHelper = RSNpcHelper()
-    private val rsScreenHelper: RSScreenHelper = RSScreenHelper()
-    private val rsMiniMapHelper: RSMiniMapHelper = RSMiniMapHelper()
-    private val rsCombatHelper: RSCombatHelper = RSCombatHelper()
-    private val rsGroundItemHelper: RSGroundItemHelper = RSGroundItemHelper()
-    private val rsWalkHelper: RSWalkHelper = RSWalkHelper()
-    private val rsAccountHelper: RSAccountHelper = RSAccountHelper()
-    private val rsEquipmentHelper: RSEquipmentHelper = RSEquipmentHelper()
-
-    fun banks(): RSBankHelper {
-        return rsBankHelper
-    }
-
-    fun players(): RSPlayerHelper {
-        return rsPlayerHelper
-    }
-
-    fun objects(): RSObjectHelper {
-        return rsObjectHelper
-    }
-
-    fun tabs(): RSTabHelper {
-        return rsTabHelper
-    }
-
-    fun world(): RSWorldHelper {
-        return rsWorldHelper
-    }
-
-    fun inventory(): RSInventoryHelper {
-        return rsInventoryHelper
-    }
-
-    fun menu(): RSMenuHelper {
-        return rsMenuHelper
-    }
-
-    fun widgets(): RSWidgetHelper {
-        return rsWidgetHelper
-    }
-
-    fun camera(): RSCameraHelper {
-        return rsCameraHelper
-    }
-
-    fun npcs(): RSNpcHelper {
-        return rsNpcHelper
-    }
-
-    fun screen(): RSScreenHelper {
-        return rsScreenHelper
-    }
-
-    fun miniMap(): RSMiniMapHelper {
-        return rsMiniMapHelper
-    }
-
-    fun combat(): RSCombatHelper {
-        return rsCombatHelper
-    }
-
-    fun items(): RSGroundItemHelper {
-        return rsGroundItemHelper
-    }
-
-    fun walk(): RSWalkHelper {
-        return rsWalkHelper
-    }
-
-    fun account(): RSAccountHelper {
-        return rsAccountHelper
-    }
-
-    fun equipment(): RSEquipmentHelper {
-        return rsEquipmentHelper
-    }
+    val banks: RSBankHelper = RSBankHelper()
+    val players: RSPlayerHelper = RSPlayerHelper()
+    val objects: RSObjectHelper = RSObjectHelper()
+    val tabs: RSTabHelper = RSTabHelper()
+    val world: RSWorldHelper = RSWorldHelper()
+    val inventory: RSInventoryHelper = RSInventoryHelper()
+    val menu: RSMenuHelper = RSMenuHelper()
+    val widgets: RSWidgetHelper = RSWidgetHelper()
+    val camera: RSCameraHelper = RSCameraHelper()
+    val npcs: RSNpcHelper = RSNpcHelper()
+    val screen: RSScreenHelper = RSScreenHelper()
+    val miniMap: RSMiniMapHelper = RSMiniMapHelper()
+    val combat: RSCombatHelper = RSCombatHelper()
+    val items: RSGroundItemHelper = RSGroundItemHelper()
+    val walk: RSWalkHelper = RSWalkHelper()
+    val account: RSAccountHelper = RSAccountHelper()
+    val equipment: RSEquipmentHelper = RSEquipmentHelper()
+    val quest: RSQuestHelper = RSQuestHelper()
 }

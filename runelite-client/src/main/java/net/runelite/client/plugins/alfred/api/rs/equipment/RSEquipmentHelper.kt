@@ -36,18 +36,21 @@ class RSEquipmentHelper {
     }
 
     private fun clickSlot(slot: Int): Boolean {
-        return Alfred.api.widgets().leftClickWidget(slot)
+        return Alfred.api.widgets.leftClickWidget(slot)
     }
 
     private fun getEquippedItem(slot: Int): Widget? {
-        if (Alfred.api.tabs().currentTab != WidgetInfo.FIXED_VIEWPORT_EQUIPMENT_TAB) {
-            Alfred.api.tabs().clickEquipmentTab()
+//        todo: maybe this shouldn't be on the client thread
+        return Alfred.clientThread.invokeOnClientThread {
+            if (Alfred.api.tabs.currentTab != WidgetInfo.FIXED_VIEWPORT_EQUIPMENT_TAB) {
+                Alfred.api.tabs.clickEquipmentTab()
+            }
+            val childOne = Alfred.api.widgets.getChildWidget(slot, 1)
+            val childTwo = Alfred.api.widgets.getChildWidget(slot, 2)
+            return@invokeOnClientThread if (!childTwo.isHidden()) {
+                null
+            } else childOne
         }
-        val childOne = Alfred.api.widgets().getChildWidget(slot, 1)
-        val childTwo = Alfred.api.widgets().getChildWidget(slot, 2)
-        return if (!childTwo.isHidden()) {
-            null
-        } else childOne
     }
 
 

@@ -5,8 +5,8 @@ import net.runelite.client.plugins.alfred.Alfred
 
 class RSPlayerHelper {
     private fun internalGetPlayers(): List<RSPlayer> {
-        return Alfred.getClientThread().invokeOnClientThread {
-            return@invokeOnClientThread Alfred.getClient().players.filterNotNull().map { player: Player -> RSPlayer(player) }.toList()
+        return Alfred.clientThread.invokeOnClientThread {
+            return@invokeOnClientThread Alfred.client.players.filterNotNull().map { player: Player -> RSPlayer(player) }.toList()
         }
     }
 
@@ -18,5 +18,5 @@ class RSPlayerHelper {
     }
 
     val localPlayer: RSPlayer
-        get() = RSPlayer(Alfred.getClient().localPlayer)
+        get() = RSPlayer(Alfred.client.localPlayer)
 }

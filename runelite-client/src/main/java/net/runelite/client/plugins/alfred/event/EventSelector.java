@@ -43,16 +43,16 @@ public class EventSelector {
     private void addAndRemoveButtons() {
         clientToolbar.removeNavigation(enableButton);
         clientToolbar.removeNavigation(disableButton);
-        clientToolbar.addNavigation(Alfred.getEventHandler().isBlocked() ? enableButton : disableButton);
+        clientToolbar.addNavigation(Alfred.Companion.getEventHandler().isBlocked() ? enableButton : disableButton);
     }
 
     public void enableClick() {
-        Alfred.getEventHandler().setBlocked(false);
+        Alfred.Companion.getEventHandler().setBlocked(false);
         addAndRemoveButtons();
     }
 
     public void disableClick() {
-        Alfred.getEventHandler().setBlocked(true);
+        Alfred.Companion.getEventHandler().setBlocked(true);
         addAndRemoveButtons();
     }
 }

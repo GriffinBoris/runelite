@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Mouse {
 
-    private final Canvas gameCanvas = Alfred.getClient().getCanvas();
+    private final Canvas gameCanvas = Alfred.Companion.getClient().getCanvas();
     public List<Point> positions = new ArrayList<>();
     private int mousePositionX;
     private int mousePositionY;
@@ -56,7 +56,7 @@ public class Mouse {
     private void internalClick(int x, int y, int button) {
         Point point = new Point(x, y);
         internalWindMouse(x, y);
-        Alfred.sleep(75, 125);
+        Alfred.Companion.sleep(75, 125);
 
         Point lastMousePosition = getLastMousePosition();
 
@@ -64,15 +64,15 @@ public class Mouse {
 //        boolean mouseCurrentlyInCanvas = isInCanvas(point);
 
         dispatchMouseEvent(MouseEvent.MOUSE_MOVED, point, button);
-        Alfred.sleep(75, 175);
+        Alfred.Companion.sleep(75, 175);
         dispatchMouseEvent(MouseEvent.MOUSE_PRESSED, point, button);
 
 //        if (!mousePreviouslyInCanvas && mouseCurrentlyInCanvas) {
-//            Alfred.sleep(25, 50);
+//            Alfred.Companion.sleep(25, 50);
 //            dispatchFocusEvent(FocusEvent.FOCUS_GAINED);
 //
 //        } else if (mousePreviouslyInCanvas && !mouseCurrentlyInCanvas) {
-//            Alfred.sleep(25, 50);
+//            Alfred.Companion.sleep(25, 50);
 //            dispatchFocusEvent(FocusEvent.FOCUS_LOST);
 //        }
 
@@ -214,12 +214,12 @@ public class Mouse {
 
     private void dispatchMouseEvent(int mouseMovementEvent, Point point, int mouseButton) {
         MouseEvent mouseEvent = new MouseEvent(gameCanvas, mouseMovementEvent, System.currentTimeMillis(), 0, (int) point.getX(), (int) point.getY(), 1, false, mouseButton);
-        Alfred.getEventHandler().dispatchUnblockedEvent(mouseEvent);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(mouseEvent);
     }
 
     private void dispatchFocusEvent(int focusEvent) {
         FocusEvent event = new FocusEvent(gameCanvas, focusEvent, false, null);
-        Alfred.getEventHandler().dispatchUnblockedEvent(event);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(event);
     }
 
     private synchronized void internalWindMouse(int x, int y) {
@@ -275,7 +275,7 @@ public class Mouse {
             }
             double step = Math.hypot(xs - xe, ys - ye);
 
-            Alfred.sleep((int) Math.round((maxWait - minWait) * (step / maxStep) + minWait));
+            Alfred.Companion.sleep((int) Math.round((maxWait - minWait) * (step / maxStep) + minWait));
         }
     }
 

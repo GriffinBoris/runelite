@@ -7,4 +7,5 @@ class BaseTasks {
     val npc: NPC = NPC()
     val item: Item = Item()
     val fishing: Fishing = Fishing()
+    val inventory: Inventory = Inventory()
 }

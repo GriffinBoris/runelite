@@ -7,7 +7,7 @@ import net.runelite.client.plugins.alfred.Alfred
 class RSTabHelper {
     val currentTab: WidgetInfo
         get() {
-            val tab = Alfred.getClient().getVarcIntValue(VarClientInt.INVENTORY_TAB)
+            val tab = Alfred.client.getVarcIntValue(VarClientInt.INVENTORY_TAB)
             return when (tab) {
                 0 -> WidgetInfo.FIXED_VIEWPORT_COMBAT_TAB
                 1 -> WidgetInfo.FIXED_VIEWPORT_STATS_TAB
@@ -17,6 +17,7 @@ class RSTabHelper {
                 5 -> WidgetInfo.FIXED_VIEWPORT_PRAYER_TAB
                 6 -> WidgetInfo.FIXED_VIEWPORT_MAGIC_TAB
                 7 -> WidgetInfo.FIXED_VIEWPORT_FRIENDS_CHAT_TAB
+                8 -> WidgetInfo.FIXED_VIEWPORT_IGNORES_TAB
                 9 -> WidgetInfo.FIXED_VIEWPORT_FRIENDS_TAB
                 10 -> WidgetInfo.FIXED_VIEWPORT_LOGOUT_TAB
                 11 -> WidgetInfo.FIXED_VIEWPORT_OPTIONS_TAB
@@ -30,9 +31,9 @@ class RSTabHelper {
         if (widgetInfo.id == currentTab.id) {
             return true
         }
-        Alfred.setStatus("Clicking tab: " + widgetInfo.name)
-        val bounds = Alfred.api.widgets().getWidget(widgetInfo).getBounds() ?: return false
-        Alfred.getMouse().leftClick(bounds)
+        Alfred.status = "Clicking tab: " + widgetInfo.name
+        val bounds = Alfred.api.widgets.getWidget(widgetInfo).getBounds() ?: return false
+        Alfred.mouse.leftClick(bounds)
         return Alfred.sleepUntil({ currentTab == widgetInfo }, 100, 3000)
     }
 

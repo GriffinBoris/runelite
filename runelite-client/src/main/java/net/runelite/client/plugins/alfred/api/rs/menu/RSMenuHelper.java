@@ -16,7 +16,7 @@ public class RSMenuHelper {
 
     public List<MenuEntry> getMenuEntries() {
         List<MenuEntry> orderedMenuEntries = new ArrayList<>();
-        MenuEntry[] menuEntries = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getMenuEntries());
+        MenuEntry[] menuEntries = Alfred.Companion.getClientThread().invokeOnClientThread(() -> Alfred.Companion.getClient().getMenuEntries());
 
         for (MenuEntry menuEntry : menuEntries) {
             if (menuEntry.getOption().length() > 0) {

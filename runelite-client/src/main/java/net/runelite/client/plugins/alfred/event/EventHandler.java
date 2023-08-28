@@ -32,7 +32,7 @@ public class EventHandler extends EventQueue {
 
     public EventHandler() {
         blocked = false;
-        gameCanvas = Alfred.getClient().getCanvas();
+        gameCanvas = Alfred.Companion.getClient().getCanvas();
         gameFrame = ClientUI.getFrame();
 
         if (!(Toolkit.getDefaultToolkit().getSystemEventQueue() instanceof EventHandler)) {
@@ -65,15 +65,16 @@ public class EventHandler extends EventQueue {
         if (isUnblockedEvent) {
             ((Component) eventSource).dispatchEvent(event);
 
-        } else if (eventSource == gameCanvas && (event instanceof KeyEvent || event instanceof WindowEvent || event instanceof MouseEvent)) {
+//        } else if (eventSource == gameCanvas && (event instanceof KeyEvent || event instanceof WindowEvent || event instanceof MouseEvent)) {
+        } else if (eventSource == gameCanvas && (event instanceof WindowEvent || event instanceof MouseEvent)) {
             if (!blocked) {
                 super.dispatchEvent(event);
             }
 
-        } else if (eventSource == gameFrame && event instanceof KeyEvent) {
-            if (!blocked) {
-                super.dispatchEvent(event);
-            }
+//        } else if (eventSource == gameFrame && event instanceof KeyEvent) {
+//            if (!blocked) {
+//                super.dispatchEvent(event);
+//            }
 
         } else {
             super.dispatchEvent(event);

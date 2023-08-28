@@ -24,7 +24,7 @@ public class Keyboard {
         });
     }
 
-    private final Canvas gameCanvas = Alfred.getClient().getCanvas();
+    private final Canvas gameCanvas = Alfred.Companion.getClient().getCanvas();
 
     public boolean isKeyPressed(int key) {
         return pressedKeys.getOrDefault(key, false);
@@ -39,10 +39,12 @@ public class Keyboard {
             if (isUpperCase) {
                 holdShift();
             }
+            KeyEvent keyEvent = new KeyEvent(gameCanvas, KeyEvent.KEY_TYPED, System.currentTimeMillis(), 0, KeyEvent.VK_UNDEFINED, c);
+            Alfred.Companion.getEventHandler().dispatchUnblockedEvent(keyEvent);
 
-            pressKey(c);
-            Alfred.sleep(100, 300);
-            releaseKey(c);
+//            pressKey(c);
+            Alfred.Companion.sleep(100, 200);
+//            releaseKey(c);
 
             if (isUpperCase) {
                 releaseShift();
@@ -57,44 +59,50 @@ public class Keyboard {
         KeyEvent keyEventPressed = new KeyEvent(gameCanvas, KeyEvent.KEY_PRESSED, time, 0, key, c, KeyEvent.KEY_LOCATION_STANDARD);
         KeyEvent keyEventTyped = new KeyEvent(gameCanvas, KeyEvent.KEY_TYPED, time, 0, 0, c, KeyEvent.KEY_LOCATION_UNKNOWN);
 
-        Alfred.getEventHandler().dispatchUnblockedEvent(keyEventPressed);
-        Alfred.getEventHandler().dispatchUnblockedEvent(keyEventTyped);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(keyEventPressed);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(keyEventTyped);
     }
 
     public void releaseKey(int key) {
         char c = (char) key;
         KeyEvent keyEvent = new KeyEvent(gameCanvas, KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, key, c, KeyEvent.KEY_LOCATION_STANDARD);
-        Alfred.getEventHandler().dispatchUnblockedEvent(keyEvent);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(keyEvent);
     }
 
     public void holdShift() {
-        Alfred.sleep(30, 200);
+        Alfred.Companion.sleep(30, 200);
         KeyEvent keyEvent = new KeyEvent(gameCanvas, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, KeyEvent.VK_SHIFT, KeyEvent.CHAR_UNDEFINED, KeyEvent.KEY_LOCATION_LEFT);
-        Alfred.getEventHandler().dispatchUnblockedEvent(keyEvent);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(keyEvent);
     }
 
     public void releaseShift() {
-        Alfred.sleep(30, 200);
+        Alfred.Companion.sleep(30, 200);
         KeyEvent keyEvent = new KeyEvent(gameCanvas, KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, KeyEvent.VK_SHIFT, KeyEvent.CHAR_UNDEFINED, KeyEvent.KEY_LOCATION_LEFT);
-        Alfred.getEventHandler().dispatchUnblockedEvent(keyEvent);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(keyEvent);
     }
 
     public void pressEnter() {
         pressKey(KeyEvent.VK_ENTER);
-        Alfred.sleep(20, 100);
+        Alfred.Companion.sleep(20, 100);
         releaseKey(KeyEvent.VK_ENTER);
     }
 
+    public void pressSpace() {
+        pressKey(KeyEvent.VK_SPACE);
+        Alfred.Companion.sleep(20, 100);
+        releaseKey(KeyEvent.VK_SPACE);
+    }
+
     public void holdArrowKey(int key) {
-        Alfred.sleep(30, 100);
+        Alfred.Companion.sleep(30, 100);
         KeyEvent keyEvent = new KeyEvent(gameCanvas, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), 0, key);
-        Alfred.getEventHandler().dispatchUnblockedEvent(keyEvent);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(keyEvent);
     }
 
     public void releaseArrowKey(int key) {
-        Alfred.sleep(30, 100);
+        Alfred.Companion.sleep(30, 100);
         KeyEvent keyEvent = new KeyEvent(gameCanvas, KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, key);
-        Alfred.getEventHandler().dispatchUnblockedEvent(keyEvent);
+        Alfred.Companion.getEventHandler().dispatchUnblockedEvent(keyEvent);
     }
 
 }

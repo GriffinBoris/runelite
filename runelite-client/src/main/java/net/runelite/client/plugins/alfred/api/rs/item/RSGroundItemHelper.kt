@@ -5,29 +5,16 @@ import net.runelite.client.plugins.alfred.Alfred
 
 class RSGroundItemHelper {
     private fun internalGetGroundItems(): List<RSGroundItem> {
-        return Alfred.api.objects().getItemsFromTiles()
-    }
-
-    fun getItemsFromTiles(name: String): List<RSGroundItem> {
-        return internalGetGroundItems().filter { rsGroundItem: RSGroundItem -> rsGroundItem.name.equals(name, ignoreCase = true) }
+        return Alfred.api.objects.getItemsFromTiles()
     }
 
     fun getItemsFromTiles(id: Int): List<RSGroundItem> {
         return internalGetGroundItems().filter { rsGroundItem: RSGroundItem -> rsGroundItem.id == id }
     }
 
-    fun getItemsFromTiles(radius: Int, name: String): List<RSGroundItem> {
-        val playerLocation = Alfred.api.players().localPlayer.worldLocation
-        return getItemsFromTiles(name)
-            .filter { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) <= radius }
-            .sortedBy { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) }
-    }
-
     fun getItemsFromTiles(radius: Int, id: Int): List<RSGroundItem> {
-        val playerLocation = Alfred.api.players().localPlayer.worldLocation
-        return internalGetGroundItems()
-            .filter { rsGroundItem: RSGroundItem -> rsGroundItem.id == id }
-            .filter { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) <= radius }
+        val playerLocation = Alfred.api.players.localPlayer.worldLocation
+        return internalGetGroundItems().filter { rsGroundItem: RSGroundItem -> rsGroundItem.id == id }.filter { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) <= radius }
             .sortedBy { rsGroundItem: RSGroundItem -> rsGroundItem.worldLocation.distanceTo(playerLocation) }
     }
 

@@ -32,11 +32,11 @@ public class VialBuyerOverlay extends Overlay {
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
+        if (Alfred.Companion.getClient().getGameState() != GameState.LOGGED_IN) {
             return null;
         }
 
-        Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.CHATBOX_MESSAGE_LINES);
+        Widget widget = Alfred.Companion.getApi().getWidgets().getWidget(WidgetInfo.CHATBOX_MESSAGE_LINES);
         if (widget == null || widget.isHidden() || widget.isSelfHidden()) {
             return null;
         }
@@ -52,11 +52,11 @@ public class VialBuyerOverlay extends Overlay {
 //        overlayBuilder.drawText("", true);
 //        overlayBuilder.drawText("", false);
 
-        overlayBuilder.drawText("Task:", Alfred.getTaskStatus(), true);
-        overlayBuilder.drawText("Task Status:", Alfred.getTaskSubStatus(), true);
+        overlayBuilder.drawText("Task:", Alfred.Companion.getTaskStatus(), true);
+        overlayBuilder.drawText("Task Status:", Alfred.Companion.getTaskSubStatus(), true);
 
         overlayBuilder.drawText("", false);
-        overlayBuilder.drawText("Current Status:", Alfred.getStatus(), true);
+        overlayBuilder.drawText("Current Status:", Alfred.Companion.getStatus(), true);
         return null;
     }
 }

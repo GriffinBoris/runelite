@@ -25,7 +25,7 @@ public class RSWalkHelper {
     }
 
     public boolean walkTo(WorldPoint worldPoint) {
-        RSPlayer player = Alfred.api.players().getLocalPlayer();
+        RSPlayer player = Alfred.Companion.getApi().getPlayers().getLocalPlayer();
         WorldPoint start = player.getWorldLocation();
 
         SavedWorldDataLoader savedWorldDataLoader = new SavedWorldDataLoader("/home/griffin/PycharmProjects/OSRSWorld/world/db.sqlite3");
@@ -88,7 +88,7 @@ public class RSWalkHelper {
     public List<RSTile> getAllTiles() {
         List<RSTile> walkableTiles = new ArrayList<>();
 
-        for (Tile tile : Alfred.api.world().getTiles()) {
+        for (Tile tile : Alfred.Companion.getApi().getWorld().getTiles()) {
             walkableTiles.add(new RSTile(tile));
         }
 

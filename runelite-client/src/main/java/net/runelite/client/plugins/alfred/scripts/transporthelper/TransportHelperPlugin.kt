@@ -26,14 +26,14 @@ class TransportHelperPlugin : Plugin() {
 
     override fun shutDown() {
         overlayManager.remove(overlay)
-        Alfred.getClient().getCanvas().removeMouseListener(mouseListener)
+        Alfred.client.getCanvas().removeMouseListener(mouseListener)
     }
 
     private fun setupMouseListener() {
         mouseListener = object : MouseListener {
             override fun mouseClicked(e: MouseEvent) {
-                val client = Alfred.getClient()
-                for (tile in Alfred.api.walk().getAllTiles()) {
+                val client = Alfred.client
+                for (tile in Alfred.api.walk.getAllTiles()) {
                     val tileLocalLocation = tile.tile.getLocalLocation()
                     val poly = Perspective.getCanvasTilePoly(client, tileLocalLocation)
                     if (poly != null && poly.contains(client.getMouseCanvasPosition().x, client.getMouseCanvasPosition().y)) {
@@ -47,7 +47,7 @@ class TransportHelperPlugin : Plugin() {
             override fun mouseEntered(e: MouseEvent) {}
             override fun mouseExited(e: MouseEvent) {}
         }
-        Alfred.getClient().getCanvas().addMouseListener(mouseListener)
+        Alfred.client.getCanvas().addMouseListener(mouseListener)
     }
 
     private fun getTileTransportInformation(tile: Tile) {
@@ -55,14 +55,14 @@ class TransportHelperPlugin : Plugin() {
         var objectId = -1
         val worldPoint = tile.getWorldLocation()
         if (tile.getWallObject() != null) {
-            objectName = Alfred.api.objects().getObjectIdVariableName(tile.getWallObject().getId())
+            objectName = Alfred.api.objects.getObjectIdVariableName(tile.getWallObject().getId())
             objectId = tile.getWallObject().getId()
         } else {
             for (gameObject in tile.getGameObjects()) {
                 if (gameObject == null) {
                     continue
                 }
-                objectName = Alfred.api.objects().getObjectIdVariableName(gameObject.getId())
+                objectName = Alfred.api.objects.getObjectIdVariableName(gameObject.getId())
                 objectId = gameObject.getId()
                 break
             }

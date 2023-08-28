@@ -16,52 +16,52 @@ class RSGroundItem(private val tileItem: TileItem, private val tile: Tile) {
     val localLocation: LocalPoint
         get() = tile.localLocation
     val name: String
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.name
         }
     val membersName: String
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.membersName
         }
     val price: Int
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.price
         }
     val highAlchemyPrice: Int
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.haPrice
         }
     val isTradeable: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.isTradeable
         }
     val isMembers: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.isMembers
         }
     val isStackable: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.isStackable
         }
     val inventoryActions: List<String>
-        get() = Alfred.getClientThread().invokeOnClientThread<List<String>> {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread<List<String>> {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.inventoryActions.filterNotNull().toMutableList()
         }
 
     fun leftClick(): Boolean {
         val localPoint = tile.getLocalLocation()
         val plane = tile.getPlane()
-        if (Alfred.api.screen().isPointOnScreen(localPoint, plane)) {
-            val screenPoint = Alfred.api.screen().getLocalPointToScreenPoint(localPoint, plane)
-            Alfred.getMouse().leftClick(screenPoint)
+        if (Alfred.api.screen.isPointOnScreen(localPoint, plane)) {
+            val screenPoint = Alfred.api.screen.getLocalPointToScreenPoint(localPoint, plane)
+            Alfred.mouse.leftClick(screenPoint)
             return true
         }
         return false
@@ -70,21 +70,21 @@ class RSGroundItem(private val tileItem: TileItem, private val tile: Tile) {
     fun rightClick(): Boolean {
         val localPoint = tile.getLocalLocation()
         val plane = tile.getPlane()
-        if (Alfred.api.screen().isPointOnScreen(localPoint, plane)) {
-            val screenPoint = Alfred.api.screen().getLocalPointToScreenPoint(localPoint, plane)
-            Alfred.getMouse().rightClick(screenPoint)
+        if (Alfred.api.screen.isPointOnScreen(localPoint, plane)) {
+            val screenPoint = Alfred.api.screen.getLocalPointToScreenPoint(localPoint, plane)
+            Alfred.mouse.rightClick(screenPoint)
             return true
         }
         return false
     }
 
     fun clickAction(action: String): Boolean {
-        Alfred.setStatus("Clicking " + action + " on " + name)
+        Alfred.status = "Clicking " + action + " on " + name
         if (!rightClick()) {
             return false
         }
         Alfred.sleep(200, 400)
-        val rsMenu = Alfred.api.menu().menu ?: return false
+        val rsMenu = Alfred.api.menu.menu ?: return false
         return rsMenu.clickAction(action, name)
     }
 }

@@ -7,21 +7,83 @@ import net.runelite.client.config.ConfigSection;
 
 @ConfigGroup(GerberPlugin.CONFIG_GROUP)
 public interface GerberConfig extends Config {
-
     @ConfigSection(
-            name = "Tasks",
-            description = "Tasks",
+            name = "General",
+            description = "General",
             position = 0,
             closedByDefault = false
     )
-    String taskSection = "tasks";
+    String generalSection = "general";
+
+    @ConfigItem(
+            keyName = "worldNumber",
+            name = "World Number",
+            description = "World Number",
+            position = 0,
+            section = generalSection
+    )
+    default int worldNumber() {
+        return 305;
+    }
+
+    @ConfigItem(
+            keyName = "minTotalTime",
+            name = "Min Total Time (m)",
+            description = "Min Total Time (m)",
+            position = 1,
+            section = generalSection
+    )
+    default int minTotalTime() {
+        return 60;
+    }
+
+    @ConfigItem(
+            keyName = "maxTotalTime",
+            name = "Max Total Time (m)",
+            description = "Max Total Time (m)",
+            position = 2,
+            section = generalSection
+    )
+    default int maxTotalTime() {
+        return 90;
+    }
+
+    @ConfigItem(
+            keyName = "minTaskTime",
+            name = "Min Task Time (m)",
+            description = "Min Task Time (m)",
+            position = 3,
+            section = generalSection
+    )
+    default int minTaskTime() {
+        return 20;
+    }
+
+    @ConfigItem(
+            keyName = "maxTaskTime",
+            name = "Max Task Time (m)",
+            description = "Max Task Time (m)",
+            position = 4,
+            section = generalSection
+    )
+    default int maxTaskTime() {
+        return 30;
+    }
+
+    @ConfigSection(
+            name = "taskSettings",
+            description = "Tasks",
+            position = 1,
+            closedByDefault = false
+    )
+    String tasksSection = "tasks";
 
     @ConfigItem(
             keyName = "trainCombat",
             name = "Train Combat",
             description = "Train Combat",
             position = 0,
-            section = taskSection
+            section = tasksSection
     )
     default boolean trainCombat() {
         return true;
@@ -32,7 +94,7 @@ public interface GerberConfig extends Config {
             name = "Train Woodcutting",
             description = "Train Woodcutting",
             position = 1,
-            section = taskSection
+            section = tasksSection
     )
     default boolean trainWoodcutting() {
         return true;
@@ -43,7 +105,7 @@ public interface GerberConfig extends Config {
             name = "Train Mining",
             description = "Train Mining",
             position = 2,
-            section = taskSection
+            section = tasksSection
     )
     default boolean trainMining() {
         return true;
@@ -54,9 +116,20 @@ public interface GerberConfig extends Config {
             name = "Train Fishing",
             description = "Train Fishing",
             position = 3,
-            section = taskSection
+            section = tasksSection
     )
     default boolean trainFishing() {
+        return true;
+    }
+
+    @ConfigItem(
+            keyName = "trainAgility",
+            name = "Train Agility",
+            description = "Train Agility",
+            position = 4,
+            section = tasksSection
+    )
+    default boolean trainAgility() {
         return true;
     }
 
@@ -64,7 +137,7 @@ public interface GerberConfig extends Config {
     @ConfigSection(
             name = "Skill Levels",
             description = "Skill Levels",
-            position = 1,
+            position = 2,
             closedByDefault = false
     )
     String skillsSection = "skills";
@@ -146,10 +219,21 @@ public interface GerberConfig extends Config {
         return 0;
     }
 
+    @ConfigItem(
+            keyName = "agilityLevel",
+            name = "Agility",
+            description = "Agility Level",
+            position = 6,
+            section = skillsSection
+    )
+    default int agilityLevel() {
+        return 0;
+    }
+
     @ConfigSection(
             name = "Combat Settings",
             description = "Combat Settings",
-            position = 2,
+            position = 3,
             closedByDefault = false
     )
     String combatSettingsSection = "combatSettings";
@@ -179,7 +263,7 @@ public interface GerberConfig extends Config {
     @ConfigSection(
             name = "Mining Settings",
             description = "Mining Settings",
-            position = 3,
+            position = 4,
             closedByDefault = false
     )
     String miningSettingsSection = "miningSettings";
@@ -198,7 +282,7 @@ public interface GerberConfig extends Config {
     @ConfigSection(
             name = "Woodcutting Settings",
             description = "Woodcutting Settings",
-            position = 4,
+            position = 5,
             closedByDefault = false
     )
     String woodcuttingSettingsSection = "woodcuttingSettings";
@@ -217,7 +301,7 @@ public interface GerberConfig extends Config {
     @ConfigSection(
             name = "Fishing Settings",
             description = "Fishing Settings",
-            position = 5,
+            position = 6,
             closedByDefault = false
     )
     String fishingSettingsSection = "fishingSettings";

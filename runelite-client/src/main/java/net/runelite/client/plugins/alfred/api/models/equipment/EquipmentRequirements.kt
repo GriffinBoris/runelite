@@ -14,11 +14,11 @@ class EquipmentRequirements {
     }
 
     fun checkMeetsRequirements(): Boolean {
-        Alfred.api.tabs().clickEquipmentTab()
+        Alfred.api.tabs.clickEquipmentTab()
         itemSets.forEach { dynamicItemSet: DynamicEquipmentSet ->
             var meetsRequirement = false
             dynamicItemSet.getItems().forEach { equipmentTriple: Triple<Int, Int, RSEquipmentHelper.Companion.EquipmentSlot> ->
-                val item: Widget? = Alfred.api.equipment().getItemFromSlot(equipmentTriple.third)
+                val item: Widget? = Alfred.api.equipment.getItemFromSlot(equipmentTriple.third)
                 if (item != null) {
                     if (item.itemId == equipmentTriple.first && item.itemQuantity >= equipmentTriple.second) {
                         meetsRequirement = true

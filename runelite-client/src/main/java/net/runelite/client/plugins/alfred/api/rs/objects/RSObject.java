@@ -14,7 +14,6 @@ import java.util.Objects;
 
 public class RSObject {
 
-    @Getter
     private final Object rsObject;
 
     public RSObject(GameObject gameObject) {
@@ -33,8 +32,12 @@ public class RSObject {
         this.rsObject = decorativeObject;
     }
 
+    public Object getRsObject() {
+        return rsObject;
+    }
+
     public String getRuneliteVariableName() {
-        return Alfred.api.objects().getObjectIdVariableName(this.getId());
+        return Alfred.Companion.getApi().getObjects().getObjectIdVariableName(this.getId());
     }
 
     public String getType() {
@@ -74,7 +77,7 @@ public class RSObject {
     }
 
     public String getName() {
-        ObjectComposition objectComposition = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getObjectDefinition(this.getId()));
+        ObjectComposition objectComposition = Alfred.Companion.getClientThread().invokeOnClientThread(() -> Alfred.Companion.getClient().getObjectDefinition(this.getId()));
         return objectComposition.getName();
     }
 
@@ -169,7 +172,7 @@ public class RSObject {
     }
 
     public String[] getActions() {
-        ObjectComposition objectComposition = Alfred.getClientThread().invokeOnClientThread(() -> Alfred.getClient().getObjectDefinition(this.getId()));
+        ObjectComposition objectComposition = Alfred.Companion.getClientThread().invokeOnClientThread(() -> Alfred.Companion.getClient().getObjectDefinition(this.getId()));
         return Arrays.stream(objectComposition.getActions()).filter(Objects::nonNull).toArray(String[]::new);
     }
 
@@ -177,9 +180,9 @@ public class RSObject {
         LocalPoint localPoint = getLocalLocation();
         int plane = getPlane();
 
-        if (Alfred.api.screen().isPointOnScreen(localPoint, plane)) {
-            Point screenPoint = Alfred.api.screen().getLocalPointToScreenPoint(localPoint, plane);
-            Alfred.getMouse().leftClick(screenPoint);
+        if (Alfred.Companion.getApi().getScreen().isPointOnScreen(localPoint, plane)) {
+            Point screenPoint = Alfred.Companion.getApi().getScreen().getLocalPointToScreenPoint(localPoint, plane);
+            Alfred.Companion.getMouse().leftClick(screenPoint);
             return true;
         }
 
@@ -190,9 +193,9 @@ public class RSObject {
         LocalPoint localPoint = getLocalLocation();
         int plane = getPlane();
 
-        if (Alfred.api.screen().isPointOnScreen(localPoint, plane)) {
-            Point screenPoint = Alfred.api.screen().getLocalPointToScreenPoint(localPoint, plane);
-            Alfred.getMouse().rightClick(screenPoint);
+        if (Alfred.Companion.getApi().getScreen().isPointOnScreen(localPoint, plane)) {
+            Point screenPoint = Alfred.Companion.getApi().getScreen().getLocalPointToScreenPoint(localPoint, plane);
+            Alfred.Companion.getMouse().rightClick(screenPoint);
             return true;
         }
 
@@ -200,14 +203,14 @@ public class RSObject {
     }
 
     public boolean clickAction(String action) {
-        Alfred.setStatus("Clicking " + action + " on " + getName());
+        Alfred.Companion.setStatus("Clicking " + action + " on " + getName());
 
         if (!rightClick()) {
             return false;
         }
 
-        Alfred.sleep(200, 400);
-        RSMenu rsMenu = Alfred.api.menu().getMenu();
+        Alfred.Companion.sleep(200, 400);
+        RSMenu rsMenu = Alfred.Companion.getApi().getMenu().getMenu();
 
         if (rsMenu == null) {
             return false;

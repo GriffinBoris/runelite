@@ -36,12 +36,12 @@ public class WorldDataCollectionTask implements Runnable {
     }
 
     private List<Tile> getTiles() {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
             List<Tile> tileList = new ArrayList<>();
 
-            Player player = Alfred.getClient().getLocalPlayer();
-            Tile[][][] tiles = Alfred.getClient().getScene().getTiles();
-            int z = Alfred.getClient().getPlane();
+            Player player = Alfred.Companion.getClient().getLocalPlayer();
+            Tile[][][] tiles = Alfred.Companion.getClient().getScene().getTiles();
+            int z = Alfred.Companion.getClient().getPlane();
 
             for (int x = 0; x < Constants.SCENE_SIZE; ++x) {
                 for (int y = 0; y < Constants.SCENE_SIZE; ++y) {
@@ -62,7 +62,7 @@ public class WorldDataCollectionTask implements Runnable {
     }
 
     public Set<WorldMovementFlag> getMovementFlagsForTile(Tile tile) {
-        Client client = Alfred.getClient();
+        Client client = Alfred.Companion.getClient();
         if (client.getCollisionMaps() != null) {
             int[][] flags = client.getCollisionMaps()[client.getPlane()].getFlags();
             int data = flags[tile.getSceneLocation().getX()][tile.getSceneLocation().getY()];
@@ -74,7 +74,7 @@ public class WorldDataCollectionTask implements Runnable {
     }
 
     public boolean isOperable(Tile tile) {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
             boolean wallObjectOperable = false;
             boolean gameObjectOperable = false;
 
@@ -102,7 +102,7 @@ public class WorldDataCollectionTask implements Runnable {
     }
 
     public String getOperableName(Tile tile) {
-        return Alfred.getClientThread().invokeOnClientThread(() -> {
+        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
             boolean wallObjectOperable = false;
             boolean gameObjectOperable = false;
 
@@ -131,11 +131,11 @@ public class WorldDataCollectionTask implements Runnable {
             }
 
             if (wallObjectOperable) {
-                return Alfred.api.objects().getObjectIdVariableName(foundWallObject.getId());
+                return Alfred.Companion.getApi().getObjects().getObjectIdVariableName(foundWallObject.getId());
             }
 
             if (gameObjectOperable) {
-                return Alfred.api.objects().getObjectIdVariableName(foundGameObject.getId());
+                return Alfred.Companion.getApi().getObjects().getObjectIdVariableName(foundGameObject.getId());
             }
 
             return null;

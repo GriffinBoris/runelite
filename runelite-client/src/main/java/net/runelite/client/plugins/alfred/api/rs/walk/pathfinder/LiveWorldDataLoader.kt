@@ -25,7 +25,7 @@ class LiveWorldDataLoader {
     }
 
     private fun readTiles(): MutableList<PathNode> {
-        val tiles = Alfred.api.world().tiles
+        val tiles = Alfred.api.world.tiles
         for (tile in tiles) {
             val collisionMap = getMovementFlagsForTile(tile)
             val blocked = collisionMap.contains(WorldMovementFlag.BLOCK_MOVEMENT_OBJECT) || collisionMap.contains(WorldMovementFlag.BLOCK_MOVEMENT_FLOOR_DECORATION) || collisionMap.contains(WorldMovementFlag.BLOCK_MOVEMENT_FLOOR) || collisionMap.contains(WorldMovementFlag.BLOCK_MOVEMENT_FULL)
@@ -53,7 +53,7 @@ class LiveWorldDataLoader {
     }
 
     private fun getMovementFlagsForTile(tile: Tile): Set<WorldMovementFlag> {
-        val client = Alfred.getClient()
+        val client = Alfred.client
         val collisionMap = client.collisionMaps ?: return HashSet()
 
         val flags: Array<IntArray> = collisionMap[client.getPlane()].getFlags()

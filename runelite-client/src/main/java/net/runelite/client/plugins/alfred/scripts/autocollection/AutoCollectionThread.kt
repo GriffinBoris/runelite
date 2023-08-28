@@ -1,34 +1,39 @@
 package net.runelite.client.plugins.alfred.scripts.autocollection
 
 import net.runelite.api.GameState
+import net.runelite.api.Tile
 import net.runelite.api.coords.WorldPoint
 import net.runelite.client.plugins.alfred.Alfred
+import net.runelite.client.plugins.alfred.api.rs.objects.RSObject
 import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.LiveWorldDataLoader
 import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathFinder
 import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathNode
 import net.runelite.client.plugins.alfred.api.rs.walk.pathfinder.PathWalker
 import java.util.stream.Collectors
 
-class AutoCollectionThread(private val config: AutoCollectionConfig) : Thread() {
+class AutoCollectionThread(private var config: AutoCollectionConfig) : Thread() {
     companion object {
-        @JvmField
         var searching = ""
     }
 
-    private val usedPoints: List<WorldPoint>
+    private val usedPoints: MutableList<WorldPoint>
     private val unexploredPoints: List<WorldPoint>
+    private val exploredOperables: MutableList<WorldPoint>
 
     init {
-        usedPoints = ArrayList()
+        usedPoints = mutableListOf()
         unexploredPoints = parseCoordinates(config.points())
+        exploredOperables = mutableListOf()
     }
 
     override fun run() {
-        if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
-            Alfred.api.account().login()
+        if (Alfred.client.getGameState() != GameState.LOGGED_IN) {
+            Alfred.api.account.login()
         }
-        val player = Alfred.api.players().localPlayer
+
+        val player = Alfred.api.players.localPlayer
         val liveWorldDataLoader = LiveWorldDataLoader()
+
         for (unexploredPoint in unexploredPoints) {
             var distance = player.worldLocation.distanceTo(unexploredPoint)
             while (distance > 5) {
@@ -38,10 +43,50 @@ class AutoCollectionThread(private val config: AutoCollectionConfig) : Thread() 
                 val path = pathFinder.findPath(player.worldLocation, farthestPoint)
                 val pathWalker = PathWalker(path)
                 pathWalker.walkPath()
+
+                val nearestOperable = getOperables().sortedBy { rsObject: RSObject -> rsObject.worldLocation.distanceTo(player.worldLocation) }.firstOrNull()
+                if (nearestOperable != null) {
+                    if (!exploredOperables.contains(nearestOperable.worldLocation)) {
+                        if (nearestOperable.worldLocation.distanceTo(player.worldLocation) >= 4) {
+                            Alfred.api.walk.walkTo(nearestOperable.worldLocation)
+                        }
+                        Alfred.sleep(2000)
+                        handleDoorOperable(nearestOperable)
+                        exploredOperables.add(nearestOperable.worldLocation)
+                    } else {
+                        println("explored operable")
+                    }
+                } else {
+                    println("no operable")
+                }
+
                 distance = player.worldLocation.distanceTo(unexploredPoint)
             }
         }
+
     }
+
+
+//    override fun run() {
+//        if (Alfred.client.getGameState() != GameState.LOGGED_IN) {
+//            Alfred.api.account.login()
+//        }
+//        val player = Alfred.api.players.localPlayer
+//        val liveWorldDataLoader = LiveWorldDataLoader()
+//
+//        for (unexploredPoint in unexploredPoints) {
+//            var distance = player.worldLocation.distanceTo(unexploredPoint)
+//            while (distance > 5) {
+//                val grid = liveWorldDataLoader.getGrid()
+//                val farthestPoint = getFarthestWalkablePoint(unexploredPoint, grid) ?: break
+//                val pathFinder = PathFinder(grid)
+//                val path = pathFinder.findPath(player.worldLocation, farthestPoint)
+//                val pathWalker = PathWalker(path)
+//                pathWalker.walkPath()
+//                distance = player.worldLocation.distanceTo(unexploredPoint)
+//            }
+//        }
+//    }
 
     private fun getFarthestWalkablePoint(target: WorldPoint, grid: Array<Array<Array<PathNode?>>>): WorldPoint {
         val z = target.plane
@@ -75,5 +120,144 @@ class AutoCollectionThread(private val config: AutoCollectionConfig) : Thread() 
             }
         }
         return coordinates
+    }
+
+    private fun getOperables(): MutableList<RSObject> {
+        val objects: MutableList<RSObject> = mutableListOf()
+
+        Alfred.api.objects.objectsFromTiles.filterNotNull().forEach { rsObject: RSObject ->
+            val name = Alfred.api.objects.getObjectIdVariableName(rsObject.id)
+            if (name != null) {
+                //            if (name.startsWith("stair", ignoreCase = true) || name.startsWith("door", ignoreCase = true) || name.startsWith("gate", ignoreCase = true)) {
+                if (name.startsWith("door", ignoreCase = true) || name.startsWith("gate", ignoreCase = true)) {
+                    objects.add(rsObject)
+                }
+            }
+        }
+        return objects
+    }
+
+    private fun handleDoorOperable(rsObject: RSObject) {
+        val player = Alfred.api.players.localPlayer
+        var isClosed = false
+        var search = false
+        var finalRsObject: RSObject? = null
+
+        if (rsObject.actions.isEmpty()) {
+            Alfred.mouse.rightClick(rsObject.clickBox)
+            Alfred.sleepUntil({ Alfred.api.menu.menu != null }, 100, 3000)
+            val menu = Alfred.api.menu.menu
+            if (menu.hasAction("open")) {
+                isClosed = true
+            } else if (menu.hasAction("close")) {
+                isClosed = false
+            }
+        } else if (rsObject.actions.contains("open")) {
+            isClosed = true
+        }
+
+        if (!isClosed) {
+            Alfred.mouse.rightClick(rsObject.clickBox)
+            Alfred.sleepUntil({ Alfred.api.menu.menu != null }, 100, 3000)
+            val menu = Alfred.api.menu.menu
+            if (menu.hasAction("close")) {
+                menu.clickAction("close")
+                Alfred.sleep(1000)
+                Alfred.sleepUntil({ !player.isMoving && !player.isInteracting && player.isIdle }, 200, 1000 * 10)
+                Alfred.sleep(1000)
+                search = true
+            } else {
+                println("Cannot find close action")
+            }
+        }
+
+        if (search) {
+            val operable = getOperables().filter { foundObject: RSObject -> foundObject.worldLocation.distanceTo(rsObject.worldLocation) <= 2 }.firstOrNull()
+            if (operable != null) {
+                finalRsObject = operable
+            } else {
+                println("Cannot find closed neighbor")
+                return
+            }
+        } else {
+            finalRsObject = rsObject
+        }
+
+        val northWorldPoint = WorldPoint(finalRsObject.worldLocation.x, finalRsObject.worldLocation.y + 1, finalRsObject.plane)
+        val southWorldPoint = WorldPoint(finalRsObject.worldLocation.x, finalRsObject.worldLocation.y - 1, finalRsObject.plane)
+
+        val northTile = Alfred.api.world.tiles.firstOrNull { tile: Tile -> tile.worldLocation == northWorldPoint }
+        val southTile = Alfred.api.world.tiles.firstOrNull { tile: Tile -> tile.worldLocation == southWorldPoint }
+
+        var unblockEastWest = false
+        if (southTile != null && northTile != null) {
+            if (southTile.wallObject != null && northTile.wallObject != null) {
+                unblockEastWest = true
+            } else if (southTile.wallObject == null && northTile.wallObject == null) {
+                unblockEastWest = false
+            } else {
+                println("failed to determine direction")
+                return
+            }
+        } else {
+            println("failed to get north and south tile")
+            return
+        }
+
+        val objectTile = Alfred.api.world.tiles.firstOrNull { tile: Tile -> tile.worldLocation == finalRsObject.worldLocation }
+
+        if (objectTile == null) {
+            println("failed to get final object tile")
+            return
+        }
+
+        val objectName = Alfred.api.objects.getObjectIdVariableName(objectTile.wallObject.id)
+        val objectId = objectTile.wallObject.id
+
+        val stringBuilder = StringBuilder()
+        stringBuilder.append("(")
+
+        // Start tile
+        stringBuilder.append(String.format("%d, %d, %d", objectTile.worldLocation.x, objectTile.worldLocation.y, objectTile.worldLocation.plane))
+        stringBuilder.append(", ")
+
+        // End tile
+        stringBuilder.append("None, None, None")
+        stringBuilder.append(", ")
+
+        // Name
+        stringBuilder.append("'Name'")
+        stringBuilder.append(", ")
+
+        // Object ID
+        stringBuilder.append(String.format("%d", objectId))
+        stringBuilder.append(", ")
+
+        // Object Name
+        stringBuilder.append(String.format("'%s'", objectName))
+        stringBuilder.append(", ")
+
+        // start direction unblocks
+        if (unblockEastWest) {
+            stringBuilder.append("['e', 'w']")
+        } else {
+            stringBuilder.append("['n', 's']")
+        }
+        stringBuilder.append(", ")
+
+        // end direction unblocks
+        stringBuilder.append("[]")
+        stringBuilder.append("),")
+        println(stringBuilder.toString())
+
+        Alfred.mouse.rightClick(finalRsObject.clickBox)
+        Alfred.sleepUntil({ Alfred.api.menu.menu != null }, 100, 3000)
+        val menu = Alfred.api.menu.menu
+        if (menu.hasAction("open")) {
+            menu.clickAction("open")
+            Alfred.sleep(1000)
+            Alfred.sleepUntil({ !player.isMoving && !player.isInteracting && player.isIdle }, 200, 1000 * 10)
+            Alfred.sleep(1000)
+        }
     }
 }

@@ -5,6 +5,8 @@ import net.runelite.api.Skill
 import net.runelite.api.coords.WorldArea
 import net.runelite.api.coords.WorldPoint
 import net.runelite.client.plugins.alfred.Alfred
+import net.runelite.client.plugins.alfred.api.models.DynamicItemSet
+import net.runelite.client.plugins.alfred.api.models.inventory.InventoryRequirements
 import net.runelite.client.plugins.alfred.api.rs.inventory.RSInventoryItem
 import net.runelite.client.plugins.alfred.enums.WorldDestinations
 import net.runelite.client.plugins.alfred.scripts.gerber.GerberConfig
@@ -21,21 +23,18 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
     }
 
     private enum class ScriptState {
-        WAITING,
-        CHOPPING,
-        BANKING,
-        SETUP
+        WAITING, CHOPPING, BANKING, SETUP
     }
 
     private var scriptState: ScriptState
 
     init {
-        Alfred.setStatus("Training Woodcutting")
+        Alfred.status = "Training Woodcutting"
         scriptState = ScriptState.SETUP
     }
 
     override fun getBankLocation(): WorldPoint {
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
         val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
 
         return if (minimumSkillRequirement < 30) {
@@ -48,57 +47,63 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
 //        return WorldDestinations.VARROCK_WEST_BANK.worldPoint
 //    }
 
-    override fun getRequiredItems(): List<Pair<Int, Int>> {
-        val player = Alfred.api.players().localPlayer
+    override fun getInventoryRequirements(): InventoryRequirements {
+        val player = Alfred.api.players.localPlayer
         val skillLevel = player.getSkillLevel(Skill.ATTACK)
-        val requiredItems: MutableList<Pair<Int, Int>> = mutableListOf()
+        val inventoryRequirements = InventoryRequirements()
 
+        val axes = DynamicItemSet()
         if (skillLevel >= 1) {
-            requiredItems.add(Pair(ItemID.BRONZE_AXE, 1))
-            requiredItems.add(Pair(ItemID.IRON_AXE, 1))
+            axes.add(ItemID.BRONZE_AXE, 1)
+            axes.add(ItemID.IRON_AXE, 1)
         }
         if (skillLevel >= 6) {
-            requiredItems.add(Pair(ItemID.STEEL_AXE, 1))
+            axes.add(ItemID.STEEL_AXE, 1)
         }
         if (skillLevel >= 11) {
-            requiredItems.add(Pair(ItemID.BLACK_AXE, 1))
+            axes.add(ItemID.BLACK_AXE, 1)
         }
         if (skillLevel >= 21) {
-            requiredItems.add(Pair(ItemID.MITHRIL_AXE, 1))
+            axes.add(ItemID.MITHRIL_AXE, 1)
         }
         if (skillLevel >= 31) {
-            requiredItems.add(Pair(ItemID.ADAMANT_AXE, 1))
+            axes.add(ItemID.ADAMANT_AXE, 1)
         }
         if (skillLevel >= 41) {
-            requiredItems.add(Pair(ItemID.RUNE_AXE, 1))
+            axes.add(ItemID.RUNE_AXE, 1)
         }
-        return requiredItems
+
+        if (axes.getItems().isNotEmpty()) {
+            inventoryRequirements.addItemSet(axes)
+        }
+
+        return inventoryRequirements
     }
 
     override fun shouldTrain(): Boolean {
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
         val skillLevel = player.getSkillLevel(Skill.WOODCUTTING)
         return skillLevel < config.woodcuttingLevel()
     }
 
     override fun process(): Boolean {
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
         val minimumSkillRequirement = player.getSkillLevel(Skill.WOODCUTTING)
 
         if (minimumSkillRequirement < 15) {
-            Alfred.setTaskSubStatus("Chopping Trees")
+            Alfred.taskSubStatus = "Chopping Trees"
             GerberThread.countLabel = "Logs Collected"
-            chopTrees(VARROCK_WEST_TREE_WORLD_AREA, VARROCK_WEST_TREE_WORLD_POINT, "tree", "logs")
+            chopTrees(VARROCK_WEST_TREE_WORLD_AREA, VARROCK_WEST_TREE_WORLD_POINT, "tree", ItemID.LOGS)
 
         } else if (minimumSkillRequirement < 30) {
-            Alfred.setTaskSubStatus("Chopping Oak Trees")
+            Alfred.taskSubStatus = "Chopping Oak Trees"
             GerberThread.countLabel = "Oak Logs Collected"
-            chopTrees(VARROCK_WEST_OAK_TREE_WORLD_AREA, VARROCK_WEST_OAK_TREE_WORLD_POINT, "oak tree", "oak logs")
+            chopTrees(VARROCK_WEST_OAK_TREE_WORLD_AREA, VARROCK_WEST_OAK_TREE_WORLD_POINT, "oak tree", ItemID.OAK_LOGS)
 
         } else if (minimumSkillRequirement < 99) {
-            Alfred.setTaskSubStatus("Chopping Willow Trees")
+            Alfred.taskSubStatus = "Chopping Willow Trees"
             GerberThread.countLabel = "Willow Logs Collected"
-            chopTrees(SEERS_WILLOW_TREE_WORLD_AREA, SEERS_WILLOW_TREE_WORLD_POINT, "willow tree", "willow logs")
+            chopTrees(SEERS_WILLOW_TREE_WORLD_AREA, SEERS_WILLOW_TREE_WORLD_POINT, "willow tree", ItemID.WILLOW_LOGS)
 
         } else {
             return false
@@ -107,8 +112,8 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
         return true
     }
 
-    private fun chopTrees(treeArea: WorldArea, treePoint: WorldPoint, treeName: String, itemName: String) {
-        val player = Alfred.api.players().localPlayer
+    private fun chopTrees(treeArea: WorldArea, treePoint: WorldPoint, treeName: String, itemId: Int) {
+        val player = Alfred.api.players.localPlayer
 
         if (player.isMoving || player.isInteracting) {
             return
@@ -119,9 +124,9 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
                 if (!isWieldingRequiredAxe) {
                     val axe = getRequiredAxeFromInventory
                     if (axe != null) {
-                        val inventoryCount = Alfred.api.inventory().count()
+                        val inventoryCount = Alfred.api.inventory.count()
                         axe.leftClick()
-                        Alfred.sleepUntil({ Alfred.api.inventory().count() == inventoryCount - 1 }, 100, 3000)
+                        Alfred.sleepUntil({ Alfred.api.inventory.count() == inventoryCount - 1 }, 100, 3000)
                     }
                 } else {
                     scriptState = ScriptState.BANKING
@@ -130,16 +135,16 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
 
             ScriptState.WAITING -> {
                 if (!treeArea.contains(player.worldLocation)) {
-                    Alfred.api.walk().walkTo(treePoint)
+                    Alfred.api.walk.walkTo(treePoint)
                 }
                 scriptState = ScriptState.CHOPPING
             }
 
             ScriptState.CHOPPING -> {
-                val countBefore = Alfred.api.inventory().getItems(itemName).count()
+                val countBefore = Alfred.api.inventory.getItems(itemId).count()
 
                 if (Alfred.tasks.woodcutting.findAndChopTree(treeName)) {
-                    val countAfter = Alfred.api.inventory().getItems(itemName).count()
+                    val countAfter = Alfred.api.inventory.getItems(itemId).count()
                     GerberThread.count += countAfter - countBefore
                     scriptState = ScriptState.BANKING
                 }
@@ -147,16 +152,16 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
 
             ScriptState.BANKING -> {
                 if (config.keepLogs()) {
-                    if (Alfred.api.inventory().isFull) {
-                        Alfred.api.walk().walkTo(getBankLocation())
+                    if (Alfred.api.inventory.isFull) {
+                        Alfred.api.walk.walkTo(getBankLocation())
                         Alfred.tasks.banking.depositInventory()
                         Alfred.sleep(200)
                     }
                 } else {
-                    for (item in Alfred.api.inventory().getItems(itemName)) {
-                        val count = Alfred.api.inventory().count()
+                    for (item in Alfred.api.inventory.getItems(itemId)) {
+                        val count = Alfred.api.inventory.count()
                         item.drop()
-                        Alfred.sleepUntil({ Alfred.api.inventory().count() == count - 1 }, 200, 1000 * 5)
+                        Alfred.sleepUntil({ Alfred.api.inventory.count() == count - 1 }, 200, 1000 * 5)
                     }
                 }
                 scriptState = ScriptState.WAITING
@@ -166,24 +171,22 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
 
     private val isWieldingRequiredAxe: Boolean
         get() {
-            Alfred.setStatus("Checking for axe")
-            if (!Alfred.api.equipment().isWeaponEquipped) {
+            Alfred.status = "Checking for axe"
+            if (!Alfred.api.equipment.isWeaponEquipped) {
                 return false
             }
-            return getRequiredItems().map { thing: Pair<Int, Int> -> thing.first }.contains(Alfred.api.equipment().weaponId)
+            return getInventoryRequirements().getItemSets().map { dynamicItemSet: DynamicItemSet -> dynamicItemSet.getItems() }.flatten().map { thing: Pair<Int, Int> -> thing.first }.contains(Alfred.api.equipment.weaponId)
         }
     private val getRequiredAxeFromInventory: RSInventoryItem?
         get() {
-            val inventoryItems = Alfred.api.inventory().items
-            getRequiredItems()
-                .map { thing: Pair<Int, Int> -> thing.first }
-                .forEach { requiredItemId: Int ->
-                    inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
-                        if (rsInventoryItem.id == requiredItemId) {
-                            return rsInventoryItem
-                        }
+            val inventoryItems = Alfred.api.inventory.items
+            getInventoryRequirements().getItemSets().map { dynamicItemSet: DynamicItemSet -> dynamicItemSet.getItems() }.flatten().map { thing: Pair<Int, Int> -> thing.first }.forEach { requiredItemId: Int ->
+                inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
+                    if (rsInventoryItem.id == requiredItemId) {
+                        return rsInventoryItem
                     }
                 }
+            }
             return null
         }
 }

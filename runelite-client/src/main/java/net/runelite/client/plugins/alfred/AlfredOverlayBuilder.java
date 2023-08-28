@@ -12,7 +12,7 @@ public class AlfredOverlayBuilder {
     private int padding = 5;
     private int topLeftCurrentLine = 0;
     private int topRightCurrentLine = 0;
-    private FontMetrics fontMetrics = Alfred.getClient().getCanvas().getFontMetrics(FontManager.getRunescapeFont());
+    private FontMetrics fontMetrics = Alfred.Companion.getClient().getCanvas().getFontMetrics(FontManager.getRunescapeFont());
 
 
     private static BufferedImage chatBoxImage = ImageUtil.loadImageResource(AlfredPlugin.class, "chatbox.png");

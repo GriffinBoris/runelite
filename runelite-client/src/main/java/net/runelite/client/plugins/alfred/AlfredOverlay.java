@@ -24,7 +24,7 @@ public class AlfredOverlay extends Overlay {
     }
 
     private void drawMouse(Graphics2D graphics) {
-        Point cursorPosition = Alfred.getMouse().getCurrentMousePosition();
+        Point cursorPosition = Alfred.Companion.getMouse().getCurrentMousePosition();
         graphics.setColor(Color.RED);
         graphics.fillOval(cursorPosition.x - 5, cursorPosition.y - 5, 10, 10);
     }

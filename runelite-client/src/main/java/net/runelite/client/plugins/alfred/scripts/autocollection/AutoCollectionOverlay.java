@@ -29,7 +29,7 @@ public class AutoCollectionOverlay extends Overlay {
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        for (RSTile tile : Alfred.api.walk().getAllTiles()) {
+        for (RSTile tile : Alfred.Companion.getApi().getWalk().getAllTiles()) {
             for (PathNode node : PathFinder.Companion.getPath()) {
                 if (tile.getWorldLocation().equals(node.getWorldLocation())) {
                     Polygon poly = tile.getCanvasPolygon();
@@ -48,11 +48,11 @@ public class AutoCollectionOverlay extends Overlay {
             }
         }
 
-        if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
+        if (Alfred.Companion.getClient().getGameState() != GameState.LOGGED_IN) {
             return null;
         }
 
-        Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.CHATBOX_MESSAGE_LINES);
+        Widget widget = Alfred.Companion.getApi().getWidgets().getWidget(WidgetInfo.CHATBOX_MESSAGE_LINES);
         if (widget == null || widget.isHidden() || widget.isSelfHidden()) {
             return null;
         }
@@ -61,7 +61,7 @@ public class AutoCollectionOverlay extends Overlay {
         overlayBuilder.drawBounds();
         overlayBuilder.drawTitle("Alfred Auto World Collection");
         overlayBuilder.drawText("", false);
-        overlayBuilder.drawText("Searching:", AutoCollectionThread.searching, true);
+        overlayBuilder.drawText("Searching:", AutoCollectionThread.Companion.getSearching(), true);
 //        overlayBuilder.drawText("Walking To:", AutoCollectionThread.searching, false);
         return null;
     }

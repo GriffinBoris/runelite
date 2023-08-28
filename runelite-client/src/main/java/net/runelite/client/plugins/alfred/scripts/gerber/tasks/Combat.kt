@@ -5,6 +5,8 @@ import net.runelite.api.Skill
 import net.runelite.api.coords.WorldArea
 import net.runelite.api.coords.WorldPoint
 import net.runelite.client.plugins.alfred.Alfred
+import net.runelite.client.plugins.alfred.api.models.DynamicItemSet
+import net.runelite.client.plugins.alfred.api.models.inventory.InventoryRequirements
 import net.runelite.client.plugins.alfred.api.rs.inventory.RSInventoryItem
 import net.runelite.client.plugins.alfred.enums.WorldDestinations
 import net.runelite.client.plugins.alfred.scripts.gerber.GerberConfig
@@ -17,16 +19,13 @@ class Combat(private val config: GerberConfig) : BaseTask() {
     }
 
     private enum class ScriptState {
-        SETUP,
-        WAITING,
-        FIGHTING,
-        LOOTING
+        SETUP, WAITING, FIGHTING, LOOTING
     }
 
     private var scriptState: ScriptState
 
     init {
-        Alfred.setStatus("Training Combat")
+        Alfred.status = "Training Combat"
         scriptState = ScriptState.SETUP
     }
 
@@ -35,81 +34,64 @@ class Combat(private val config: GerberConfig) : BaseTask() {
         return WorldDestinations.LUMBRIDGE_BANK.worldPoint
     }
 
-    override fun getRequiredItems(): List<Pair<Int, Int>> {
-        val player = Alfred.api.players().localPlayer
-        val requiredItems: MutableList<Pair<Int, Int>> = mutableListOf()
-
+    override fun getInventoryRequirements(): InventoryRequirements {
+        val player = Alfred.api.players.localPlayer
+        val inventoryRequirements = InventoryRequirements()
         val attackLevel = player.getSkillLevel(Skill.ATTACK)
-        if (attackLevel >= 1) {
-            requiredItems.add(Pair(ItemID.BRONZE_2H_SWORD, 1))
-            requiredItems.add(Pair(ItemID.BRONZE_DAGGER, 1))
-            requiredItems.add(Pair(ItemID.BRONZE_SWORD, 1))
-            requiredItems.add(Pair(ItemID.BRONZE_LONGSWORD, 1))
-            requiredItems.add(Pair(ItemID.BRONZE_SCIMITAR, 1))
 
-            requiredItems.add(Pair(ItemID.IRON_2H_SWORD, 1))
-            requiredItems.add(Pair(ItemID.IRON_DAGGER, 1))
-            requiredItems.add(Pair(ItemID.IRON_SWORD, 1))
-            requiredItems.add(Pair(ItemID.IRON_LONGSWORD, 1))
-            requiredItems.add(Pair(ItemID.IRON_SCIMITAR, 1))
+        val weapons = DynamicItemSet()
+        if (attackLevel >= 1) {
+            weapons.add(ItemID.BRONZE_2H_SWORD, 1)
+            weapons.add(ItemID.BRONZE_DAGGER, 1)
+            weapons.add(ItemID.BRONZE_SWORD, 1)
+            weapons.add(ItemID.BRONZE_LONGSWORD, 1)
+            weapons.add(ItemID.BRONZE_SCIMITAR, 1)
+            weapons.add(ItemID.IRON_2H_SWORD, 1)
+            weapons.add(ItemID.IRON_DAGGER, 1)
+            weapons.add(ItemID.IRON_SWORD, 1)
+            weapons.add(ItemID.IRON_LONGSWORD, 1)
+            weapons.add(ItemID.IRON_SCIMITAR, 1)
         }
         if (attackLevel >= 5) {
-            requiredItems.add(Pair(ItemID.STEEL_2H_SWORD, 1))
-            requiredItems.add(Pair(ItemID.STEEL_DAGGER, 1))
-            requiredItems.add(Pair(ItemID.STEEL_SWORD, 1))
-            requiredItems.add(Pair(ItemID.STEEL_LONGSWORD, 1))
-            requiredItems.add(Pair(ItemID.STEEL_SCIMITAR, 1))
+            weapons.add(ItemID.STEEL_2H_SWORD, 1)
+            weapons.add(ItemID.STEEL_DAGGER, 1)
+            weapons.add(ItemID.STEEL_SWORD, 1)
+            weapons.add(ItemID.STEEL_LONGSWORD, 1)
+            weapons.add(ItemID.STEEL_SCIMITAR, 1)
         }
         if (attackLevel >= 10) {
-            requiredItems.add(Pair(ItemID.BLACK_2H_SWORD, 1))
-            requiredItems.add(Pair(ItemID.BLACK_DAGGER, 1))
-            requiredItems.add(Pair(ItemID.BLACK_SWORD, 1))
-            requiredItems.add(Pair(ItemID.BLACK_LONGSWORD, 1))
-            requiredItems.add(Pair(ItemID.BLACK_SCIMITAR, 1))
+            weapons.add(ItemID.BLACK_2H_SWORD, 1)
+            weapons.add(ItemID.BLACK_DAGGER, 1)
+            weapons.add(ItemID.BLACK_SWORD, 1)
+            weapons.add(ItemID.BLACK_LONGSWORD, 1)
+            weapons.add(ItemID.BLACK_SCIMITAR, 1)
         }
         if (attackLevel >= 20) {
-            requiredItems.add(Pair(ItemID.MITHRIL_2H_SWORD, 1))
-            requiredItems.add(Pair(ItemID.MITHRIL_DAGGER, 1))
-            requiredItems.add(Pair(ItemID.MITHRIL_SWORD, 1))
-            requiredItems.add(Pair(ItemID.MITHRIL_LONGSWORD, 1))
-            requiredItems.add(Pair(ItemID.MITHRIL_SCIMITAR, 1))
+            weapons.add(ItemID.MITHRIL_2H_SWORD, 1)
+            weapons.add(ItemID.MITHRIL_DAGGER, 1)
+            weapons.add(ItemID.MITHRIL_SWORD, 1)
+            weapons.add(ItemID.MITHRIL_LONGSWORD, 1)
+            weapons.add(ItemID.MITHRIL_SCIMITAR, 1)
         }
         if (attackLevel >= 30) {
-            requiredItems.add(Pair(ItemID.ADAMANT_2H_SWORD, 1))
-            requiredItems.add(Pair(ItemID.ADAMANT_DAGGER, 1))
-            requiredItems.add(Pair(ItemID.ADAMANT_SWORD, 1))
-            requiredItems.add(Pair(ItemID.ADAMANT_LONGSWORD, 1))
-            requiredItems.add(Pair(ItemID.ADAMANT_SCIMITAR, 1))
+            weapons.add(ItemID.ADAMANT_2H_SWORD, 1)
+            weapons.add(ItemID.ADAMANT_DAGGER, 1)
+            weapons.add(ItemID.ADAMANT_SWORD, 1)
+            weapons.add(ItemID.ADAMANT_LONGSWORD, 1)
+            weapons.add(ItemID.ADAMANT_SCIMITAR, 1)
         }
         if (attackLevel >= 40) {
-            requiredItems.add(Pair(ItemID.RUNE_2H_SWORD, 1))
-            requiredItems.add(Pair(ItemID.RUNE_DAGGER, 1))
-            requiredItems.add(Pair(ItemID.RUNE_SWORD, 1))
-            requiredItems.add(Pair(ItemID.RUNE_LONGSWORD, 1))
-            requiredItems.add(Pair(ItemID.RUNE_SCIMITAR, 1))
+            weapons.add(ItemID.RUNE_2H_SWORD, 1)
+            weapons.add(ItemID.RUNE_DAGGER, 1)
+            weapons.add(ItemID.RUNE_SWORD, 1)
+            weapons.add(ItemID.RUNE_LONGSWORD, 1)
+            weapons.add(ItemID.RUNE_SCIMITAR, 1)
         }
 
-//        val strengthLevel = player.getSkillLevel(Skill.STRENGTH)
-//        if (strengthLevel >= 1) {
-//            requiredItems.add(Pair(ItemID.BRONZE_PICKAXE, 1))
-//            requiredItems.add(Pair(ItemID.IRON_PICKAXE, 1))
-//        }
-//        if (strengthLevel >= 5) {
-//            requiredItems.add(Pair(ItemID.STEEL_PICKAXE, 1))
-//        }
-//        if (strengthLevel >= 10) {
-//            requiredItems.add(Pair(ItemID.BLACK_PICKAXE, 1))
-//        }
-//        if (strengthLevel >= 20) {
-//            requiredItems.add(Pair(ItemID.MITHRIL_PICKAXE, 1))
-//        }
-//        if (strengthLevel >= 30) {
-//            requiredItems.add(Pair(ItemID.ADAMANT_PICKAXE, 1))
-//        }
-//        if (strengthLevel >= 40) {
-//            requiredItems.add(Pair(ItemID.RUNE_PICKAXE, 1))
-//        }
-//
+        if (weapons.getItems().isNotEmpty()) {
+            inventoryRequirements.addItemSet(weapons)
+        }
+
 //        val defenceLevel = player.getSkillLevel(Skill.DEFENCE)
 //        if (defenceLevel >= 1) {
 //            requiredItems.add(Pair(ItemID.BRONZE_PICKAXE, 1))
@@ -130,11 +112,11 @@ class Combat(private val config: GerberConfig) : BaseTask() {
 //        if (defenceLevel >= 40) {
 //            requiredItems.add(Pair(ItemID.RUNE_PICKAXE, 1))
 //        }
-        return requiredItems
+        return inventoryRequirements
     }
 
     override fun shouldTrain(): Boolean {
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
         val attackLevel = player.getSkillLevel(Skill.ATTACK)
         val strengthLevel = player.getSkillLevel(Skill.STRENGTH)
         val defenceLevel = player.getSkillLevel(Skill.DEFENCE)
@@ -153,12 +135,12 @@ class Combat(private val config: GerberConfig) : BaseTask() {
         val minimumSkillRequirement = minimumSkillRequirement
 
         if (minimumSkillRequirement < 10) {
-            Alfred.setTaskSubStatus("Fighting Chickens")
+            Alfred.taskSubStatus= "Fighting Chickens"
             GerberThread.countLabel = "Chickens Killed"
             fightNPC(LUMBRIDGE_CHICKENS_WORLD_AREA, WorldDestinations.LUMBRIDGE_CHICKENS.worldPoint, "chicken", listOf(ItemID.FEATHER, ItemID.BONES))
 
         } else if (minimumSkillRequirement < 20) {
-            Alfred.setTaskSubStatus("Fighting Cows")
+            Alfred.taskSubStatus = "Fighting Cows"
             GerberThread.countLabel = "Cows Killed"
             fightNPC(LUMBRIDGE_COWS_WORLD_AREA, WorldDestinations.LUMBRIDGE_COWS.worldPoint, "cow", listOf(ItemID.COWHIDE, ItemID.BONES))
 
@@ -171,12 +153,12 @@ class Combat(private val config: GerberConfig) : BaseTask() {
 
     private val minimumSkillRequirement: Int
         get() {
-            val player = Alfred.api.players().localPlayer
+            val player = Alfred.api.players.localPlayer
             return listOf(player.getSkillLevel(Skill.ATTACK), player.getSkillLevel(Skill.STRENGTH), player.getSkillLevel(Skill.DEFENCE)).min()
         }
 
     private fun fightNPC(worldArea: WorldArea, worldPoint: WorldPoint, npcName: String, itemLootNames: List<Int>) {
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
 
         if (player.isMoving || player.isInteracting) {
             return
@@ -187,9 +169,9 @@ class Combat(private val config: GerberConfig) : BaseTask() {
                 if (!isWieldingRequiredWeapon) {
                     val weapon = getRequiredWeaponFromInventory
                     if (weapon != null) {
-                        val inventoryCount = Alfred.api.inventory().count()
+                        val inventoryCount = Alfred.api.inventory.count()
                         weapon.leftClick()
-                        Alfred.sleepUntil({ Alfred.api.inventory().count() == inventoryCount - 1 }, 100, 3000)
+                        Alfred.sleepUntil({ Alfred.api.inventory.count() == inventoryCount - 1 }, 100, 3000)
                     }
                 } else {
                     scriptState = ScriptState.WAITING
@@ -198,7 +180,7 @@ class Combat(private val config: GerberConfig) : BaseTask() {
 
             ScriptState.WAITING -> {
                 if (!worldArea.contains(player.worldLocation)) {
-                    Alfred.api.walk().walkTo(worldPoint)
+                    Alfred.api.walk.walkTo(worldPoint)
                 }
                 scriptState = ScriptState.FIGHTING
             }
@@ -213,13 +195,13 @@ class Combat(private val config: GerberConfig) : BaseTask() {
 
             ScriptState.LOOTING -> {
                 if (config.collectItems()) {
-                    if (Alfred.api.inventory().isFull) {
+                    if (Alfred.api.inventory.isFull) {
                         buryBones()
                         Alfred.sleep(200)
                     }
 
-                    if (Alfred.api.inventory().isFull) {
-                        Alfred.api.walk().walkTo(getBankLocation())
+                    if (Alfred.api.inventory.isFull) {
+                        Alfred.api.walk.walkTo(getBankLocation())
                         Alfred.tasks.banking.depositInventory()
                         Alfred.sleep(200)
                     }
@@ -233,33 +215,33 @@ class Combat(private val config: GerberConfig) : BaseTask() {
     }
 
     private fun setCombatStyle() {
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
 
         val attackLevel = player.getSkillLevel(Skill.ATTACK)
         val strengthLevel = player.getSkillLevel(Skill.STRENGTH)
         val defenceLevel = player.getSkillLevel(Skill.DEFENCE)
 
         if (attackLevel < config.attackLevel()) {
-            if (!Alfred.api.combat().isPunchSelected) {
-                Alfred.api.combat().clickPunch()
+            if (!Alfred.api.combat.isPunchSelected) {
+                Alfred.api.combat.clickPunch()
             }
         } else if (strengthLevel < config.strengthLevel()) {
-            if (!Alfred.api.combat().isKickSelected) {
-                Alfred.api.combat().clickKick()
+            if (!Alfred.api.combat.isKickSelected) {
+                Alfred.api.combat.clickKick()
             }
         } else if (defenceLevel < config.defenseLevel()) {
-            if (!Alfred.api.combat().isBlockSelected) {
-                Alfred.api.combat().clickBlock()
+            if (!Alfred.api.combat.isBlockSelected) {
+                Alfred.api.combat.clickBlock()
             }
         }
     }
 
     private fun buryBones() {
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
         if (!config.buryBones() || player.getSkillLevel(Skill.PRAYER) >= config.prayerLevel()) {
             return
         }
-        for (item in Alfred.api.inventory().getItems("bones")) {
+        for (item in Alfred.api.inventory.getItems(ItemID.BONES)) {
             item.leftClick()
             Alfred.sleep(1000)
             Alfred.sleepUntil({ !player.isMoving && !player.isInteracting && player.isIdle }, 200, 1000 * 30)
@@ -268,24 +250,22 @@ class Combat(private val config: GerberConfig) : BaseTask() {
 
     private val isWieldingRequiredWeapon: Boolean
         get() {
-            Alfred.setStatus("Checking for weapon")
-            if (!Alfred.api.equipment().isWeaponEquipped) {
+            Alfred.status = "Checking for weapon"
+            if (!Alfred.api.equipment.isWeaponEquipped) {
                 return false
             }
-            return getRequiredItems().map { thing: Pair<Int, Int> -> thing.first }.contains(Alfred.api.equipment().weaponId)
+            return getInventoryRequirements().getItemSets().map { dynamicItemSet: DynamicItemSet -> dynamicItemSet.getItems() }.flatten().map { thing: Pair<Int, Int> -> thing.first }.contains(Alfred.api.equipment.weaponId)
         }
     private val getRequiredWeaponFromInventory: RSInventoryItem?
         get() {
-            val inventoryItems = Alfred.api.inventory().items
-            getRequiredItems()
-                .map { thing: Pair<Int, Int> -> thing.first }
-                .forEach { requiredItemId: Int ->
-                    inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
-                        if (rsInventoryItem.id == requiredItemId) {
-                            return rsInventoryItem
-                        }
+            val inventoryItems = Alfred.api.inventory.items
+            getInventoryRequirements().getItemSets().map { dynamicItemSet: DynamicItemSet -> dynamicItemSet.getItems() }.flatten().map { thing: Pair<Int, Int> -> thing.first }.forEach { requiredItemId: Int ->
+                inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
+                    if (rsInventoryItem.id == requiredItemId) {
+                        return rsInventoryItem
                     }
                 }
+            }
             return null
         }
 }

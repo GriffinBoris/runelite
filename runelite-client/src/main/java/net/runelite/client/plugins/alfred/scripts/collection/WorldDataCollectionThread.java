@@ -17,13 +17,13 @@ public class WorldDataCollectionThread extends Thread {
         while (true) {
             Runnable worker = new WorldDataCollectionTask(started);
             executor.execute(worker);
-            Alfred.sleep(3500);
+            Alfred.Companion.sleep(3500);
             started++;
             updateStatus();
         }
     }
 
     private void updateStatus() {
-        Alfred.setStatus("World Data Collection, Started: " + started + ", Completed: " + completed);
+        Alfred.Companion.setStatus("World Data Collection, Started: " + started + ", Completed: " + completed);
     }
 }

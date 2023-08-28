@@ -21,8 +21,8 @@ public class TransportHelperOverlay extends Overlay {
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        Client client = Alfred.getClient();
-        for (RSTile tile : Alfred.api.walk().getAllTiles()) {
+        Client client = Alfred.Companion.getClient();
+        for (RSTile tile : Alfred.Companion.getApi().getWalk().getAllTiles()) {
             final LocalPoint tileLocalLocation = tile.getTile().getLocalLocation();
             Polygon poly = Perspective.getCanvasTilePoly(client, tileLocalLocation);
 

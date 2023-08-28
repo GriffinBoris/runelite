@@ -14,13 +14,16 @@ public class WalkerThread extends Thread {
 
     @Override
     public void run() {
-        if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
-            Alfred.api.account().login();
+        if (Alfred.Companion.getClient().getGameState() != GameState.LOGGED_IN) {
+            Alfred.Companion.getApi().getAccount().login();
         }
 
+        Alfred.Companion.getApi().getCamera().setPitch(1.0f);
+        Alfred.Companion.getApi().getCamera().setYaw(315);
+
         if (!config.locations().getName().equals("None")) {
-            Alfred.setStatus("Walking to: " + config.locations().getName());
-            Alfred.api.walk().walkTo(config.locations().getWorldPoint());
+            Alfred.Companion.setStatus("Walking to: " + config.locations().getName());
+            Alfred.Companion.getApi().getWalk().walkTo(config.locations().getWorldPoint());
 
         } else {
             int x = Integer.parseInt(config.xCoordinate());
@@ -28,7 +31,7 @@ public class WalkerThread extends Thread {
             int z = Integer.parseInt(config.zCoordinate());
 
             WorldPoint worldPoint = new WorldPoint(x, y, z);
-            Alfred.api.walk().walkTo(worldPoint);
+            Alfred.Companion.getApi().getWalk().walkTo(worldPoint);
         }
     }
 }

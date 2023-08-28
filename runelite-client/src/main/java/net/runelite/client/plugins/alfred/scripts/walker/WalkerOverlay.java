@@ -23,7 +23,7 @@ public class WalkerOverlay extends Overlay {
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        for (RSTile tile : Alfred.api.walk().getAllTiles()) {
+        for (RSTile tile : Alfred.Companion.getApi().getWalk().getAllTiles()) {
             for (PathNode node : PathFinder.Companion.getPath()) {
                 if (tile.getWorldLocation().equals(node.getWorldLocation())) {
                     Polygon poly = tile.getCanvasPolygon();

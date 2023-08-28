@@ -9,7 +9,7 @@ import kotlin.math.atan2
 class RSCameraHelper {
     private val dumbCameraAngle: Int
         get() {
-            val cameraAngle = abs(Alfred.getClient().getCameraYaw() / 45.51 * 8).toInt()
+            val cameraAngle = abs(Alfred.client.getCameraYaw() / 45.51 * 8).toInt()
             return (360 + cameraAngle) % 360
         }
 
@@ -24,23 +24,23 @@ class RSCameraHelper {
 
     private fun isCameraAngleInRange(worldPoint: WorldPoint, range: Int): Boolean {
         val cameraAngle = dumbCameraAngle
-        val angleToLocation = getAngleBetweenPoints(Alfred.getClient().getLocalPlayer().getWorldLocation(), worldPoint)
+        val angleToLocation = getAngleBetweenPoints(Alfred.client.getLocalPlayer().getWorldLocation(), worldPoint)
         val distance = getAngleDistance(cameraAngle, angleToLocation)
         return abs(distance.toDouble()) <= range
     }
 
     private fun internalLookAt(worldPoint: WorldPoint) {
         val cameraAngle = dumbCameraAngle
-        val angleToLocation = getAngleBetweenPoints(Alfred.getClient().getLocalPlayer().getWorldLocation(), worldPoint)
+        val angleToLocation = getAngleBetweenPoints(Alfred.client.getLocalPlayer().getWorldLocation(), worldPoint)
         val distance = getAngleDistance(cameraAngle, angleToLocation)
         val turnLeft = distance in 1..179
 
         if (turnLeft) {
-            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_RIGHT)
-            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_RIGHT) }, { isCameraAngleInRange(worldPoint, 15) }, 10, 1000 * 30)
+            Alfred.keyboard.holdArrowKey(KeyEvent.VK_RIGHT)
+            Alfred.sleepUntilExecution({ Alfred.keyboard.releaseArrowKey(KeyEvent.VK_RIGHT) }, { isCameraAngleInRange(worldPoint, 15) }, 10, 1000 * 30)
         } else {
-            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_LEFT)
-            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_LEFT) }, { isCameraAngleInRange(worldPoint, 15) }, 10, 1000 * 30)
+            Alfred.keyboard.holdArrowKey(KeyEvent.VK_LEFT)
+            Alfred.sleepUntilExecution({ Alfred.keyboard.releaseArrowKey(KeyEvent.VK_LEFT) }, { isCameraAngleInRange(worldPoint, 15) }, 10, 1000 * 30)
         }
     }
 
@@ -50,11 +50,11 @@ class RSCameraHelper {
         val turnLeft = distance in 1..179
 
         if (turnLeft) {
-            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_RIGHT)
-            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_RIGHT) }, { getAngleDistance(dumbCameraAngle, angle) <= 5 }, 10, 1000 * 30)
+            Alfred.keyboard.holdArrowKey(KeyEvent.VK_RIGHT)
+            Alfred.sleepUntilExecution({ Alfred.keyboard.releaseArrowKey(KeyEvent.VK_RIGHT) }, { getAngleDistance(dumbCameraAngle, angle) <= 5 }, 10, 1000 * 30)
         } else {
-            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_LEFT)
-            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_LEFT) }, { getAngleDistance(dumbCameraAngle, angle) <= 5 }, 10, 1000 * 30)
+            Alfred.keyboard.holdArrowKey(KeyEvent.VK_LEFT)
+            Alfred.sleepUntilExecution({ Alfred.keyboard.releaseArrowKey(KeyEvent.VK_LEFT) }, { getAngleDistance(dumbCameraAngle, angle) <= 5 }, 10, 1000 * 30)
         }
     }
 
@@ -65,7 +65,7 @@ class RSCameraHelper {
     private fun cameraPitchPercentage(): Float {
         val minPitch = 128
         val maxPitch = 383
-        val currentPitch = Alfred.getClient().cameraPitch
+        val currentPitch = Alfred.client.cameraPitch
 
         val adjustedPitch = currentPitch - minPitch
         val adjustedMaxPitch = maxPitch - minPitch
@@ -77,11 +77,11 @@ class RSCameraHelper {
         val currentPercentage = cameraPitchPercentage()
 
         if (currentPercentage < percentage) {
-            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_UP)
-            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_UP) }, { cameraPitchPercentage() >= percentage }, 10, 1000 * 30)
+            Alfred.keyboard.holdArrowKey(KeyEvent.VK_UP)
+            Alfred.sleepUntilExecution({ Alfred.keyboard.releaseArrowKey(KeyEvent.VK_UP) }, { cameraPitchPercentage() >= percentage }, 10, 1000 * 30)
         } else {
-            Alfred.getKeyboard().holdArrowKey(KeyEvent.VK_DOWN)
-            Alfred.sleepUntilExecution({ Alfred.getKeyboard().releaseArrowKey(KeyEvent.VK_DOWN) }, { cameraPitchPercentage() <= percentage }, 10, 1000 * 30)
+            Alfred.keyboard.holdArrowKey(KeyEvent.VK_DOWN)
+            Alfred.sleepUntilExecution({ Alfred.keyboard.releaseArrowKey(KeyEvent.VK_DOWN) }, { cameraPitchPercentage() <= percentage }, 10, 1000 * 30)
         }
     }
 }

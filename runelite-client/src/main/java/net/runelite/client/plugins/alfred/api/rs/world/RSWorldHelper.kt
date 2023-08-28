@@ -10,11 +10,11 @@ class RSWorldHelper {
     }
 
     private fun internalGetTiles(): List<Tile> {
-        return Alfred.getClientThread().invokeOnClientThread<List<Tile>> {
+        return Alfred.clientThread.invokeOnClientThread<List<Tile>> {
             val tileList: MutableList<Tile> = ArrayList()
-            val player = Alfred.getClient().localPlayer
-            val tiles = Alfred.getClient().scene.tiles
-            val z = Alfred.getClient().getPlane()
+            val player = Alfred.client.localPlayer
+            val tiles = Alfred.client.scene.tiles
+            val z = Alfred.client.getPlane()
 
             for (x in 0 until Constants.SCENE_SIZE) {
                 for (y in 0 until Constants.SCENE_SIZE) {

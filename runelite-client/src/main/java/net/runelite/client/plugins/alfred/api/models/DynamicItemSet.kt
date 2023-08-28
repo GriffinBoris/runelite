@@ -3,7 +3,7 @@ package net.runelite.client.plugins.alfred.api.models
 class DynamicItemSet {
     private val itemsAndQuantities: MutableList<Pair<Int, Int>> = mutableListOf()
 
-    fun addItemAndQuantity(itemID: Int, quantity: Int) {
+    fun add(itemID: Int, quantity: Int) {
         itemsAndQuantities.add(Pair(itemID, quantity))
     }
 

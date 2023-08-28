@@ -29,11 +29,11 @@ public class WorldCollectionOverlay extends Overlay {
     }
 
     private void drawStatusBox(Graphics2D graphics) {
-        if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
+        if (Alfred.Companion.getClient().getGameState() != GameState.LOGGED_IN) {
             return;
         }
 
-        Widget widget = Alfred.api.widgets().getWidget(WidgetInfo.CHATBOX_MESSAGE_LINES);
+        Widget widget = Alfred.Companion.getApi().getWidgets().getWidget(WidgetInfo.CHATBOX_MESSAGE_LINES);
         if (widget == null || widget.isHidden() || widget.isSelfHidden()) {
             return;
         }

@@ -1,6 +1,5 @@
 package net.runelite.client.plugins.alfred.api.rs.math;
 
-import net.runelite.api.Actor;
 import net.runelite.api.Perspective;
 import net.runelite.api.Point;
 import net.runelite.api.coords.LocalPoint;
@@ -16,15 +15,15 @@ public class Calculations {
     public static boolean pointOnScreen(Point check) {
         int x = check.getX();
         int y = check.getY();
-        int xOffset = Alfred.getClient().getViewportXOffset();
-        int yOffset = Alfred.getClient().getViewportYOffset();
-        int width = Alfred.getClient().getViewportWidth();
-        int height = Alfred.getClient().getViewportHeight();
+        int xOffset = Alfred.Companion.getClient().getViewportXOffset();
+        int yOffset = Alfred.Companion.getClient().getViewportYOffset();
+        int width = Alfred.Companion.getClient().getViewportWidth();
+        int height = Alfred.Companion.getClient().getViewportHeight();
         return x > xOffset && x < width + xOffset && y > yOffset && y < height + yOffset;
     }
 
     public static Point tileToScreenPoint(LocalPoint localPoint, int height) {
-        return Perspective.localToCanvas(Alfred.getClient(), localPoint, height);
+        return Perspective.localToCanvas(Alfred.Companion.getClient(), localPoint, height);
     }
 
     public static boolean tileOnScreen(LocalPoint localPoint, int height) {
@@ -53,7 +52,7 @@ public class Calculations {
     }
 
     public static Point worldPointToScreenPosition(WorldPoint worldPoint) {
-        return Perspective.localToCanvas(Alfred.getClient(), worldPoint.getX(), worldPoint.getY(), Alfred.getClient().getPlane());
+        return Perspective.localToCanvas(Alfred.Companion.getClient(), worldPoint.getX(), worldPoint.getY(), Alfred.Companion.getClient().getPlane());
     }
 
 //    /**
@@ -64,36 +63,36 @@ public class Calculations {
 //     * @return The angle in degrees
 //     */
 //    public static int angleToTile(Actor t) {
-//        int angle = (int) Math.toDegrees(Math.atan2(t.getWorldLocation().getY() - Alfred.getClient().getLocalPlayer().getWorldLocation().getY(), t.getWorldLocation().getX() - Alfred.getClient().getLocalPlayer().getWorldLocation().getX()));
+//        int angle = (int) Math.toDegrees(Math.atan2(t.getWorldLocation().getY() - Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getY(), t.getWorldLocation().getX() - Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getX()));
 //        return angle >= 0 ? angle : 360 + angle;
 //    }
 //
 //    public static int angleToTile(TileObject t) {
-//        int angle = (int) Math.toDegrees(Math.atan2(t.getWorldLocation().getY() - Alfred.getClient().getLocalPlayer().getWorldLocation().getY(), t.getWorldLocation().getX() - Alfred.getClient().getLocalPlayer().getWorldLocation().getX()));
+//        int angle = (int) Math.toDegrees(Math.atan2(t.getWorldLocation().getY() - Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getY(), t.getWorldLocation().getX() - Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getX()));
 //        return angle >= 0 ? angle : 360 + angle;
 //    }
 //
 //    public static int angleToTile(LocalPoint localPoint) {
-//        int angle = (int) Math.toDegrees(Math.atan2(localPoint.getY() - Alfred.getClient().getLocalPlayer().getWorldLocation().getY(), localPoint.getX() - Alfred.getClient().getLocalPlayer().getWorldLocation().getX()));
+//        int angle = (int) Math.toDegrees(Math.atan2(localPoint.getY() - Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getY(), localPoint.getX() - Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getX()));
 //        return angle >= 0 ? angle : 360 + angle;
 //    }
 //
 //    public static int angleToTile(WorldPoint worldPoint) {
-//        int angle = (int) Math.toDegrees(Math.atan2(worldPoint.getY() - Alfred.getClient().getLocalPlayer().getWorldLocation().getY(), worldPoint.getX() - Alfred.getClient().getLocalPlayer().getWorldLocation().getX()));
+//        int angle = (int) Math.toDegrees(Math.atan2(worldPoint.getY() - Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getY(), worldPoint.getX() - Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getX()));
 //        return angle >= 0 ? angle : 360 + angle;
 //    }
 //
 //    public static boolean pointOnScreen(Point check) {
 //        int x = check.getX(), y = check.getY();
-//        return x > Alfred.getClient().getViewportXOffset() && x < Alfred.getClient().getViewportWidth() && y > Alfred.getClient().getViewportYOffset() && y < Alfred.getClient().getViewportHeight();
+//        return x > Alfred.Companion.getClient().getViewportXOffset() && x < Alfred.Companion.getClient().getViewportWidth() && y > Alfred.Companion.getClient().getViewportYOffset() && y < Alfred.Companion.getClient().getViewportHeight();
 //    }
 //
 //    public static Point tileToScreen(final Tile tile, final double dX, final double dY, final int height) {
-//        return Perspective.localToCanvas(Alfred.getClient(), new LocalPoint(tile.getLocalLocation().getX(), tile.getLocalLocation().getY()), Alfred.getClient().getPlane(), height);
+//        return Perspective.localToCanvas(Alfred.Companion.getClient(), new LocalPoint(tile.getLocalLocation().getX(), tile.getLocalLocation().getY()), Alfred.Companion.getClient().getPlane(), height);
 //    }
 //
 //    public static Point tileToScreenPoint(final Point point, final double dX, final double dY, final int height) {
-//        return Perspective.localToCanvas(Alfred.getClient(), new LocalPoint(point.getX(), point.getY()), Alfred.getClient().getPlane(), height);
+//        return Perspective.localToCanvas(Alfred.Companion.getClient(), new LocalPoint(point.getX(), point.getY()), Alfred.Companion.getClient().getPlane(), height);
 //    }
 //
 //    public static boolean tileOnScreen(Actor actor) {
@@ -121,7 +120,7 @@ public class Calculations {
 //    }
 //
 //    public static Point tileToScreenHalfWay(final Tile tile, final double dX, final double dY, final int height) {
-//        return Perspective.localToCanvas(Alfred.getClient(), new LocalPoint((tile.getWorldLocation().getX() + Alfred.getClient().getLocalPlayer().getWorldLocation().getX()) / 2, (tile.getWorldLocation().getY() + Alfred.getClient().getLocalPlayer().getWorldLocation().getY()) / 2), Alfred.getClient().getPlane(), height);
+//        return Perspective.localToCanvas(Alfred.Companion.getClient(), new LocalPoint((tile.getWorldLocation().getX() + Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getX()) / 2, (tile.getWorldLocation().getY() + Alfred.Companion.getClient().getLocalPlayer().getWorldLocation().getY()) / 2), Alfred.Companion.getClient().getPlane(), height);
 //    }
 //
 //    public static boolean tileOnScreen(Tile t) {
@@ -175,17 +174,17 @@ public class Calculations {
 //    }
 //
 //    public static Point worldToMinimap(double x, double y) {
-//        LocalPoint test = LocalPoint.fromWorld(Alfred.getClient(), (int) x, (int) y);
+//        LocalPoint test = LocalPoint.fromWorld(Alfred.Companion.getClient(), (int) x, (int) y);
 //        if (test != null) {
-//            return Alfred.getClientThread().invokeOnClientThread(() -> Perspective.localToMinimap(Alfred.getClient(), test, 2500 * (int) Alfred.getClient().getMinimapZoom()));
+//            return Alfred.Companion.getClientThread().invokeOnClientThread(() -> Perspective.localToMinimap(Alfred.Companion.getClient(), test, 2500 * (int) Alfred.Companion.getClient().getMinimapZoom()));
 //        }
 //        return null;
 //    }
 //
 //    public static Point worldToCanvas(double x, double y) {
-//        LocalPoint test = LocalPoint.fromWorld(Alfred.getClient(), (int) x, (int) y);
+//        LocalPoint test = LocalPoint.fromWorld(Alfred.Companion.getClient(), (int) x, (int) y);
 //        if (test != null) {
-//            return Alfred.getClientThread().invokeOnClientThread(() -> Perspective.localToCanvas(Alfred.getClient(), test, Alfred.getClient().getPlane()));
+//            return Alfred.Companion.getClientThread().invokeOnClientThread(() -> Perspective.localToCanvas(Alfred.Companion.getClient(), test, Alfred.Companion.getClient().getPlane()));
 //        }
 //        return null;
 //    }
@@ -201,28 +200,28 @@ public class Calculations {
 //     * should be accepted.
 //     */
 //    public static int pathLengthTo(Tile dest, boolean isObject) {
-//        WorldPoint curPos = Alfred.getClient().getLocalPlayer().getWorldLocation();
+//        WorldPoint curPos = Alfred.Companion.getClient().getLocalPlayer().getWorldLocation();
 //        return pathLengthBetween(curPos, dest, isObject);
 //    }
 //
 //    public static int pathLengthTo(WorldPoint dest, boolean isObject) {
-//        WorldPoint curPos = Alfred.getClient().getLocalPlayer().getWorldLocation();
+//        WorldPoint curPos = Alfred.Companion.getClient().getLocalPlayer().getWorldLocation();
 //        return pathLengthBetween(curPos, dest, isObject);
 //    }
 //
 //    public static int pathLengthBetween(WorldPoint start, Tile dest, boolean isObject) {
-//        return dijkstraDist(start.getX() - Alfred.getClient().getBaseX(), // startX
-//                start.getY() - Alfred.getClient().getBaseY(), // startY
-//                dest.getWorldLocation().getX() - Alfred.getClient().getBaseX(), // destX
-//                dest.getWorldLocation().getY() - Alfred.getClient().getBaseY(), // destY
+//        return dijkstraDist(start.getX() - Alfred.Companion.getClient().getBaseX(), // startX
+//                start.getY() - Alfred.Companion.getClient().getBaseY(), // startY
+//                dest.getWorldLocation().getX() - Alfred.Companion.getClient().getBaseX(), // destX
+//                dest.getWorldLocation().getY() - Alfred.Companion.getClient().getBaseY(), // destY
 //                isObject); // if it's an object, accept any adjacent tile
 //    }
 //
 //    public static int pathLengthBetween(WorldPoint start, WorldPoint dest, boolean isObject) {
-//        return dijkstraDist(start.getX() - Alfred.getClient().getBaseX(), // startX
-//                start.getY() - Alfred.getClient().getBaseY(), // startY
-//                dest.getX() - Alfred.getClient().getBaseX(), // destX
-//                dest.getY() - Alfred.getClient().getBaseY(), // destY
+//        return dijkstraDist(start.getX() - Alfred.Companion.getClient().getBaseX(), // startX
+//                start.getY() - Alfred.Companion.getClient().getBaseY(), // startY
+//                dest.getX() - Alfred.Companion.getClient().getBaseX(), // destX
+//                dest.getY() - Alfred.Companion.getClient().getBaseY(), // destY
 //                isObject); // if it's an object, accept any adjacent tile
 //    }
 //
@@ -254,7 +253,7 @@ public class Calculations {
 //        int step_ptr = 0;
 //        path_x[path_ptr] = startX;
 //        path_y[path_ptr++] = startY;
-//        final byte blocks[][] = Alfred.getClient().getTileSettings()[Alfred.getClient().getPlane()];
+//        final byte blocks[][] = Alfred.Companion.getClient().getTileSettings()[Alfred.Companion.getClient().getPlane()];
 //        final int pathLength = path_x.length;
 //        boolean foundPath = false;
 //        while (step_ptr != path_ptr) {
@@ -335,7 +334,7 @@ public class Calculations {
 //    }
 //
 //    public static void renderValidMovement() {
-//        Alfred.getClientThread().invokeOnClientThread(() -> {
+//        Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
 //
 //            for (int dx = -1; dx <= 1; dx++) {
 //                for (int dy = -1; dy <= 1; dy++) {
@@ -350,21 +349,21 @@ public class Calculations {
 //    }
 //
 //    public static boolean canWalk(int dx, int dy) {
-//        return Alfred.getClientThread().invokeOnClientThread(() -> {
-//            WorldArea area = Alfred.getClient().getLocalPlayer().getWorldArea();
+//        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
+//            WorldArea area = Alfred.Companion.getClient().getLocalPlayer().getWorldArea();
 //            if (area == null) {
 //                return false;
 //            }
-//            boolean canWalk = area.canTravelInDirection(Alfred.getClient(), dx, dy);
+//            boolean canWalk = area.canTravelInDirection(Alfred.Companion.getClient(), dx, dy);
 //            if (!canWalk) return false;
-//            LocalPoint lp = Alfred.getClient().getLocalPlayer().getLocalLocation();
+//            LocalPoint lp = Alfred.Companion.getClient().getLocalPlayer().getLocalLocation();
 //            if (lp == null) {
 //                return false;
 //            }
 //
 //            lp = new LocalPoint(lp.getX() + dx * Perspective.LOCAL_TILE_SIZE + dx * Perspective.LOCAL_TILE_SIZE * (area.getWidth() - 1) / 2, lp.getY() + dy * Perspective.LOCAL_TILE_SIZE + dy * Perspective.LOCAL_TILE_SIZE * (area.getHeight() - 1) / 2);
 //
-//            Polygon poly = Perspective.getCanvasTilePoly(Alfred.getClient(), lp);
+//            Polygon poly = Perspective.getCanvasTilePoly(Alfred.Companion.getClient(), lp);
 //            if (poly == null) {
 //                return false;
 //            }
@@ -373,11 +372,11 @@ public class Calculations {
 //    }
 //
 //    public static boolean canReach(WorldArea start, WorldArea other) {
-//        return Alfred.getClientThread().invokeOnClientThread(() -> {
-//            Client client = Alfred.getClient();
+//        return Alfred.Companion.getClientThread().invokeOnClientThread(() -> {
+//            Client client = Alfred.Companion.getClient();
 //            int width = 0;
 //            int height = 0;
-//            int plane = Alfred.getClient().getPlane();
+//            int plane = Alfred.Companion.getClient().getPlane();
 //            if (plane != other.getPlane()) {
 //                return false;
 //            }

@@ -3,13 +3,10 @@ package net.runelite.client.plugins.alfred.scripts.gerber
 import net.runelite.api.GameState
 import net.runelite.api.Skill
 import net.runelite.client.plugins.alfred.Alfred
-import net.runelite.client.plugins.alfred.scripts.gerber.tasks.Combat
-import net.runelite.client.plugins.alfred.scripts.gerber.tasks.Fishing
-import net.runelite.client.plugins.alfred.scripts.gerber.tasks.Mining
-import net.runelite.client.plugins.alfred.scripts.gerber.tasks.Woodcutting
+import net.runelite.client.plugins.alfred.scripts.gerber.tasks.*
 import net.runelite.client.plugins.alfred.util.PlayTimer
 
-class GerberThread(private val config: GerberConfig) : Thread() {
+class GerberThread(private var config: GerberConfig) : Thread() {
 
     companion object {
         val overallTimer = PlayTimer()
@@ -20,12 +17,12 @@ class GerberThread(private val config: GerberConfig) : Thread() {
 
     override fun run() {
         login()
-        Alfred.api.camera().setPitch(1.0f)
-        Alfred.api.camera().setYaw(315)
+        Alfred.api.camera.setPitch(1.0f)
+        Alfred.api.camera.setYaw(315)
 
         var trainableSkills = setupTrainableSkills()
 
-        overallTimer.setRandomTimeout(60, 90)
+        overallTimer.setRandomTimeout(config.minTotalTime(), config.maxTotalTime())
         overallTimer.start()
 
         while (!overallTimer.isTimerComplete) {
@@ -40,7 +37,7 @@ class GerberThread(private val config: GerberConfig) : Thread() {
             val skillToTrain = trainableSkills.removeAt(0)
 
             taskTimer.reset()
-            taskTimer.setRandomTimeout(10, 12)
+            taskTimer.setRandomTimeout(config.minTaskTime(), config.maxTaskTime())
             taskTimer.start()
 
             when (skillToTrain) {
@@ -67,10 +64,16 @@ class GerberThread(private val config: GerberConfig) : Thread() {
                         Fishing(config).run()
                     }
                 }
+
+                Agility::class.toString() -> {
+                    if (config.trainAgility()) {
+                        Agility(config).run()
+                    }
+                }
             }
 
-            Alfred.api.camera().setPitch(1.0f)
-            Alfred.api.camera().setYaw(315)
+            Alfred.api.camera.setPitch(1.0f)
+            Alfred.api.camera.setYaw(315)
         }
 
         logout()
@@ -78,7 +81,7 @@ class GerberThread(private val config: GerberConfig) : Thread() {
 
     private fun setupTrainableSkills(): MutableList<String> {
         val trainableSkills: MutableSet<String> = mutableSetOf()
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
 
         if (player.getSkillLevel(Skill.ATTACK) < config.attackLevel()) {
             trainableSkills.add(Combat::class.toString())
@@ -104,21 +107,25 @@ class GerberThread(private val config: GerberConfig) : Thread() {
             trainableSkills.add(Fishing::class.toString())
         }
 
+        if (player.getSkillLevel(Skill.AGILITY) < config.agilityLevel()) {
+            trainableSkills.add(Agility::class.toString())
+        }
+
         val skillsList = trainableSkills.toMutableList()
         skillsList.shuffle()
         return skillsList
     }
 
     private fun login() {
-        if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
-            Alfred.api.account().login()
+        if (Alfred.client.getGameState() != GameState.LOGGED_IN) {
+            Alfred.api.account.login(config.worldNumber())
             Alfred.sleep(2000)
         }
     }
 
     private fun logout() {
-        if (Alfred.getClient().getGameState() == GameState.LOGGED_IN) {
-            Alfred.api.account().logout()
+        if (Alfred.client.getGameState() == GameState.LOGGED_IN) {
+            Alfred.api.account.logout()
         }
     }
 }

@@ -6,8 +6,8 @@ import net.runelite.client.plugins.alfred.Alfred
 
 class RSNpcHelper {
     private fun internalGetNpcs(): List<RSNpc> {
-        return Alfred.getClientThread().invokeOnClientThread {
-            return@invokeOnClientThread Alfred.getClient().npcs.filterNotNull().map { npc: NPC -> RSNpc(npc) }.toList()
+        return Alfred.clientThread.invokeOnClientThread {
+            return@invokeOnClientThread Alfred.client.npcs.filterNotNull().map { npc: NPC -> RSNpc(npc) }.toList()
         }
     }
 

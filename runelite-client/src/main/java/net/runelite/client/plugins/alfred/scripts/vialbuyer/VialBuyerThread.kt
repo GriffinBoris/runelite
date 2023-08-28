@@ -33,22 +33,22 @@ class VialBuyerThread : Thread() {
 
 
     override fun run() {
-        if (Alfred.getClient().getGameState() != GameState.LOGGED_IN) {
-            Alfred.api.account().login()
+        if (Alfred.client.getGameState() != GameState.LOGGED_IN) {
+            Alfred.api.account.login()
         }
 
-        val player = Alfred.api.players().localPlayer
+        val player = Alfred.api.players.localPlayer
 
         while (true) {
             when (scriptState) {
                 ScriptState.SETUP -> {
-                    Alfred.api.walk().walkTo(WorldDestinations.ARDOUGNE_SOUTH_BANK.worldPoint)
+                    Alfred.api.walk.walkTo(WorldDestinations.ARDOUGNE_SOUTH_BANK.worldPoint)
                     if (!Alfred.tasks.banking.openBank()) {
                         continue
                     }
 
-                    Alfred.api.banks().depositInventory()
-                    Alfred.api.banks().withdrawAllButOne("coins")
+                    Alfred.api.banks.depositInventory()
+                    Alfred.api.banks.withdrawAllButOne(ItemID.COINS)
 
                     if (!Alfred.tasks.banking.closeBank()) {
                         continue
@@ -58,7 +58,7 @@ class VialBuyerThread : Thread() {
                 }
 
                 ScriptState.BUYING -> {
-                    Alfred.api.walk().walkTo(VIAL_SHOP_WORLD_POINT)
+                    Alfred.api.walk.walkTo(VIAL_SHOP_WORLD_POINT)
                     Alfred.tasks.npc.findAndInteract("kortan", "trade")
                     Alfred.sleepUntil({ isShopWindowOpen() }, 100, 5000)
 
@@ -66,23 +66,23 @@ class VialBuyerThread : Thread() {
                     vial ?: continue
 
                     Alfred.sleep(100, 200)
-                    Alfred.api.widgets().rightClickWidget(vial)
-                    if (!Alfred.sleepUntil({ Alfred.api.menu().menu.hasAction("buy 50") }, 200, 2000)) {
+                    Alfred.api.widgets.rightClickWidget(vial)
+                    if (!Alfred.sleepUntil({ Alfred.api.menu.menu.hasAction("buy 50") }, 200, 2000)) {
                         continue
                     }
 
-                    if (!Alfred.api.menu().menu.clickAction("buy 50")) {
+                    if (!Alfred.api.menu.menu.clickAction("buy 50")) {
                         continue
                     }
 
                     Alfred.sleep(300, 700)
 
-                    val closeButton = Alfred.api.widgets().getChildWidget(19660801, 11)
+                    val closeButton = Alfred.api.widgets.getChildWidget(19660801, 11)
                     closeButton ?: continue
-                    Alfred.api.widgets().leftClickWidget(closeButton)
+                    Alfred.api.widgets.leftClickWidget(closeButton)
 
                     Alfred.sleep(200, 400)
-                    val vialCount = Alfred.api.inventory().getItems(ItemID.VIAL_OF_WATER).count()
+                    val vialCount = Alfred.api.inventory.getItems(ItemID.VIAL_OF_WATER).count()
                     VialBuyerOverlay.vialsBought += vialCount
                     setVialsPerHour(vialCount)
 
@@ -90,13 +90,13 @@ class VialBuyerThread : Thread() {
                 }
 
                 ScriptState.BANKING -> {
-                    Alfred.api.walk().walkTo(WorldDestinations.ARDOUGNE_SOUTH_BANK.worldPoint)
+                    Alfred.api.walk.walkTo(WorldDestinations.ARDOUGNE_SOUTH_BANK.worldPoint)
                     if (!Alfred.tasks.banking.openBank()) {
                         continue
                     }
 
-                    Alfred.api.banks().depositInventory()
-                    Alfred.api.banks().withdrawAllButOne("coins")
+                    Alfred.api.banks.depositInventory()
+                    Alfred.api.banks.withdrawAllButOne(ItemID.COINS)
 
                     if (!Alfred.tasks.banking.closeBank()) {
                         continue
@@ -110,12 +110,12 @@ class VialBuyerThread : Thread() {
     }
 
     private fun isShopWindowOpen(): Boolean {
-        val widget = Alfred.api.widgets().getWidget(19660800) ?: return false
+        val widget = Alfred.api.widgets.getWidget(19660800) ?: return false
         return !widget.isHidden && !widget.isSelfHidden
     }
 
     private fun findItemInShop(): Widget? {
-        val widget = Alfred.api.widgets().getWidget(19660816) ?: return null
+        val widget = Alfred.api.widgets.getWidget(19660816) ?: return null
 
         for (child in widget.dynamicChildren) {
             if (child.itemId == ItemID.VIAL_OF_WATER) {

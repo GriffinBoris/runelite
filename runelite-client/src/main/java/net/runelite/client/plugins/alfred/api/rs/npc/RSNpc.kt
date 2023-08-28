@@ -50,25 +50,25 @@ class RSNpc(private val npc: NPC) {
             return false
         }
         val clickBox = clickBox ?: return false
-        Alfred.getMouse().leftClick(clickBox)
+        Alfred.mouse.leftClick(clickBox)
         return Alfred.sleepUntil({
             val interactingActor = npc.interacting ?: return@sleepUntil false
             if (interactingActor.name != null) {
-                return@sleepUntil interactingActor.name == Alfred.getClient().localPlayer.name
+                return@sleepUntil interactingActor.name == Alfred.client.localPlayer.name
             }
             false
         }, 100, 3000)
     }
 
     fun interact(action: String): Boolean {
-        Alfred.setStatus("Interacting with " + name)
+        Alfred.status = "Interacting with " + name
         if (!actions.contains(action)) {
             return false
         }
         val clickBox = clickBox ?: return false
-        Alfred.getMouse().rightClick(clickBox)
+        Alfred.mouse.rightClick(clickBox)
         Alfred.sleep(200, 600)
-        val menu = Alfred.api.menu().menu
+        val menu = Alfred.api.menu.menu
         return menu.clickAction(action)
     }
 }

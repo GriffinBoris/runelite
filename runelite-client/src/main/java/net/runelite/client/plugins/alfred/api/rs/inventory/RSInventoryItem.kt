@@ -10,59 +10,59 @@ class RSInventoryItem(private val item: Widget) {
     val quantity: Int
         get() = item.itemQuantity
     val name: String
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.name
         }
     val membersName: String
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.membersName
         }
     val price: Int
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.price
         }
     val highAlchemyPrice: Int
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.haPrice
         }
     val isTradeable: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.isTradeable
         }
     val isMembers: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.isMembers
         }
     val isStackable: Boolean
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.isStackable
         }
     val inventoryActions: List<String>
-        get() = Alfred.getClientThread().invokeOnClientThread {
-            val itemComposition = Alfred.getClient().getItemDefinition(id)
+        get() = Alfred.clientThread.invokeOnClientThread {
+            val itemComposition = Alfred.client.getItemDefinition(id)
             itemComposition.inventoryActions.filterNotNull().toList()
         }
     val bounds: Rectangle
         get() = item.bounds
 
     fun drop(): Boolean {
-        return Alfred.api.inventory().drop(this)
+        return Alfred.api.inventory.drop(this.id)
     }
 
     fun leftClick(): Boolean {
-        Alfred.getMouse().leftClick(bounds)
+        Alfred.mouse.leftClick(bounds)
         return true
     }
 
     fun rightClick(): Boolean {
-        Alfred.getMouse().rightClick(bounds)
+        Alfred.mouse.rightClick(bounds)
         return true
     }
 
@@ -70,10 +70,10 @@ class RSInventoryItem(private val item: Widget) {
         if (!rightClick()) {
             return false
         }
-        if (!Alfred.sleepUntil({ Alfred.api.menu().menu.hasAction(action) }, 200, 2000)) {
+        if (!Alfred.sleepUntil({ Alfred.api.menu.menu.hasAction(action) }, 200, 2000)) {
             return false
         }
-        val rsMenu = Alfred.api.menu().menu
+        val rsMenu = Alfred.api.menu.menu
         return rsMenu.clickAction(action)
     }
 }
