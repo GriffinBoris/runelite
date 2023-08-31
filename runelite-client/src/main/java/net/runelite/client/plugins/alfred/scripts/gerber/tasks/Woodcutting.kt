@@ -179,7 +179,7 @@ class Woodcutting(private val config: GerberConfig) : BaseTask() {
         }
     private val getRequiredAxeFromInventory: RSInventoryItem?
         get() {
-            val inventoryItems = Alfred.api.inventory.items
+            val inventoryItems = Alfred.api.inventory.items.filterNotNull()
             getInventoryRequirements().getItemSets().map { dynamicItemSet: DynamicItemSet -> dynamicItemSet.getItems() }.flatten().map { thing: Pair<Int, Int> -> thing.first }.forEach { requiredItemId: Int ->
                 inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
                     if (rsInventoryItem.id == requiredItemId) {

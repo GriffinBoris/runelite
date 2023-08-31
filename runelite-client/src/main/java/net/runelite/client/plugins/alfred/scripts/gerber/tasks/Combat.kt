@@ -135,7 +135,7 @@ class Combat(private val config: GerberConfig) : BaseTask() {
         val minimumSkillRequirement = minimumSkillRequirement
 
         if (minimumSkillRequirement < 10) {
-            Alfred.taskSubStatus= "Fighting Chickens"
+            Alfred.taskSubStatus = "Fighting Chickens"
             GerberThread.countLabel = "Chickens Killed"
             fightNPC(LUMBRIDGE_CHICKENS_WORLD_AREA, WorldDestinations.LUMBRIDGE_CHICKENS.worldPoint, "chicken", listOf(ItemID.FEATHER, ItemID.BONES))
 
@@ -258,14 +258,18 @@ class Combat(private val config: GerberConfig) : BaseTask() {
         }
     private val getRequiredWeaponFromInventory: RSInventoryItem?
         get() {
-            val inventoryItems = Alfred.api.inventory.items
-            getInventoryRequirements().getItemSets().map { dynamicItemSet: DynamicItemSet -> dynamicItemSet.getItems() }.flatten().map { thing: Pair<Int, Int> -> thing.first }.forEach { requiredItemId: Int ->
-                inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
-                    if (rsInventoryItem.id == requiredItemId) {
-                        return rsInventoryItem
+            val inventoryItems = Alfred.api.inventory.items.filterNotNull()
+            getInventoryRequirements().getItemSets()
+                .map { dynamicItemSet: DynamicItemSet -> dynamicItemSet.getItems() }
+                .flatten()
+                .map { thing: Pair<Int, Int> -> thing.first }
+                .forEach { requiredItemId: Int ->
+                    inventoryItems.forEach { rsInventoryItem: RSInventoryItem ->
+                        if (rsInventoryItem.id == requiredItemId) {
+                            return rsInventoryItem
+                        }
                     }
                 }
-            }
             return null
         }
 }

@@ -14,8 +14,8 @@ class Mining {
             return false
         }
 
-        val nearestOre = objects.minBy { rsObject: RSObject -> rsObject.worldLocation.distanceTo(player.worldLocation) }
-        if (nearestOre.worldLocation.distanceTo(player.worldLocation) >= 2) {
+        val nearestOre = objects.minBy { rsObject: RSObject -> rsObject.worldLocation!!.distanceTo(player.worldLocation) }
+        if (nearestOre.worldLocation!!.distanceTo(player.worldLocation) >= 2) {
             Alfred.status = "Walking to nearest ${oreName} ore"
             if (!Alfred.api.screen.isPointOnScreen(nearestOre.localLocation, nearestOre.plane)) {
                 Alfred.api.walk.walkTo(nearestOre.worldLocation)
@@ -23,7 +23,7 @@ class Mining {
         }
 
         if (!Alfred.api.screen.isPointOnScreen(nearestOre.localLocation, nearestOre.plane)) {
-            Alfred.api.camera.lookAt(nearestOre.worldLocation)
+            Alfred.api.camera.lookAt(nearestOre.worldLocation!!)
         }
             
         val success = nearestOre.leftClick()

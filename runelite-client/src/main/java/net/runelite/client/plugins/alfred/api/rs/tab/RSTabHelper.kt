@@ -32,7 +32,7 @@ class RSTabHelper {
             return true
         }
         Alfred.status = "Clicking tab: " + widgetInfo.name
-        val bounds = Alfred.api.widgets.getWidget(widgetInfo).getBounds() ?: return false
+        val bounds = Alfred.api.widgets.getWidget(widgetInfo)?.getBounds() ?: return false
         Alfred.mouse.leftClick(bounds)
         return Alfred.sleepUntil({ currentTab == widgetInfo }, 100, 3000)
     }

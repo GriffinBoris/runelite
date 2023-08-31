@@ -7,7 +7,7 @@ import net.runelite.client.plugins.alfred.Alfred
 class RSNpcHelper {
     private fun internalGetNpcs(): List<RSNpc> {
         return Alfred.clientThread.invokeOnClientThread {
-            return@invokeOnClientThread Alfred.client.npcs.filterNotNull().map { npc: NPC -> RSNpc(npc) }.toList()
+            return@invokeOnClientThread Alfred.client.npcs.filterNotNull().map { npc: NPC -> RSNpc(npc) }
         }
     }
 
@@ -15,21 +15,21 @@ class RSNpcHelper {
         get() = internalGetNpcs()
 
     fun getNpcs(name: String): List<RSNpc> {
-        return internalGetNpcs().filter { rsNpc: RSNpc -> rsNpc.name.equals(name, ignoreCase = true) }.toList()
+        return internalGetNpcs().filter { rsNpc: RSNpc -> rsNpc.name.equals(name, ignoreCase = true) }
     }
 
     fun getNpcs(id: Int): List<RSNpc> {
-        return internalGetNpcs().filter { rsNpc: RSNpc -> rsNpc.id == id }.toList()
+        return internalGetNpcs().filter { rsNpc: RSNpc -> rsNpc.id == id }
     }
 
     val attackableNpcs: List<RSNpc>
-        get() = internalGetNpcs().filter { rsNpc: RSNpc -> !rsNpc.isInteracting && !rsNpc.isDead }.toList()
+        get() = internalGetNpcs().filter { rsNpc: RSNpc -> !rsNpc.isInteracting && !rsNpc.isDead }
 
     fun getAttackableNpcs(name: String): List<RSNpc> {
-        return internalGetNpcs().filter { rsNpc: RSNpc -> !rsNpc.isInteracting && !rsNpc.isDead && rsNpc.name.equals(name, ignoreCase = true) }.toList()
+        return internalGetNpcs().filter { rsNpc: RSNpc -> !rsNpc.isInteracting && !rsNpc.isDead && rsNpc.name.equals(name, ignoreCase = true) }
     }
 
     fun getNearestAttackableNpc(name: String, worldPoint: WorldPoint): RSNpc? {
-        return getAttackableNpcs(name).sortedBy { rsNpc: RSNpc -> rsNpc.worldLocation.distanceTo(worldPoint) }.firstOrNull()
+        return getAttackableNpcs(name).minByOrNull { rsNpc: RSNpc -> rsNpc.worldLocation.distanceTo(worldPoint) }
     }
 }

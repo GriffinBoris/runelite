@@ -9,7 +9,6 @@ import net.runelite.client.plugins.alfred.Alfred
 import net.runelite.client.plugins.alfred.api.rs.inventory.RSInventoryItem
 import net.runelite.client.plugins.alfred.api.rs.objects.RSObject
 import java.util.*
-import java.util.stream.Collectors
 
 class RSBankHelper {
     companion object {
@@ -48,7 +47,8 @@ class RSBankHelper {
         return Alfred.clientThread.invokeOnClientThread {
             val player = Alfred.api.players.localPlayer
 
-            return@invokeOnClientThread Alfred.api.objects.objectsFromTiles.filterNotNull()
+            return@invokeOnClientThread Alfred.api.objects.objectsFromTiles
+                .filterNotNull()
                 .filter { rsObject: RSObject -> bankBoothObjectIDs.contains(rsObject.id) }
                 .map { rsObject: RSObject -> RSBank(rsObject.rsObject as GameObject) }
                 .sortedBy { rsBank: RSBank -> rsBank.worldLocation.distanceTo(player.worldLocation) }
@@ -57,11 +57,6 @@ class RSBankHelper {
 
     fun open(bank: RSBank): Boolean {
         Alfred.status = "Opening bank"
-        if (bank.worldLocation == null) {
-            println("Could not find bank world location")
-            return false
-        }
-
         if (bank.clickbox == null) {
             println("Could not find bank clickbox")
             return false
@@ -193,7 +188,7 @@ class RSBankHelper {
         if (!success) {
             return false
         }
-        val widget = Alfred.api.widgets.getWidget(WidgetInfo.CHATBOX_TITLE)
+        val widget = Alfred.api.widgets.getWidget(WidgetInfo.CHATBOX_TITLE) ?: return false
         val searchBoxShown = Alfred.sleepUntil({
             if (widget.isHidden() || widget.isSelfHidden()) {
                 return@sleepUntil false
@@ -229,27 +224,32 @@ class RSBankHelper {
         return true
     }
 
-    val items: List<RSInventoryItem?>
+    val items: List<RSInventoryItem>
         get() = Alfred.clientThread.invokeOnClientThread {
             val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_ITEM_CONTAINER)
-            Arrays.stream(itemContainer.getDynamicChildren()).map { item: Widget? -> RSInventoryItem(item!!) }.collect(Collectors.toList())
-        }
-    val inventoryItems: List<RSInventoryItem?>
-        get() = Alfred.clientThread.invokeOnClientThread {
-            val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER)
-            Arrays.stream(itemContainer.getDynamicChildren()).map { item: Widget? -> RSInventoryItem(item!!) }.collect(Collectors.toList())
+            itemContainer ?: return@invokeOnClientThread emptyList()
+            itemContainer.getDynamicChildren().filterNotNull().map { item: Widget -> RSInventoryItem(item) }
         }
 
-    fun getInventoryItems(itemId: Int): List<RSInventoryItem?> {
-        return inventoryItems.stream().filter { item: RSInventoryItem? -> item!!.id == itemId }.collect(Collectors.toList())
+    private fun internalGetInventoryItems(): List<RSInventoryItem> {
+        return Alfred.clientThread.invokeOnClientThread {
+            val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER) ?: return@invokeOnClientThread emptyList()
+            return@invokeOnClientThread itemContainer.getDynamicChildren()
+                .filterNotNull()
+                .map { item: Widget -> RSInventoryItem(item) }
+        }
+    }
+
+    fun getInventoryItems(itemId: Int): List<RSInventoryItem> {
+        return internalGetInventoryItems().filter { item: RSInventoryItem -> item.id == itemId }
     }
 
     fun findItem(itemId: Int): RSInventoryItem? {
-        return items.stream().filter { item: RSInventoryItem? -> item!!.id == itemId }.findFirst().orElse(null)
+        return items.firstOrNull { item: RSInventoryItem -> item.id == itemId }
     }
 
     fun findInventoryItem(itemId: Int): RSInventoryItem? {
-        return inventoryItems.stream().filter { item: RSInventoryItem? -> item!!.id == itemId }.findFirst().orElse(null)
+        return internalGetInventoryItems().firstOrNull { item: RSInventoryItem -> item.id == itemId }
     }
 
     fun internalDepositAll(itemId: Int): Boolean {
@@ -275,13 +275,18 @@ class RSBankHelper {
     }
 
     private fun internalWithdrawX(amount: Int): Boolean {
-        val widget = Alfred.api.widgets.getWidget(WidgetInfo.CHATBOX_TITLE)
-        val searchBoxShown = Alfred.sleepUntil({
-            if (widget.isHidden() || widget.isSelfHidden()) {
-                return@sleepUntil false
-            }
-            widget.getText().lowercase(Locale.getDefault()).contains("enter amount")
-        }, 100, 3000)
+        val widget = Alfred.api.widgets.getWidget(WidgetInfo.CHATBOX_TITLE) ?: return false
+
+        val searchBoxShown = Alfred.clientThread.invokeOnClientThread {
+            // todo: probably need to check is hidden on client thread?
+            return@invokeOnClientThread Alfred.sleepUntil({
+                if (widget.isHidden() || widget.isSelfHidden()) {
+                    return@sleepUntil false
+                }
+                widget.getText().lowercase(Locale.getDefault()).contains("enter amount")
+            }, 100, 3000)
+        }
+
         if (!searchBoxShown) {
             return false
         }
@@ -310,22 +315,22 @@ class RSBankHelper {
     }
 
     fun isItemVisible(itemId: Int): Boolean {
-        val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_ITEM_CONTAINER)
+        val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_ITEM_CONTAINER) ?: return false
         val rsInventoryItem = Alfred.api.banks.findItem(itemId) ?: return false
         return itemContainer.getBounds().contains(rsInventoryItem.bounds.centerX, rsInventoryItem.bounds.centerY)
     }
 
     private fun internalContainsItem(itemId: Int): Boolean {
         return Alfred.clientThread.invokeOnClientThread {
-            val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_ITEM_CONTAINER)
-            Arrays.stream(itemContainer.getDynamicChildren()).anyMatch { item: Widget? -> RSInventoryItem(item!!).id == itemId }
+            val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_ITEM_CONTAINER) ?: return@invokeOnClientThread false
+            return@invokeOnClientThread itemContainer.dynamicChildren.filterNotNull().any { item: Widget -> RSInventoryItem(item).id == itemId }
         }
     }
 
     private fun internalInventoryContainsItem(itemId: Int): Boolean {
         return Alfred.clientThread.invokeOnClientThread {
-            val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER)
-            Arrays.stream(itemContainer.getDynamicChildren()).anyMatch { item: Widget? -> RSInventoryItem(item!!).id == itemId }
+            val itemContainer = Alfred.api.widgets.getWidget(WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER) ?: return@invokeOnClientThread false
+            return@invokeOnClientThread itemContainer.dynamicChildren.filterNotNull().any { item: Widget -> RSInventoryItem(item).id == itemId }
         }
     }
 

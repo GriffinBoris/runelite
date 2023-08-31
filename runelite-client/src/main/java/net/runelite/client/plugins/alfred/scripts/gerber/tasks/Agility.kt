@@ -110,7 +110,7 @@ class Agility(private val config: GerberConfig) : BaseTask() {
 
         if (foundObject != null) {
 
-            if (foundObject.worldLocation.distanceTo(player.worldLocation) >= 4) {
+            if (foundObject.worldLocation!!.distanceTo(player.worldLocation) >= 4) {
                 val minimapPoint = Alfred.api.miniMap.getWorldPointToScreenPoint(foundObject.worldLocation)
                 if (minimapPoint != null) {
                     Alfred.mouse.leftClick(minimapPoint)
@@ -121,7 +121,7 @@ class Agility(private val config: GerberConfig) : BaseTask() {
                 }
             }
 
-            Alfred.mouse.leftClick(foundObject.convexHull.bounds)
+            Alfred.mouse.leftClick(foundObject.convexHull!!.bounds)
             Alfred.sleepUntil({ player.isAnimating }, 100, 1000 * 10)
             Alfred.sleepUntil({ !player.isMoving && player.isIdle && !player.isAnimating }, 100, 1000 * 10)
             Alfred.sleepUntil({ !TREE_GNOME_STRONG_HOLD_WAIT_ARE_ONE.contains(player.worldLocation) }, 100, 1000 * 10)

@@ -45,8 +45,10 @@ class RSEquipmentHelper {
             if (Alfred.api.tabs.currentTab != WidgetInfo.FIXED_VIEWPORT_EQUIPMENT_TAB) {
                 Alfred.api.tabs.clickEquipmentTab()
             }
-            val childOne = Alfred.api.widgets.getChildWidget(slot, 1)
-            val childTwo = Alfred.api.widgets.getChildWidget(slot, 2)
+
+//            todo: check these null returns, may produce unreliable results
+            val childOne = Alfred.api.widgets.getChildWidget(slot, 1) ?: return@invokeOnClientThread null
+            val childTwo = Alfred.api.widgets.getChildWidget(slot, 2) ?: return@invokeOnClientThread null
             return@invokeOnClientThread if (!childTwo.isHidden()) {
                 null
             } else childOne

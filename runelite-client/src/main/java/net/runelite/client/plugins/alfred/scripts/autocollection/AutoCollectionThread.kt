@@ -44,15 +44,15 @@ class AutoCollectionThread(private var config: AutoCollectionConfig) : Thread() 
                 val pathWalker = PathWalker(path)
                 pathWalker.walkPath()
 
-                val nearestOperable = getOperables().sortedBy { rsObject: RSObject -> rsObject.worldLocation.distanceTo(player.worldLocation) }.firstOrNull()
+                val nearestOperable = getOperables().sortedBy { rsObject: RSObject -> rsObject.worldLocation!!.distanceTo(player.worldLocation) }.firstOrNull()
                 if (nearestOperable != null) {
-                    if (!exploredOperables.contains(nearestOperable.worldLocation)) {
-                        if (nearestOperable.worldLocation.distanceTo(player.worldLocation) >= 4) {
+                    if (!exploredOperables.contains(nearestOperable.worldLocation!!)) {
+                        if (nearestOperable.worldLocation!!.distanceTo(player.worldLocation) >= 4) {
                             Alfred.api.walk.walkTo(nearestOperable.worldLocation)
                         }
                         Alfred.sleep(2000)
                         handleDoorOperable(nearestOperable)
-                        exploredOperables.add(nearestOperable.worldLocation)
+                        exploredOperables.add(nearestOperable.worldLocation!!)
                     } else {
                         println("explored operable")
                     }
@@ -172,7 +172,7 @@ class AutoCollectionThread(private var config: AutoCollectionConfig) : Thread() 
         }
 
         if (search) {
-            val operable = getOperables().filter { foundObject: RSObject -> foundObject.worldLocation.distanceTo(rsObject.worldLocation) <= 2 }.firstOrNull()
+            val operable = getOperables().filter { foundObject: RSObject -> foundObject.worldLocation!!.distanceTo(rsObject.worldLocation) <= 2 }.firstOrNull()
             if (operable != null) {
                 finalRsObject = operable
             } else {
@@ -183,8 +183,8 @@ class AutoCollectionThread(private var config: AutoCollectionConfig) : Thread() 
             finalRsObject = rsObject
         }
 
-        val northWorldPoint = WorldPoint(finalRsObject.worldLocation.x, finalRsObject.worldLocation.y + 1, finalRsObject.plane)
-        val southWorldPoint = WorldPoint(finalRsObject.worldLocation.x, finalRsObject.worldLocation.y - 1, finalRsObject.plane)
+        val northWorldPoint = WorldPoint(finalRsObject.worldLocation!!.x, finalRsObject.worldLocation!!.y + 1, finalRsObject.plane)
+        val southWorldPoint = WorldPoint(finalRsObject.worldLocation!!.x, finalRsObject.worldLocation!!.y - 1, finalRsObject.plane)
 
         val northTile = Alfred.api.world.tiles.firstOrNull { tile: Tile -> tile.worldLocation == northWorldPoint }
         val southTile = Alfred.api.world.tiles.firstOrNull { tile: Tile -> tile.worldLocation == southWorldPoint }

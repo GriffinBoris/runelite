@@ -81,7 +81,7 @@ class RSQuestHelper {
 
     private fun performObjectStep(step: ObjectStep): Boolean {
         val objectName = Alfred.api.objects.getObjectIdVariableName(step.objectID)
-        if (objectName.startsWith("stair", ignoreCase = true) || objectName.startsWith("door", ignoreCase = true)) {
+        if (objectName!!.startsWith("stair", ignoreCase = true) || objectName.startsWith("door", ignoreCase = true)) {
             return true
         }
 
@@ -135,8 +135,7 @@ class RSQuestHelper {
 
     private fun clickContinue(): Boolean {
         val success = Alfred.clientThread.invokeOnClientThread {
-            val clickToContinueWidget = Alfred.api.widgets.getAllWidgets()
-                .filterNotNull()
+            val clickToContinueWidget = Alfred.api.widgets.allWidgets
                 .filter { widget: Widget -> !widget.isHidden && !widget.isSelfHidden }
                 .filter { widget: Widget -> widget.text.contains("click here to continue", ignoreCase = true) }
                 .firstOrNull() ?: return@invokeOnClientThread false

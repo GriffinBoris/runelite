@@ -158,7 +158,7 @@ class PathWalker(private val nodes: List<PathNode>) {
                 continue
             }
 
-            val tileName = Alfred.api.objects.getObjectIdVariableName(gameObject.getId())
+            val tileName = Alfred.api.objects.getObjectIdVariableName(gameObject.getId()) ?: continue
             if (tileName.contains("STAIR")) {
                 foundGameObject = gameObject
                 break

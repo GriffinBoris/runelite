@@ -13,8 +13,8 @@ class Woodcutting {
             return false;
         }
 
-        val nearestTree = objects.minBy { rsObject: RSObject -> rsObject.worldLocation.distanceTo(player.worldLocation) }
-        if (nearestTree.worldLocation.distanceTo(player.worldLocation) >= 2) {
+        val nearestTree = objects.minBy { rsObject: RSObject -> rsObject.worldLocation!!.distanceTo(player.worldLocation) }
+        if (nearestTree.worldLocation!!.distanceTo(player.worldLocation) >= 2) {
             Alfred.status = "Walking to nearest ${treeName} tree"
 
             if (!Alfred.api.screen.isPointOnScreen(nearestTree.localLocation, nearestTree.plane)) {
@@ -22,7 +22,7 @@ class Woodcutting {
             }
         }
 
-        Alfred.api.camera.lookAt(nearestTree.worldLocation)
+        Alfred.api.camera.lookAt(nearestTree.worldLocation!!)
         val success = nearestTree.clickAction("chop down")
         if (!success) {
             return false

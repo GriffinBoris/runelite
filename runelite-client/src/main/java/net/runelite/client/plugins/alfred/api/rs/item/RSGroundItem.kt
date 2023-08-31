@@ -79,7 +79,7 @@ class RSGroundItem(private val tileItem: TileItem, private val tile: Tile) {
     }
 
     fun clickAction(action: String): Boolean {
-        Alfred.status = "Clicking " + action + " on " + name
+        Alfred.status = "Clicking $action on $name"
         if (!rightClick()) {
             return false
         }
