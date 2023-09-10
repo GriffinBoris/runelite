@@ -81,7 +81,7 @@ class RSObject {
         get() = when (rsObject) {
             is GameObject -> rsObject.getClickbox()!!.bounds
             is GroundObject -> rsObject.getClickbox()!!.bounds
-            is WallObject -> rsObject.getClickbox()!!.bounds
+            is WallObject -> rsObject.getClickbox()?.bounds
             is DecorativeObject -> rsObject.getClickbox()!!.bounds
             else -> null
         }

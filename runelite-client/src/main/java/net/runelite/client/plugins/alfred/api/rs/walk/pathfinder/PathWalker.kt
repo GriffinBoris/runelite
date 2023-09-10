@@ -1,11 +1,11 @@
 package net.runelite.client.plugins.alfred.api.rs.walk.pathfinder
 
-import net.runelite.api.GameObject
 import net.runelite.api.Point
 import net.runelite.api.Tile
 import net.runelite.api.coords.WorldPoint
 import net.runelite.client.plugins.alfred.Alfred
 import net.runelite.client.plugins.alfred.api.rs.math.Calculations
+import net.runelite.client.plugins.alfred.api.rs.objects.RSObject
 import net.runelite.client.plugins.alfred.api.rs.player.RSPlayer
 import net.runelite.client.plugins.alfred.util.Utility
 
@@ -51,9 +51,8 @@ class PathWalker(private val nodes: List<PathNode>) {
                     }
                 }
 
-                val tile = findTile(currentNode) ?: continue
                 nextNode ?: continue
-                operateTransport(currentNode, nextNode, tile)
+                handleTransport(currentNode, nextNode)
                 previousNode = currentNode
                 continue
             }
@@ -99,21 +98,18 @@ class PathWalker(private val nodes: List<PathNode>) {
         }, 200, 1000 * 30)
     }
 
-    private fun operateTransport(pathNode: PathNode, nextNode: PathNode, tile: Tile): Boolean {
+    private fun handleTransport(pathNode: PathNode, nextNode: PathNode): Boolean {
         Alfred.sleepUntil({ !player.isMoving && !player.isInteracting && player.isIdle }, 200, 1000 * 10)
         Alfred.sleep(100, 250)
 
-        val success = with(pathNode.operableName) {
-            when {
-                this?.startsWith("DOOR") == true -> operateDoorTransport(pathNode, tile)
-                this?.startsWith("GATE") == true -> operateDoorTransport(pathNode, tile)
-                this?.startsWith("STAIRS") == true -> operateStairTransport(pathNode, nextNode, tile)
-                this?.startsWith("STAIRCASE") == true -> operateStairTransport(pathNode, nextNode, tile)
-                else -> false
-            }
+        val transport: PathTransport? = findTransport(pathNode, nextNode)
+        if (transport == null) {
+            println("cant find transport")
+            return false
         }
 
-        if (success == false) {
+        val success = operateTransport(transport)
+        if (!success) {
             return false
         }
 
@@ -123,90 +119,55 @@ class PathWalker(private val nodes: List<PathNode>) {
         return true
     }
 
-    private fun operateDoorTransport(pathNode: PathNode, tile: Tile): Boolean {
-        if (tile.wallObject == null) {
+    private fun findTransport(pathNode: PathNode, nextNode: PathNode): PathTransport? {
+        return if (pathNode.pathTransports.count() == 1) {
+            pathNode.pathTransports.first()
+        } else {
+            pathNode.pathTransports.firstOrNull { pathTransport: PathTransport -> pathTransport.endPathNode?.worldLocation == nextNode.worldLocation }
+        }
+    }
+
+    private fun operateTransport(pathTransport: PathTransport): Boolean {
+//        val transportObject = Alfred.api.objects.objectsFromTiles.firstOrNull { rsObject: RSObject -> rsObject.id == pathTransport.objectId && rsObject.worldLocation == pathTransport.startPathNode.worldLocation }
+//        val transportObject = Alfred.api.objects.objectsFromTiles.firstOrNull { rsObject: RSObject -> rsObject.id == pathTransport.objectId }
+        val transportObject = Alfred.api.objects.objectsFromTiles
+            .filter { rsObject: RSObject -> rsObject.worldLocation != null }
+            .filter { rsObject: RSObject -> rsObject.id == pathTransport.objectId }
+            .minBy { rsObject: RSObject -> rsObject.worldLocation!!.distanceTo(player.worldLocation) }
+
+        if (transportObject == null) {
+            println("No transport: ${pathTransport.name}, found with ID: ${pathTransport.objectId}, at location: ${pathTransport.startPathNode.worldLocation}")
             return false
         }
 
-        Alfred.mouse.rightClick(tile.wallObject.convexHull.bounds)
+        println("Operating on Transport: ${pathTransport.name}, with action: ${pathTransport.action}")
+
+        when (pathTransport.objectName.lowercase()) {
+            "door" -> Alfred.mouse.rightClick(transportObject.convexHull?.bounds)
+            "gate" -> Alfred.mouse.rightClick(transportObject.convexHull?.bounds)
+            else -> Alfred.mouse.rightClick(transportObject.clickBox)
+        }
+
         Alfred.sleep(200)
 
-        val rsMenu = Alfred.api.menu.menu
-        if (rsMenu == null) {
-            println("Menu is null")
+        if (!Alfred.sleepUntil({ Alfred.api.menu.menu.hasAction(pathTransport.action) }, 200, 2000)) {
+            println("No menu action: ${pathTransport.action} found")
             return false
         }
 
-        if (!rsMenu.hasAction("open")) {
-            println("Menu does not contain open action")
-            return true
+        val rsMenu = Alfred.api.menu.menu
+        if (!rsMenu.clickAction(pathTransport.action)) {
+            println("Failed to click transport")
+            return false
         }
 
-        if (!rsMenu.clickAction("open")) {
-            println("Failed to operate action")
-            return true
+        if (pathTransport.endPathNode != null) {
+            return Alfred.sleepUntil({ player.worldLocation == pathTransport.endPathNode.worldLocation }, 100, 5000)
         }
 
         return true
     }
 
-    private fun operateStairTransport(pathNode: PathNode, nextNode: PathNode, tile: Tile): Boolean {
-        var foundGameObject: GameObject? = null
-
-        for (gameObject in tile.gameObjects) {
-            if (gameObject == null) {
-                continue
-            }
-
-            val tileName = Alfred.api.objects.getObjectIdVariableName(gameObject.getId()) ?: continue
-            if (tileName.contains("STAIR")) {
-                foundGameObject = gameObject
-                break
-            }
-        }
-
-        if (foundGameObject == null) {
-            return false
-        }
-
-        Alfred.mouse.rightClick(foundGameObject.clickbox!!.bounds)
-        Alfred.sleep(200)
-
-        if (pathNode.pathTransports.isEmpty()) {
-            println("No path transport found")
-            return false
-        }
-
-        val foundEndPathNode = pathNode.pathTransports.map { pathTransport -> pathTransport.endPathNode }.filterNotNull().filter { p -> p.worldLocation.equals(nextNode.worldLocation) }.firstOrNull()
-
-        if (foundEndPathNode == null) {
-            println("No path transport found")
-            return false
-        }
-
-        val playerZ = player.worldLocation.plane
-        val tileZ = foundEndPathNode.worldLocation.plane
-
-        val goingUp = tileZ > playerZ
-        val action = when (goingUp) {
-            true -> "climb-up"
-            false -> "climb-down"
-        }
-
-        if (!Alfred.sleepUntil({ Alfred.api.menu.menu.hasAction(action) }, 200, 2000)) {
-            println("Menu does not contain action")
-            return false
-        }
-
-        val rsMenu = Alfred.api.menu.menu
-        if (!rsMenu.clickAction(action)) {
-            println("Failed to operate on tile")
-            return false
-        }
-
-        return Alfred.sleepUntil({ player.worldLocation.plane == tileZ }, 100, 5000)
-
-    }
 
     private fun findTile(pathNode: PathNode): Tile? {
         val tiles = Alfred.api.walk.getAllTiles()

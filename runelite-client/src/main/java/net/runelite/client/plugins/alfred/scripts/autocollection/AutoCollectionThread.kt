@@ -1,5 +1,8 @@
 package net.runelite.client.plugins.alfred.scripts.autocollection
 
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import net.runelite.api.GameState
 import net.runelite.api.Tile
 import net.runelite.api.coords.WorldPoint
@@ -211,44 +214,48 @@ class AutoCollectionThread(private var config: AutoCollectionConfig) : Thread() 
             return
         }
 
-        val objectName = Alfred.api.objects.getObjectIdVariableName(objectTile.wallObject.id)
+        var objectName = Alfred.api.objects.getObjectIdVariableName(objectTile.wallObject.id)
         val objectId = objectTile.wallObject.id
 
-        val stringBuilder = StringBuilder()
-        stringBuilder.append("(")
+        objectName = objectName!!.split("_")[0].lowercase().capitalize()
 
-        // Start tile
-        stringBuilder.append(String.format("%d, %d, %d", objectTile.worldLocation.x, objectTile.worldLocation.y, objectTile.worldLocation.plane))
-        stringBuilder.append(", ")
+        val transport = JsonObject()
+        transport.addProperty("transport_name", "")
+        transport.addProperty("object_hash", objectTile.wallObject.hash)
+        transport.addProperty("object_id", objectId)
+        transport.addProperty("object_name", objectName)
 
-        // End tile
-        stringBuilder.append("None, None, None")
-        stringBuilder.append(", ")
-
-        // Name
-        stringBuilder.append("'Name'")
-        stringBuilder.append(", ")
-
-        // Object ID
-        stringBuilder.append(String.format("%d", objectId))
-        stringBuilder.append(", ")
-
-        // Object Name
-        stringBuilder.append(String.format("'%s'", objectName))
-        stringBuilder.append(", ")
-
-        // start direction unblocks
         if (unblockEastWest) {
-            stringBuilder.append("['e', 'w']")
+            transport.addProperty("unblock_north_south", false)
+            transport.addProperty("unblock_east_west", true)
         } else {
-            stringBuilder.append("['n', 's']")
+            transport.addProperty("unblock_north_south", true)
+            transport.addProperty("unblock_east_west", false)
         }
-        stringBuilder.append(", ")
 
-        // end direction unblocks
-        stringBuilder.append("[]")
-        stringBuilder.append("),")
-        println(stringBuilder.toString())
+        val startTile = JsonObject()
+        startTile.addProperty("x", objectTile.worldLocation.x)
+        startTile.addProperty("y", objectTile.worldLocation.y)
+        startTile.addProperty("z", objectTile.worldLocation.plane)
+
+        val endTile = JsonObject()
+        endTile.add("x", null)
+        endTile.add("y", null)
+        endTile.add("z", null)
+
+        val connection = JsonObject()
+        connection.add("start_tile", startTile)
+        connection.add("end_tile", endTile)
+        connection.addProperty("action", "open")
+
+        val connections = JsonArray()
+        connections.add(connection)
+
+        transport.add("connections", connections)
+
+//        println(transport)
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        println(gson.toJson(transport))
 
         Alfred.mouse.rightClick(finalRsObject.clickBox)
         Alfred.sleepUntil({ Alfred.api.menu.menu != null }, 100, 3000)

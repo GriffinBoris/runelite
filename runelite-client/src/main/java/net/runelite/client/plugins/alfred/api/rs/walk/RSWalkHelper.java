@@ -29,14 +29,15 @@ public class RSWalkHelper {
         WorldPoint start = player.getWorldLocation();
 
         SavedWorldDataLoader savedWorldDataLoader = new SavedWorldDataLoader("/home/griffin/PycharmProjects/OSRSWorld/world/db.sqlite3");
-        savedWorldDataLoader.getGrid();
+        PathNode[][][] grid = savedWorldDataLoader.getGrid();
 
-        PathFinder pathFinder = new PathFinder(savedWorldDataLoader.getGrid());
+        PathFinder pathFinder = new PathFinder(grid);
 
         long startTime = System.currentTimeMillis();
         List<PathNode> nodes = pathFinder.findPath(start, worldPoint);
         long endTime = System.currentTimeMillis();
         System.out.println("Found path in " + (endTime - startTime) + " milliseconds");
+        System.out.println("Num of nodes: " + nodes.stream().count());
 
         PathWalker pathWalker = new PathWalker(nodes);
         pathWalker.walkPath();

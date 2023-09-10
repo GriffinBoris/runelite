@@ -11,16 +11,11 @@ class PathNode(
     var pathTransports: MutableList<PathTransport> = mutableListOf(),
     val worldLocation: WorldPoint,
     val operableName: String?,
-    val isOperable: Boolean,
     val blocked: Boolean,
     val blockedMovementNorth: Boolean,
     val blockedMovementSouth: Boolean,
     val blockedMovementEast: Boolean,
     val blockedMovementWest: Boolean,
-//    val blockedMovementObject: Boolean,
-//    val blockedMovementFloorDecoration: Boolean,
-//    val blockedMovementFloor: Boolean,
-//    val blockedMovementFull: Boolean
 ) {
     val fCost get() = gCost + hCost
 }

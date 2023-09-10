@@ -4,13 +4,12 @@ import net.runelite.api.coords.WorldPoint
 import java.sql.DriverManager
 
 class SavedWorldDataLoader(private val path: String) {
-    private val nodes: MutableList<PathNode> = mutableListOf()
 
-    init {
-        readTiles()
-    }
 
     fun getGrid(): Array<Array<Array<PathNode?>>> {
+        val nodes = readNodes()
+        val transports = readTransports(nodes)
+
         val maxX = nodes.maxBy { pathNode -> pathNode.worldLocation.x }.worldLocation.x
         val maxY = nodes.maxBy { pathNode -> pathNode.worldLocation.y }.worldLocation.y
         val maxZ = nodes.maxBy { pathNode -> pathNode.worldLocation.plane }.worldLocation.plane
@@ -21,18 +20,17 @@ class SavedWorldDataLoader(private val path: String) {
             grid[node.worldLocation.plane][node.worldLocation.y][node.worldLocation.x] = node
         }
 
-        val transports = readTransports()
         for (transport in transports) {
             val transportLocation = transport.startPathNode.worldLocation
             val node = grid[transportLocation.plane][transportLocation.y][transportLocation.x]
-
             node?.pathTransports?.add(transport)
         }
 
         return grid
     }
 
-    private fun readTiles(): MutableList<PathNode> {
+    private fun readNodes(): MutableList<PathNode> {
+        val nodes: MutableList<PathNode> = mutableListOf()
         val url = "jdbc:sqlite:$path"
 //            Class.forName("org.sqlite.JDBC");
         val connection = DriverManager.getConnection(url)
@@ -58,16 +56,11 @@ class SavedWorldDataLoader(private val path: String) {
                     pathTransports = mutableListOf(),
                     worldLocation = WorldPoint(x, y, z),
                     operableName = operableName,
-                    isOperable = isOperable,
                     blocked = rs.getBoolean("blocked"),
                     blockedMovementNorth = rs.getBoolean("blocked_movement_north"),
                     blockedMovementSouth = rs.getBoolean("blocked_movement_south"),
                     blockedMovementEast = rs.getBoolean("blocked_movement_east"),
                     blockedMovementWest = rs.getBoolean("blocked_movement_west"),
-//                    blockedMovementObject = rs.getBoolean("blocked_movement_object"),
-//                    blockedMovementFloorDecoration = rs.getBoolean("blocked_movement_floor_decoration"),
-//                    blockedMovementFloor = rs.getBoolean("blocked_movement_floor"),
-//                    blockedMovementFull = rs.getBoolean("blocked_movement_full")
                 )
                 nodes.add(node)
 
@@ -81,7 +74,7 @@ class SavedWorldDataLoader(private val path: String) {
         return nodes
     }
 
-    private fun readTransports(): MutableList<PathTransport> {
+    private fun readTransports(nodes: MutableList<PathNode>): MutableList<PathTransport> {
         val transports = mutableListOf<PathTransport>()
         val url = "jdbc:sqlite:$path"
 //            Class.forName("org.sqlite.JDBC");
@@ -90,19 +83,20 @@ class SavedWorldDataLoader(private val path: String) {
         try {
 
             val statement = connection.createStatement()
-            val rs = statement.executeQuery("select * from tiles_transport;")
+            val rs = statement.executeQuery("select t.transport_name, t.object_id, t.object_name, tc.action, tc.start_tile_id, tc.end_tile_id from tiles_transport t join tiles_transportconnection tc on t.id = tc.transport_id;")
 
             while (rs.next()) {
                 val startTileId = rs.getInt("start_tile_id")
                 val endTileId = rs.getInt("end_tile_id")
 
-                val startTile = nodes.filter { pathNode -> pathNode.id == startTileId }.first()
-                val endTile = nodes.filter { pathNode -> pathNode.id == endTileId }.firstOrNull()
+                val startTile = nodes.first { pathNode -> pathNode.id == startTileId }
+                val endTile = nodes.firstOrNull { pathNode -> pathNode.id == endTileId }
 
                 val transport = PathTransport(
                     startPathNode = startTile,
                     endPathNode = endTile,
-                    name = rs.getString("transport_name"),
+                    name = rs.getString("transport_name").uppercase(),
+                    action = rs.getString("action"),
                     objectName = rs.getString("object_name"),
                     objectId = rs.getInt("object_id")
                 )

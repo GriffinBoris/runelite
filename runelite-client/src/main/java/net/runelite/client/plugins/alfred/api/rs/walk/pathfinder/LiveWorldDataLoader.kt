@@ -39,7 +39,6 @@ class LiveWorldDataLoader {
                 pathTransports = mutableListOf(),
                 worldLocation = tile.worldLocation,
                 operableName = "",
-                isOperable = false,
                 blocked = blocked,
                 blockedMovementNorth = collisionMap.contains(WorldMovementFlag.BLOCK_MOVEMENT_NORTH),
                 blockedMovementSouth = collisionMap.contains(WorldMovementFlag.BLOCK_MOVEMENT_SOUTH),

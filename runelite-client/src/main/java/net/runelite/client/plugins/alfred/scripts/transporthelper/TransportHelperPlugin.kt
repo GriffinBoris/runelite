@@ -1,17 +1,37 @@
 package net.runelite.client.plugins.alfred.scripts.transporthelper
 
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.inject.Provides
 import net.runelite.api.Perspective
 import net.runelite.api.Tile
+import net.runelite.client.config.ConfigManager
 import net.runelite.client.plugins.Plugin
 import net.runelite.client.plugins.PluginDescriptor
 import net.runelite.client.plugins.alfred.Alfred
+import net.runelite.client.plugins.alfred.enums.TransportTypes
 import net.runelite.client.ui.overlay.OverlayManager
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import javax.inject.Inject
 
-@PluginDescriptor(name = "Alfred Transport Helper", enabledByDefault = false)
+@PluginDescriptor(name = TransportHelperPlugin.CONFIG_GROUP, enabledByDefault = false)
 class TransportHelperPlugin : Plugin() {
+    companion object {
+        const val CONFIG_GROUP = "Alfred Transport Helper"
+    }
+
+    @Inject
+    private lateinit var config: TransportHelperConfig
+
+    @Provides
+    fun provideConfig(configManager: ConfigManager): TransportHelperConfig {
+        return configManager.getConfig(TransportHelperConfig::class.java)
+    }
+
     @Inject
     private lateinit var overlayManager: OverlayManager
 
@@ -53,50 +73,76 @@ class TransportHelperPlugin : Plugin() {
     private fun getTileTransportInformation(tile: Tile) {
         var objectName: String? = ""
         var objectId = -1
-        val worldPoint = tile.getWorldLocation()
-        if (tile.getWallObject() != null) {
-            objectName = Alfred.api.objects.getObjectIdVariableName(tile.getWallObject().getId())
-            objectId = tile.getWallObject().getId()
+        var objectHash = -1
+        val worldPoint = tile.worldLocation
+        var eastWest = false
+
+        if (tile.wallObject != null) {
+            objectName = Alfred.api.objects.getObjectIdVariableName(tile.wallObject.id)
+            objectId = tile.wallObject.getId()
+            objectHash = tile.wallObject.hash.toInt()
+            if (tile.wallObject.orientationA == 1 || tile.wallObject.orientationA == 4) {
+                eastWest = true
+            }
         } else {
             for (gameObject in tile.getGameObjects()) {
                 if (gameObject == null) {
                     continue
                 }
-                objectName = Alfred.api.objects.getObjectIdVariableName(gameObject.getId())
+                objectName = Alfred.api.objects.getObjectIdVariableName(gameObject.id)
                 objectId = gameObject.getId()
+                objectHash = gameObject.hash.toInt()
+                println("Game Object Orientation: ${gameObject.orientation}")
+                println("Game Object Model Orientation: ${gameObject.modelOrientation}")
                 break
             }
         }
-        val stringBuilder = StringBuilder()
-        stringBuilder.append("(")
 
-        // Start tile
-        stringBuilder.append(String.format("%d, %d, %d", worldPoint.x, worldPoint.y, worldPoint.plane))
-        stringBuilder.append(", ")
+        val transport = JsonObject()
+        transport.addProperty("transport_name", "")
+        transport.addProperty("object_hash", objectHash)
+        transport.addProperty("object_id", objectId)
+        transport.addProperty("object_name", objectName)
 
-        // End tile
-        stringBuilder.append("None, None, None")
-        stringBuilder.append(", ")
+        if (config.transportType() == TransportTypes.DOOR) {
+            if (eastWest) {
+                transport.addProperty("unblock_north_south", false)
+                transport.addProperty("unblock_east_west", true)
+            } else {
+                transport.addProperty("unblock_north_south", true)
+                transport.addProperty("unblock_east_west", false)
+            }
+        } else {
+            transport.addProperty("unblock_north_south", false)
+            transport.addProperty("unblock_east_west", false)
+        }
 
-        // Name
-        stringBuilder.append("'Name'")
-        stringBuilder.append(", ")
+        val startTile = JsonObject()
+        startTile.addProperty("x", worldPoint.x)
+        startTile.addProperty("y", worldPoint.y)
+        startTile.addProperty("z", worldPoint.plane)
 
-        // Object ID
-        stringBuilder.append(String.format("%d", objectId))
-        stringBuilder.append(", ")
+        val endTile = JsonObject()
+        endTile.addProperty("x", 0)
+        endTile.addProperty("y", 0)
+        endTile.addProperty("z", 0)
 
-        // Object Name
-        stringBuilder.append(String.format("'%s'", objectName))
-        stringBuilder.append(", ")
+        val connection = JsonObject()
+        connection.add("start_tile", startTile)
+        connection.add("end_tile", endTile)
+        connection.addProperty("action", "")
 
-        // start direction unblocks
-        stringBuilder.append("[]")
-        stringBuilder.append(", ")
+        val connections = JsonArray()
+        connections.add(connection)
 
-        // end direction unblocks
-        stringBuilder.append("[]")
-        stringBuilder.append("),")
-        println(stringBuilder.toString())
+        transport.add("connections", connections)
+
+        val gson = GsonBuilder().setPrettyPrinting().create()
+
+        val stringSelection = StringSelection(gson.toJson(transport))
+        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+        clipboard.setContents(stringSelection, null)
+        println(gson.toJson(transport))
+
     }
 }

@@ -70,7 +70,7 @@ class PathFinder(private val grid: Array<Array<Array<PathNode?>>>) {
 
         // if the node is a transport node with an endpoint, then we should only return the endpoint neighbor
         if (node.pathTransports.isNotEmpty()) {
-            val endNodes = node.pathTransports.map { pathTransport -> pathTransport.endPathNode }.filterNotNull().toList()
+            val endNodes = node.pathTransports.mapNotNull { pathTransport -> pathTransport.endPathNode }
             if (endNodes.isNotEmpty()) {
                 return endNodes
             }
