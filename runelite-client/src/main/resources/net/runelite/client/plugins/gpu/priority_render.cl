@@ -123,9 +123,9 @@ void get_face(__local struct shared_data *shared, __constant struct uniform *uni
     int orientation = flags & 0x7ff;
 
     // rotate for model orientation
-    int4 thisrvA = rotate_vertex(thisA, orientation);
-    int4 thisrvB = rotate_vertex(thisB, orientation);
-    int4 thisrvC = rotate_vertex(thisC, orientation);
+    int4 thisrvA = rotate_vertex(uni, thisA, orientation);
+    int4 thisrvB = rotate_vertex(uni, thisB, orientation);
+    int4 thisrvC = rotate_vertex(uni, thisC, orientation);
 
     // calculate distance to face
     int thisPriority = (thisA.w >> 16) & 0xff;  // all vertices on the face have the same priority
@@ -214,8 +214,9 @@ void insert_face(__local struct shared_data *shared, uint localId, struct modeli
 }
 
 int tile_height(read_only image3d_t tileHeightImage, int z, int x, int y) {
+#define ESCENE_OFFSET 40 // (184-104)/2
   const sampler_t tileHeightSampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE;
-  int4 coord = (int4)(x, y, z, 0);
+  int4 coord = (int4)(x + ESCENE_OFFSET, y + ESCENE_OFFSET, z, 0);
   return read_imagei(tileHeightImage, tileHeightSampler, coord).x << 3;
 }
 

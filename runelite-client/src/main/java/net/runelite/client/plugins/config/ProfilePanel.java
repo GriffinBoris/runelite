@@ -688,7 +688,7 @@ class ProfilePanel extends PluginPanel
 				return;
 			}
 
-			log.info("Renaming profile {} to {}", profile, name);
+			log.info("Renaming profile {} ({}) to {}", profile, profile.getId(), name);
 
 			lock.renameProfile(profile, name);
 			configManager.renameProfile(profile, name);
